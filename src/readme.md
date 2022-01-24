@@ -9,7 +9,7 @@
 
 Bu rehberin amacı [kutsal kitabımız gibi](https://doc.rust-lang.org/stable/book/) İnternet'te bulabileceğiniz çeşitli kaynakları anlayacak kadar Rust okuryazarlığı aşılamaktır. Rehberi dilin gücünü tonla şeyin arasına girmeden gücünü anlamak ve denemek için köprüden önceki son çıkış olarak düşünebilirsiniz.
 
-Einstein'in dediği gibi, "Her şeyi olabildiğince yumuşak yapın, ama yumuş yumuş olmasın." (Ç.N: Einstein'in "Her şeyi daha sade yapın, ama basit değil" sözüne gönderme.) Burada öğrenecek epey şey var ve iyice kafanızı iyice allak bullak edebilir. Burada kastedilen "yumuşaklık", çeşitli zorluklara karşın Rust'ın çözümlerini uygulamalı olarak sunulmasıdır. Sorunları anlamak, hemen çözümleri görmekten daha faydalıdır. Bunu kayaçların süreçlerini anlatmak için birkaç coğrafya dersinden sonra hemen dağ bayır gezintiye çıkmak gibi düşünebilirsiniz. Elbette biraz zoruklar olacak ama neticesi oldukça hoş olacak. Katılanlar oldukça memnun olacak ve birbirlerine yardımcı olmaktan çekinmeyecekler. (Buna benzer olarak) [Rust kullanıcıları forumu (İngilizce)](https://users.rust-lang.org/) ve oldukça aktif bir [subreddit (Bu da İngilizce)](https://www.reddit.com/r/rust/) var. Aynı zamanda bazı sorularınız varsa [sıkça sorular sorular (Herhalde İngilizce)]'a da bakabilirsiniz.
+Einstein'in dediği gibi, "Her şeyi olabildiğince yumuşak yapın, ama yumuş yumuş olmasın." (Ç.N: Einstein'in "Her şeyi daha sade yapın, ama basit değil" sözüne gönderme.) Burada öğrenecek epey şey var ve iyice kafanızı iyice allak bullak edebilir. Burada kastedilen "yumuşaklık", çeşitli zorluklara karşın Rust'ın çözümlerini uygulamalı olarak sunulmasıdır. Sorunları anlamak, hemen çözümleri görmekten daha faydalıdır. Bunu kayaçların süreçlerini anlatmak için birkaç coğrafya dersinden sonra hemen dağ bayır gezintiye çıkmak gibi düşünebilirsiniz. Elbette biraz zoruklar olacak ama neticesi oldukça hoş olacak. Katılanlar oldukça memnun olacak ve birbirlerine yardımcı olmaktan çekinmeyecekler. (Buna benzer olarak) [Rust kullanıcıları forumu (İngilizce)](https://users.rust-lang.org/) ve oldukça aktif bir [subreddit (Bu da İngilizce)](https://www.reddit.com/r/rust/) var. Aynı zamanda bazı sorularınız varsa [sıkça sorular sorular (Herhâlde İngilizce)](https://www.rust-lang.org/en-US/faq.html)'a da bakabilirsiniz.
 
 Ama hepsinden önce, neden durup dururken yeni bir dil öğrenelim ki? Bu öyle ya da böyle epey vakit ve enerji alan, durup duruken yapılmayacak bir iş. Bu iş size çok süper, über bir iş buldurmayacak olsa bile beyin kaslarınızı çalıştıracak ve sizi daha iyi bir programcı yapacaktır. Bu pekâlâ çok iyi bir yatırım gibi görünmeyebilir ama *gerçek anlamda* bir şey öğrenmezseniz zaman içerisinde durgunlaşacak ve on yılı aşkın aynı şeyleri yapan birisi olacaksınız. 
 
@@ -20,7 +20,7 @@ C ve C++ ile Rust arasındaki en büyük fark *doğal olarak güvenli olmasıdı
 
 Rust'ın arkasındaki prensipler şunlardır:
 - Verinin *güvenli olarak ödünç alınmasını* zorlamak
-- Fonksiyon, metot ve "closureler" ile veriye müdahale etmek
+- Fonksiyon, metot ve kapamalar (closure) ile veriye müdahale etmek
 - Verileri çokuzlu (tuple), yapılar (struct) ve numaralandırmalar (enum) ile bir araya toplamak
 - Verileri örüntü eşleştirme (pattern matching) ile seçmek ve parçalarına ayırmak
 - Verilerin işlevini özellikler (trait) aracılığı ile sağlamak
@@ -53,4 +53,5 @@ Zed Shaw'ın programlamayı Python ile öğrenme [tavsiyesi](https://learnpython
 Kötü İngilizcemi veya yetersiz Rust bilgimi yakalayarak beni uyaran destekçilere teşekkürler etmek isterim, aynı zamanda David Marino'ya Rust'ı parlayan zırhı içerisinde sempatik ama sağlam bir yersiz şovalye olarak çizdiği için de teşekkürlerimi sunarım.
 
 Steve Donovan © 2017-2018 MIT Lisans Versiyon 0.4.0
+
 Çeviri: Emrecan Şuşter

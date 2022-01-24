@@ -1,9 +1,5 @@
-# Basics
-
-## Hello, World!
-
-The original purpose of "hello world", ever since the first C version was written,
-was to test the compiler and run an actual program.
+# Merhaba Dünya
+"Merhaba Dünya"'nın esas amacı, C'nin ilk versiyonu yazıldığından beri, derleyiciyi test etmek ve gerçek bir program çalıştırmaktır.
 
 ```rust
 // hello.rs
@@ -11,38 +7,25 @@ fn main() {
     println!("Hello, World!");
 }
 ```
-
-```
+```bash
 $ rustc hello.rs
 $ ./hello
 Hello, World!
 ```
+Rust'ta süslü ayraçlar ve noktalı virgül vardır, C++ tarzı yorum satırları bulunur ve bir de `main` fonksiyonu bulunur. Şimdiye kadar bu kısmı tanıyorsunuz. Ünlem işareti, bunun bir *makro* çağrısı olduğunu gösterir. C++ programcıları için bu biraz caydırıcı olabilir, çünkü onların tek bildiği saçma sapan C makrolarıdır - ama bu makroların çok daha yetenekli ve kabul edilebilir olduğunu rahatlıkla söyleyebilirim.
 
-Rust is a curly-braces language with semicolons, C++-style comments and a `main`
-function - so far, so familiar.  The exclamation mark indicates that this is a
-_macro_ call. For C++ programmers, this can be a turn-off, since they are used to
-seriously stupid C macros - but I can assure you that these macros are more
-capable and sane.
-
-For anybody else,
-it's probably "Great, now I have to remember when to say bang!".  However, the
-compiler is unusually helpful; if you leave out that exclamation, you get:
-
-```
+"Güzel de bu ünlem işaretini nereye sıkıştıracağımı nereden bileyim" diye aklından geçirenler olmuştur. Ancak derleyici beklemediğiniz kadar yardımsever; eğer ünlem işaretini unutursanız şunu görürsünüz:
+```rust
 error[E0425]: unresolved name `println`
  --> hello2.rs:2:5
   |
 2 |     println("Hello, World!");
   |     ^^^^^^^ did you mean the macro `println!`?
-
 ```
 
-Learning a language means getting comfortable with its errors. Try to see the compiler
-as a strict but friendly helper rather than a computer _shouting_ at you, because you are
-going to see a lot of red ink in the beginning.  It's much better for the compiler
-to catch you out than for your program to blow up in front of actual humans.
+Bir dili öğrenmek o dilin hatalarıyla barışık olmak demektir. Derleyiciyi sizi *azarlayan* bir bilgisayar olarak görmek yerine katı ama dostane davranan bir yardımcı olarak görmeye çalışın, çünkü başlangıçta epeyce kırmızı yazılar göreceksiniz. Derleyicinin sizin hatalarınızı yüzünüze vurması, insanların önünde patlamasından kat kat daha iyidir.
 
-The next step is to introduce a _variable_:
+Bir sonraki aşama *değişken* atamaktır.
 
 ```rust
 // let1.rs
@@ -50,24 +33,18 @@ fn main() {
     let answer = 42;
     println!("Hello {}", answer);
 }
-
 ```
 
-Spelling mistakes are _compile_ errors, not runtime errors like with dynamic languages
-like Python or JavaScript.  This will save you a lot of stress later! And if I wrote
- 'answr' instead of 'answer', the compiler is actually _nice_ about it:
+Yazım hataları *derleme* hatalarıdır, Python ya da JavaScript gibi çalışma zamanı hataları değildir. Bu, sizi daha sonra pek çok stresten kurtarır! Eğer "answer" yerine "answr" yazarsam, derleyici bu konuda epey kibar davranır:
 
-```
+```rust
 4 |     println!("Hello {}", answr);
   |                         ^^^^^ did you mean `answer`?
-
 ```
 
-The `println!` macro takes a [format string](https://doc.rust-lang.org/std/fmt/index.html)
-and some values; it's very similar to the formatting used by Python 3.
+`println!` makrosu bir [format karakter dizesi](https://doc.rust-lang.org/std/fmt/index.html) alır; Python3'te kullanılan formatlama stiline epey benzerdir.
 
-Another very useful macro is `assert_eq!`. This is the workhorse of testing
-in Rust; you _assert_ that two things must be equal, and if not, _panic_.
+Bir başka kullanışlı makro ise `assert_eq!`. Bu Rust'ta test yazmanın esas gücüdür, iki şeyin birbirine eşit olduğu *varsayarsınız. (assert = varsaymak)* Eğer eşit değillerse, *panik*.
 
 ```rust
 // let2.rs
@@ -77,19 +54,19 @@ fn main() {
 }
 ```
 
-Which won't produce any output. But change 42 to 40:
+Herhangi bir çıktı olmayacaktır. Ancak 42'yi 40 ile değiştirirseniz:
 
-```
+```shell
 thread 'main' panicked at
 'assertion failed: `(left == right)` (left: `42`, right: `40`)',
 let2.rs:4
 note: Run with `RUST_BACKTRACE=1` for a backtrace.
 ```
-And that's our first _runtime error_ in Rust.
 
-## Looping and Ifing
+Ve bu bizim Rust'taki ilk *çalışma zamanı hatamız*.
 
-Anything interesting can be done more than once:
+# Döngüler ve Koşullamalar
+Enteresan olan her şey tekrar tekrar yapılabilir:
 
 ```rust
 // for1.rs
@@ -100,10 +77,9 @@ fn main() {
 }
 ```
 
-The _range_ is not inclusive, so `i` goes from 0 to 4. This is convenient in a
-language which _indexes_ things like arrays from 0.
+*Aralık (Range)* kapsayıcı değildir, bundan dolayı `i`'nin değeri 0 ila 4 arasında değişir.  Dizilerin indekslerinin sıfırdan başladığı bir dilde pek de olağandışı değildir.
 
-And interesting things have to be done _conditionally_:
+Enteresan şeyler de *koşula bağlı olarak* da gerçekleştirilebilir.
 
 ```rust
 // for2.rs
@@ -117,7 +93,6 @@ fn main() {
     }
 }
 ```
-
 ```
 even 0
 odd 1
@@ -126,12 +101,9 @@ odd 3
 even 4
 ```
 
-`i % 2` is zero if 2 can divide into `i` cleanly; Rust uses C-style operators.
-There are _no_ brackets around the condition, just like in Go, but
-you _must_ use curly brackets around the block.
+`i % 2` eğer i, 2'ye tam olarak bölünebiliyorsa sıfır olur; Rust C-tarzı operatörler kullanır. Koşulların etrafında parantez yoktur, tıpkı Go'daki gibi, ama blokların etrafında süslü parantezlerin kullanımı *zorunludur.*
 
-This does the same, written in a more interesting way:
-
+Aynı şey, daha da ilginç bir yoldan yapılabilir:
 ```rust
 // for3.rs
 fn main() {
@@ -142,17 +114,12 @@ fn main() {
 }
 ```
 
-Traditionally, programming languages have _statements_ (like `if`) and
-_expressions_ (like `1+i`). In Rust, nearly everything has a value and can
-be an expression.  The seriously ugly C 'ternary operator' `i % 2 == 0 ? "even" : "odd"`
-is not needed.
+Klasik olarak, programlama dillerinde *deyimler (statement)* (`If` gibi) ve *ifadeler (expression)* (`1+i` gibi) bulunur. Rust'ta, her şeyin değeri olabilir ve bunlar bir ifade olabilir. C'nin cidden çirkin "ternary/üçlü operatörüne" burada ihtiyacımız yok.
 
-Note that there aren't any semi-colons in those blocks!
+Aynı zamanda bloklarda noktalı virgül olmadığına da dikkat edin!
 
-## Adding Things Up
-
-Computers are very good at arithmetic. Here is a first attempt at adding all
-the numbers from 0 to 4:
+# Şeyleri Şeylere Eklemek
+Bilgisayarlar aritmatik konusunda epey iyidir. 0'dan 4'e kadar bütün sayıları toplamayı deneyelim.
 
 ```rust
 // add1.rs
@@ -163,11 +130,12 @@ fn main() {
     }
     println!("sum is {}", sum);
 }
-```
-
-But it fails to compile:
 
 ```
+
+Ama derlenirken hata verecektir:
+
+```shell
 error[E0384]: re-assignment of immutable variable `sum`
  --> add1.rs:5:9
 3 |     let sum = 0;
@@ -178,9 +146,7 @@ error[E0384]: re-assignment of immutable variable `sum`
 
 ```
 
-'Immutable'? A variable that cannot _vary_?  `let` variables by default can only
-be assigned a value when declared. Adding the magic word `mut` (_please_ make
-this variable mutable) does the trick:
+"Immutable"? Değişemeyen değişen mi? `let` değişkenlerinin değeri sadece atanırken belirtilebilir. `mut` ismindeki sihirli sözlük (*nolur* bu değişkeni değişebilir yap) işi halledecektir:
 
 ```rust
 // add2.rs
@@ -193,29 +159,16 @@ fn main() {
 }
 ```
 
-This can be puzzling when coming from other languages, where variables can be
-re-written by default. What makes something a 'variable' is that it gets assigned
-a computed value at run-time - it is not a _constant_.
-It is also how the word is used in mathematics, like when we say
-'let n be the largest number in set S'.
+Değişkenlerin varsayılan olarak yeniden yazılabilir olduğu dillerden geçerken bu biraz kafa karıştırıcı olabilir. Bir şeyi *değişken* yapan şey onun değerinin çalışma zamanında atanmasıdır, sabitlerin (constant) aksine. Bu kavramlar matematikte de kullanılır, mesela "let n be the largest number in set S (N'i S kümesi içerisindeki en büyük değer yap)" derken.
 
-There is a reason for declaring variables to be _read-only_ by default. In a larger
-program, it gets hard to track where writes are taking place. So Rust makes things
-like mutability ('write-ability') explicit. There's a lot of cleverness in the
-language, but it tries not to hide anything.
+Değişkenlerin varsayılan olarak *salt okunur* olmasının ardında bir neden vardır. Büyük bir programda, değerlerin nerede atandığını bulmak oldukça güçleşebilir. Bundan dolayı Rust, değişimlerin bildirilmesini ister. Dilde zekice epey şey var ancak dil hiçbir şeyin gizli kalmamasına ayrıca özen gösteriyor.
 
-Rust is both statically-typed and strongly-typed - these are often confused, but
-think of C (statically but weakly typed) and Python (dynamically but strongly typed).
-In static types the type is known at compile time, and dynamic types are only known
-at run time.
+Rust hem statik hem de güçlü tiplenen bir dildir - bu kavramlar genelde karıştırılır, ama C (statik ama zayıf tiplenen) ve Python'u (dinamik ama güçlü tiplenen) göz önüne getirin. Statik tiplemede tip derleme zamanında bilinir, dinamik tiplemede ise çalışma zamanında.
 
-At the moment, however, it feels like Rust is _hiding_ those types from you. What
-exactly is the type of `i`?  The compiler can work it out, starting with 0,
-with _type inference_, and comes up with `i32` (four byte signed integer.)
+Tam da bu anda, Rust'ın sizden tipleri gizlediğini sezebilirsiniz. Mesela `i`'nin tam değeri nedir? Derleyici için bu sorun değildir, 0'dan başlarken, tip çıkarımı ile (*type referance*) bu sayılar `i32` (Dört bitlik işaretli tam sayı) oluverir.
 
-Let's make exactly one change - turn that `0` into `0.0`. Then we get errors:
-
-```
+Hadi net bir değişim yapalım, 0'ı 0.0 ile değiştirelim ve hataları görelim:
+```shell
 error[E0277]: the trait bound `{float}: std::ops::AddAssign<{integer}>` is not satisfied
  --> add3.rs:5:9
   |
@@ -225,16 +178,9 @@ error[E0277]: the trait bound `{float}: std::ops::AddAssign<{integer}>` is not s
 
 ```
 
-Ok, so the honeymoon is over: what does this mean? Each operator (like `+=`) corresponds
-to a _trait_, which is like an abstract interface that must be implemented for each concrete type.
-We'll deal with traits in detail later, but here all you need to know is that
-`AddAssign` is the name of the trait implementing the `+=` operator, and the error is saying
-that floating point numbers do not implement this operator for integers. (The full list of
-operator traits is [here](https://doc.rust-lang.org/std/ops/index.html).)
+Pekâlâ, şimdi güldük eğlendik ama bu da nesi? Bütün operatörler (Mesela `+=`) bir özelliğe (trait) denk gelir ki özellik (trait) somut tiplere uygulanan eklenen soyut arabirimlerdir. Özelliklerle daha sonra ilgileneceğiz, ama burada bilmeniz gereken bütün şey `AddAssign`, `+=` operatörünü sağlayan özelliğin adı olduğudur ve hata mesajının demek istediği şey bu özelliğin noktalı sayılara bu operatör tam sayılarla işlem yapmak için uygulanmadığıdır. (Operatör özelliklerinin tam listesi [burada](https://doc.rust-lang.org/std/ops/index.html).)
 
-Again, Rust likes to be explicit - it will not silently convert that integer into a float for you.
-
-We have to _cast_ that value to a floating-point value explicitly.
+Rust içi dışı bir olmayı sever - sizin gönlünüz olsun diye tam sayıyı noktalı sayıya çevirmeyecektir.
 
 ```rust
 // add3.rs
@@ -247,15 +193,10 @@ fn main() {
 }
 ```
 
-## Function Types are Explicit
+# Fonksiyon Tipleri de Alenidir. 
+Fonksiyonlar da derleyicinin sizin için tipleri çıkarmayacağı yerlerden birisidir. Aslında bu üzerinde düşünülerek alınmış bir karardır çünkü Haskell gibi güçlü tip çıkarımlarına sahip dillerde tip isimleri nadiren yazılır. Aslında Haskell için tipleri açıkça yazmak iyi yaklaşımdır. Rust ise her zaman bunu mecbur tutar.
 
-_Functions_ are one place where the compiler will not work out types for you.
-And this in fact was a deliberate decision, since languages like Haskell have
-such powerful type inference that there are hardly any explicit type names. It's
-actually good Haskell style to put in explicit type signatures for functions.
-Rust requires this always.
-
-Here is a simple user-defined function:
+İşte kullanıcı tanımlı basit bir fonksiyon:
 
 ```rust
 // fun1.rs
@@ -270,21 +211,16 @@ fn main() {
 }
 ```
 
-Rust goes back to an
-older style of argument declaration, where the type follows the name. This is
-how it was done in Algol-derived languages like Pascal.
+Rust biraz eski bir argüman bildirimi tarzı kullanmakta, tip isimden sonra gelir. Bu, Pascal gibi Algol'dan türemiş dillerde kullanılan tarzdır.
 
-Again, no integer-to-float conversions - if you replace the `2.0` with `2` then we
-get a clear error:
-
-```
+Hatırlatalım, tam sayı noktalı sayıya dönüşmez - eğer `2.0`'ı `2` ile değiştirirseniz nurtopu gibi bir hatanız olmuş olur:
+```rust
 8 |     let res = sqr(2);
   |                   ^ expected f64, found integral variable
   |
 ```
 
-You will actually rarely see functions written using a `return` statement. More
-often, it will look like this:
+Rust'da fonksiyonlarda çok az `return` deyiminin kullanıldığının görürsünüz. Daha çok, şune benzer şeyler görürsünüz:
 
 ```rust
 fn sqr(x: f64) -> f64 {
@@ -292,13 +228,11 @@ fn sqr(x: f64) -> f64 {
 }
 ```
 
-This is because the body of the function (inside `{}`) has the value of its
-last expression, just like with if-as-an-expression.
+Fonksiyonun gövdesi (`{ }` içi) tıpkı "ifade olarak kullanılan if"teki gibi son ifadenin değerini alır.
 
-Since semicolons are inserted semi-automatically by human fingers, you might add it
-here and get the following error:
+Noktalı virgüller, refleks olarak elle eklendiğinden, kazara ekleyebilirsiniz ve şöyle bir hata alırsınız:
 
-```
+```rust
   |
 3 | fn sqr(x: f64) -> f64 {
   |                       ^ expected f64, found ()
@@ -313,13 +247,9 @@ help: consider removing this semicolon:
 
 ```
 
-The `()` type is the empty type, nada, `void`, zilch, nothing. Everything in Rust
-has a value, but sometimes it's just nothing.  The compiler knows this is
-a common mistake, and actually _helps_ you.  (Anybody who has spent time with a
-C++ compiler will know how _damn unusual_ this is.)
+`()` tipi boş tiptir, yokluktur, `void`dir, "nothing"dir, tasavvuftaki fakrdır. Rust'ta her şeyin değeri vardır, ama bazen sadece yoktur. Derleyici bunun sıkça karşılaşılan bir durum olduğunu bilir, ve size aslında *yardım* eder. (C++ derleyicileriyle vakit harcamış zavallı ruhlar bunun ne kadar faydalı olduğunu bilir.)
 
-A few more examples of this no-return expression style:
-
+`Return` kullanılmayan ifadelere biraz daha örnek verelim: 
 ```rust
 // absolute value of a floating-point number
 fn abs(x: f64) -> f64 {
@@ -339,14 +269,11 @@ fn clamp(x: f64, x1: f64, x2: f64) -> f64 {
     } else {
         x
     }
-}
 ```
 
-It's not wrong to use `return`, but code is cleaner without it. You will still
-use `return` for _returning early_ from a function.
+`Return` kullanmak yanlış değil, ama kod onsuz daha temiz. Yine de, bir fonksiyondan *erken dönmek* için `return` kullanabilirsiniz. 
 
-Some operations can be elegantly expressed _recursively_:
-
+Bazı işlemler zarif bir yoldan özyinelemeli olarak yazılabilir:
 ```rust
 fn factorial(n: u64) -> u64 {
     if n == 0 {
@@ -356,12 +283,10 @@ fn factorial(n: u64) -> u64 {
     }
 }
 ```
-This can be a little strange at first, and the best thing is then to use pencil and paper
-and work out some examples. It isn't usually the most _efficient_ way to do that
-operation however.
 
-Values can also be passed by _reference_. A reference is created by `&` and _dereferenced_
-by `*`.
+Başta tuhaf görünebilir ve en iyisi kağıt kalemle örnekler üzerinde düşünmektir. Ancak, bir işlemi yapmanın en etkili yolu değildir.
+
+Değerler aynı zamanda *referans* olarak da iletilebilir. `&` ile yaratılmış bir referans `*` *dereferans* edilebilir. (Ç.N: De- olumsuzlaştırma öneki)
 
 ```rust
 fn by_ref(x: &i32) -> i32{
@@ -376,7 +301,8 @@ fn main() {
 }
 // 11 42
 ```
-What if you want a function to modify one of its arguments?  Enter _mutable references_:
+
+Bir fonksiyonun argümanlarını düzenleyebilmesini mi istiyorsunuz? *Değişebilir referans (Mutable referance)* kullanın:
 
 ```rust
 // fun4.rs
@@ -391,50 +317,37 @@ fn main() {
     println!("res is {}", res);
 }
 ```
-This is more how C would do it than C++. You have to explicitly pass the
-reference (with `&`) and explicitly _dereference_ with `*`. And then throw in `mut`
-because it's not the default. (I've always felt that C++ references are
-too easy to miss compared to C.)
 
-Basically, Rust is introducing some _friction_ here, and not-so-subtly pushing
-you towards returning values from functions directly.  Fortunately, Rust has
-powerful ways to express things like "operation succeeded and here's the result"
-so `&mut` isn't needed that often. Passing by reference is important when we have a
-large object and don't wish to copy it.
+Bu C++'dan çok C'ye benzedi. Aleni olarak referansı (`&` ile) belirtmelisiniz ve onları aleni olarak `*` ile deferans etmelisiniz. Sonra da `mut`'u ekleyin çünkü varsayılan olarak gelmiyor. (Bana hep C++ referansları C'ye göre gözden kaçırılmaya daha müsaitmiş gibi gelir.)
 
-The type-after-variable style applies to `let` as well, when you really want to nail
-down the type of a variable:
+Temel olarak, Rust burada biraz bizi *yoruyor* ve fonksiyonlardan değer döndürmeye zorluyor.  Neyse ki, Rust'ın "işlem başarılı, bu da sonucu" gibi güçlü ifadeleri olduğundan `&mut`'u sıklıkla kullanmayız. Referans kullanmak, büyük bir nesnemiz olduğunda ve onu kopyalamak istemediğimizde dikkate değerdir. 
+
+"Değişkenden sonra tip gelir" tarzı `let` için de gayet uyuyor, bir değişkenin türünü belirtmek istersek eğer:
 
 ```rust
 let bigint: i64 = 0;
 ```
 
-## Learning Where to Find the Ropes
 
-It's time to start using the documentation. This will be installed on your machine,
-and you can use `rustup doc --std` to open it in a browser.
+# Erdavatları Bulacağımız Yeri Öğrenmek
+Şimdi belgelendirmeye bakmanın tam zamanı. Bu, makinenize yüklenecek ve onu `rustup doc --std` komutu ile tarayıcınızda açacaksınız. 
 
-Note the _search_ field at the top, since this
-is going to be your friend; it operates completely offline.
+Arama kutucuğunun en üstte olduğuna dikkat edin, zira bu sizin en yakın dostunuz olacak; çalışmak için İnternet'e gerek duymaz.
 
-Let's say we want to see where the mathematical
-functions are, so search for 'cos'. The first two hits show it defined for both
-single and double-precision floating point numbers.  It is defined on the
-_value itself_ as a method, like so:
+Diyelim ki matematiksel fonksiyonların nerede olduğunu merak ediyorsunuz, "cos" diye aratmanız yeterli. Klavyede dokunduğunuz ilk iki tuş her iki noktalı sayı tipi için de var olduğunu gösterir. Aradığımız işlem, değerin kendisinde metot olarak tanımlıdır, mesela şöyle:
 
 ```rust
 let pi: f64 = 3.1416;
 let x = pi/2.0;
 let cosine = x.cos();
 ```
-And the result will be sort-of zero; we obviously need a more authoritative source
-of pi-ness!
 
-(Why do we need an explicit `f64` type? Because without it, the constant could
-be either `f32` or `f64`, and these are very different.)
+Sonuç sıfıra epey yakın çıkacaktır, belli ki tahmini değere değil gerçek PI sayısına ihtiyacımız var.
 
-Let me quote the example given for `cos`, but written as a complete program
-( `assert!` is a cousin of `assert_eq!`; the expression must be true):
+(Sahi, neden `f64` diye belirtmemize gerek var ki? Aslına bakarsanız o olmadan değerimiz `f32` veya `f64` olabilir ki bunlar epey farklı şeyler.)
+(Ç.N: Noktalı sayı tutan )
+
+`Cos` için verilen örneğe bakalım, bunu çalışabilir bir programa çevirdik. (`assert!` de `assert_eq!`'in amcaoğlu oluyor, verilen ifade kesinlikle doğru olmalıdır.)
 
 ```rust
 fn main() {
@@ -445,13 +358,10 @@ fn main() {
     assert!(abs_difference < 1e-10);
 }
 ```
-`std::f64::consts::PI` is a mouthful! `::` means much the same as it does in C++,
-(often written using '.' in other languages) - it is a _fully qualified name_. We get
-this full name from the second hit on searching for `PI`.
 
-Up to now, our little Rust programs have been free of all that `import` and
-`include` stuff that tends to slow down the discussion of 'Hello World' programs.
-Let's make this program more readable with a `use` statement:
+`std::f64::consts::PI` şu güzel ortamı iyice bozdu! `::` C++'daki anlamıyla aynı şeye denk geliyor, (Bazı dillerde yerine `.` kullanılır) - bu *tam yolu belirtilmiş bir isim*. Bu tam adı, `PI` için yaptığımız aramayı yaparken ikinci klavye tuşlamasında alıyoruz. 
+
+Şimdiye dek, bizim ufak Rust programımıza "Merhaba Dünya" tartışmalarında gündemi meşgul eden `import` ya da `include` gibi şeyleri eklemedik. Hadi, programımızı bir `use` deyimi ile şenlendirelim:
 
 ```rust
 use std::f64::consts;
@@ -464,14 +374,12 @@ fn main() {
     assert!(abs_difference < 1e-10);
 }
 ```
-Why haven't we needed to do this up to now?
-This is because Rust helpfully makes a lot of basic functionality visible without
-explicit `use` statements through the Rust _prelude_.
 
-## Arrays and Slices
+Tamam da buna neden şimdiye dek ihtiyaç duymadık? Çünkü Rust *prelude* aracılığıyla, `use` deyimini kullanmaya gerek bırakmadan pek çok temel işlevi görünür kılar.
 
-All statically-typed languages have _arrays_, which are values packed nose to tail
-in memory. Arrays are _indexed_ from zero:
+
+# Diziler ve Dilimler
+Bütün statik tiplenen dillerde *diziler (array)* bulunur, bu birden çok veriyi bellek içerisinde baştan sona kontrol eder. Diziler, sıfırdan itibaren *indekslenir*.
 
 ```rust
 // array1.rs
@@ -487,7 +395,7 @@ fn main() {
 }
 ```
 
-And the output is:
+Ve çıktı:
 
 ```
 first 10
@@ -498,27 +406,17 @@ first 10
 length 4
 ```
 
-In this case, Rust knows _exactly_ how big the array is and if you try to
-access `arr[4]` it will be a _compile error_.
+Burada Rust dizinin büyüklüğünü net olarak bilir ve eğer `arr[4]`'e erişmeye çalışırsanız derleme hatası alırsınız. 
 
-Learning a new language often involves _unlearning_ mental habits from languages
-you already know; if you are a Pythonista, then those brackets say `List`. We will
-come to the Rust equivalent of `List` soon, but arrays are not the droids you're looking
-for; they are _fixed in size_. They can be _mutable_ (if we ask nicely) but you
-cannot add new elements.
+Yeni bir dil öğrenmek aynı zamanda diğer dillerden edindiğiniz alışkanlıkları da *terk etmek* demektir; eğer bir Pythonista iseniz bu köşeli parantezleri `List` diye isimlendirebilirsiniz. Rust'taki `List`'in muadiline daha sonra bakacağız, ancak diziler düşündüğünüz işi yapmıyor; *sabit* bir büyüklükleri vardır. (Eğer yalvarırsak) *değişebilir*ler ancak yeni değerler ekleyemeyiz.
 
-Arrays are not used that often in Rust, because the type of an array includes its
-size.  The type of the array in the example is
-`[i32; 4]`; the type of `[10, 20]` would be `[i32; 2]` and so forth: they
-have _different types_.  So they are bastards to pass around as
-function arguments.
+Diziler Rust'ta o kadar çok kullanılmaz, çünkü her dizi tipi uzunluğunun bilgisini de taşır. Mesela `[i32; 4]` dizi tipine bakabilirsiniz; aynı zamanda `[10, 20]` olan bir dizinin tipi de `[i32; 2]` olacaktır vs, hepsinin farklı tipi vardır. Yani bunlar aslında fonksiyon argümanı olmaktan başka şeye yaramayan başıboş serserilerdir.
 
-What _are_ used often are _slices_. You can think of these as _views_ into
-an underlying array of values. They otherwise behave very much like an array, and
-_know their size_, unlike those dangerous animals C pointers.
+Esas sık kullanılan*lar* *dilimlerdir*. Bunları bir dizinin *parçalanmış hâli\** olarak düşünebilirsiniz. Tıpkı dizilerin davrandığı gibi davranırlar ve *uzunluklarını bilirler*, C'deki *gösterici (pointer)* denen korkunç yaratıkların tam tersi olarak.
 
-Note two important things here - how to write a slice's type, and that
-you have to use `&` to pass it to the function.
+İki önemli noktaya dikkat edin - bir dilimin tipi nasıl yazıldığına ve fonksiyona ne zaman `&` eklemeniz gerektiğine.
+
+\* Ç.N: Esas çeviride "parçalanmış hâl" yerine "görünüm (view)" kelimesi kullanılıyor. İngilizce için cümle gayet geçerli, ancak Türkçe'de tuhaf duruyor.
 
 ```rust
 // array2.rs
@@ -539,22 +437,14 @@ fn main() {
 }
 ```
 
-Ignore the code of `sum` for a while, and look at `&[i32]`. The relationship between
-Rust arrays and slices is similar to that between C arrays and pointers, except for
-two important differences - Rust slices keep track of their size (and will
-panic if you try to access outside that size) and you have to explicitly say that
-you want to pass an array as a slice using the `&` operator.
+`Sum`'da kodu bir saniyeliğine görmezden gelin ve `&[i32]`'ye bakın. Rust dizileri ve dilimleri arasındaki ilişki C'deki diziler ve göstericiler arasındaki ilişkiye benzer, iki detay hariç - Rust dilimleri kendi uzunluğunun takibini yaparlar (ve eğer bu uzunluğun dışına çıkarlarsa paniklerler) sonra da `&` 'ı operatörünü kullanarak dilim olarak kullanmak istediğinizi açıkça belirtmeniz gereklidir.
 
-A C programmer pronounces `&` as 'address of'; a Rust programmer pronounces it
-'borrow'. This is going to be the key word when learning Rust. Borrowing is the name
-given to a common pattern in programming; whenever you pass something by reference
-(as nearly always happens in dynamic languages) or pass a pointer in C. Anything
-borrowed remains owned by the original owner.
+Bir C programcısı `&`'ı gördüğü zaman "falancanın adresi" diye okur, Rust programcısı ise "ödünç (borrow)" olarak. Bu, Rust öğrenirken dikkat etmeniz gereken kilit sözcüktür. Ödünç alma, esasında programlamada kullanılan genel bir terimdir ve (Dinamik dillerde her zaman olduğu gibi) referans olarak bir veriyi ya da C'de bir gösterici (pointer) yollamanıza denir. Ödünç alınan her şey esas sahibinde kalır.
 
-## Slicing and Dicing
+# Dilimleme ve Biçme
+Bir diziyi `{}` yolu ile ekrana yazamazsınız fakat *hata ayıklama (debug)* yani `{:?}` ile ekrana yazdırabilirsiniz.
 
-You cannot print out an array in the usual way with `{}` but you can do a _debug_
-print with `{:?}`.
+Bu: 
 
 ```rust
 // array3.rs
@@ -570,26 +460,24 @@ fn main() {
 }
 ```
 
-Which gives:
+Bunu yazdırır:
 
-```
+```rust
 ints [1, 2, 3]
 floats [1.1, 2.1, 3.1]
 strings ["hello", "world"]
 ints_ints [[1, 2], [10, 20]]
 ```
 
-So, arrays of arrays are no problem, but the important thing is that an array contains
-values of _only one type_.  The values in an array are arranged next to each other
-in memory so that they are _very_ efficient to access.
+Bu arada, dizilerin dizileri sorun değildir ancak dizide sadece bir tipten değerler bulunmalıdır. Dizideki değerler verimlilikten dolayı bellekte yanyana bulunurlar ki bu erişim için oldukça faydalıdır.
 
-If you are curious about the actual types of these variables, here is a useful trick.
-Just declare a variable with an explicit type which you know will be wrong:
+Eğer bir değişkenin gerçek tipini merak ediyorsanız, size bir hile gösterebilirim. Bir değişkeni, geçersiz olduğunu bildiğiniz bir tiple bildirin:
 
 ```rust
 let var: () = [1.1, 1.2];
 ```
-Here is the informative error:
+
+İşte aradığınız şeyi gösteren hata:
 
 ```
 3 |     let var: () = [1.1, 1.2];
@@ -598,9 +486,10 @@ Here is the informative error:
   = note: expected type `()`
   = note:    found type `[{float}; 2]`
 ```
-(`{float}` means 'some floating-point type which is not fully specified yet')
 
-Slices give you different _views_ of the _same_ array:
+(`{float}`, "bir nevi noktalı sayı ama tam tipi henüz belirtilmedi." demektir.)
+
+Dilimler size aynı dizinin farklı *parçalarını* sunar:
 
 ```rust
 // slice1.rs
@@ -615,31 +504,14 @@ fn main() {
 }
 ```
 
-```
-ints [1, 2, 3, 4, 5]
-slice1 [1, 2]
-slice2 [2, 3, 4, 5]
-```
+Bu, Python'daki dilim anlayışına epey yakındır ancak arada büyük bir fark vardır: Veri asla kopyalanmadı. Bu dilimler, bütün verilerini dizilerden *ödünç* alırlar. Dilimlerin dizilerle epey sıkı bir bağ vardır ve Rust bu bağın kopmaması için elinden gelen her şeyi kuvvetle yapar.
 
-This is a neat notation which looks similar to Python slices but with a big difference:
-a copy of the data is never made.  These slices all _borrow_ their data from their
-arrays. They have a very intimate relationship with that array, and Rust spends a lot
-of effort to make sure that relationship does not break down.
+# Opsiyonel Değerler (Optional Values)
+Dilimler, diziler gibi, indekslenebilir. Rust, derleme zamanında dizinin değerini bilir, ama bir dilimin değeri ancak çalışma zamanında bilinebilir. Bundan dolayı, `s[i]` kullanımı belleğin yanlış bir yerine erişmeye sebep olabilir ve bu durumda program *panikleyecektir.* Bu gerçekten de olmasını istediğiniz şey değildir - aradaki fark Florida'dan atılacak çok pahalı bir uydunun gökyüzünde parçalanması ile atışın güvenlice iptal edilmesine kadar varabilir. Ve burada *hata yakalama mekanizmaları (exceptions)* yok.
 
-## Optional Values
+Şimdi hazır olun zira gelecek şey sizi şok edecek. Burada panikleyebilecek kodları try-bloğu ve hatayı yakala (try - catch) yapısı yok - en azından her gün kullandığınız şekliyle yok. Peki, Rust nasıl güvenli kalabiliyor?
 
-Slices, like arrays, can be _indexed_. Rust knows the size of an array at
-compile-time, but the size of a slice is only known at run-time. So `s[i]` can
-cause an out-of-bounds error when running and will _panic_.  This is really not
-what you want to happen - it can be the difference between a safe launch abort and
-scattering pieces of a very expensive satellite all over Florida. And there are
-_no exceptions_.
-
-Let that sink in, because it comes as a shock. You cannot wrap dodgy-may-panic
-code in some try-block and 'catch the error' - at least not in a way you'd want to use
-every day. So how can Rust be safe?
-
-There is a slice method `get` which does not panic. But what does it return?
+İşte size bir paniklemeyen `get` metotu. İyi de, bu ne dönüyor?
 
 ```rust
 // slice2.rs
@@ -656,11 +528,9 @@ fn main() {
 // last None
 ```
 
-`last` failed (we forgot about zero-based indexing), but returned something called `None`.
-`first` is fine, but appears as a value wrapped in `Some`.  Welcome to the `Option`
-type!  It may be _either_ `Some` or `None`.
+`last` çuvalladı. (Sıfır temelli indekslemeyi unuttuk.) Ama `None` diye bir şey döndü. `first` için sorun yok, ama `Some` diye bir şey dönüverdi. `Option` tipini selamlayın! Bu tip `Some` *olabilir*, `None` *olabilir*.
 
-The `Option` type has some useful methods:
+`Option` tipinin gayet faydalı metotları vardır:
 
 ```rust
     println!("first {} {}", first.is_some(), first.is_none());
@@ -671,8 +541,8 @@ The `Option` type has some useful methods:
 // last false true
 // first value 1
 ```
-If you were to _unwrap_ `last`, you would get a panic. But at least you can call
-`is_some` first to make sure - for instance, if you had a distinct no-value default:
+
+Eğer `last` üzerinde *unwrap* kullanırsanız nurtopu gibi bir paniğiniz olur. Bunun yerine en azından `is_some` kullanabilirsiniz - varsayılan bir değeriniz varsa gayet faydalıdır:
 
 ```rust
     let maybe_last = slice.get(5);
@@ -682,38 +552,26 @@ If you were to _unwrap_ `last`, you would get a panic. But at least you can call
         -1
     };
 ```
-Note the `*` - the precise type inside the `Some` is `&i32`, which is a reference. We need
-to dereference this to get back to a `i32` value.
+`*` operatörünün kullanıldığına dikkat edin - `Some` içindeki esas tip bir referans olan `&i32`'dir. `i32` verisini almak için veriyi deferans ediyoruz.
 
-Which is long-winded, so there's a shortcut - `unwrap_or` will return the value it
-is given if the `Option` was `None`. The types must match up - `get` returns
-a reference. so you have to make up a `&i32` with `&-1`. Finally, again use `*`
-to get the value as `i32`.
+Bu biraz işi uzatıyor, onun yerine bir kısayol kullanabiliriz - `unwrap_or` metodu `Option` `None` ise yerine bir değer atayabilir. Tipler muhakkak uyuşmalı -`get` referans dönecek. Bundan ötürü bir `&i32` olan `&-1`'ı kullanmamız gereklidir. Şimdi tekrar  `*` operatörünü `i32` değeri almak için kullanalım.
 
 ```rust
     let last = *slice.get(5).unwrap_or(&-1);
 ```
 
-It's easy to miss the `&`, but the compiler has your back here. If it was `-1`,
-`rustc` says 'expected &{integer}, found integral variable' and then
-'help: try with `&-1`'.
+`&`'ı unutmak gayet olası ama derleyici arkanızı toplayacaktır. `-1` yazsaydık, `rustc` şuna benzer bir hata verecekti: "&{integer} bekleniyordu ancak tam sayı alındı" ve eklerdi ki: "yardım: `&-1`'ı deneyin" \*
 
-You can think of `Option` as a box which may contain a value, or nothing (`None`).
-(It is called `Maybe` in Haskell). It may contain _any_ kind of value, which is
-its _type parameter_. In this case, the full type is `Option<&i32>`, using
-C++-style notation for _generics_.  Unwrapping this box may cause an explosion,
-but unlike Schroedinger's Cat, we can know in advance if it contains a value.
+\* "expected &{integer}, found integral variable", "help: try with `&-1`"
 
-It is very common for Rust functions/methods to return such maybe-boxes, so learn
-how to [use them](https://doc.rust-lang.org/std/option/enum.Option.html) comfortably.
+`Option` tipini veri taşıyan bir paket olarak zihninizde canlandırabilirsiniz, ya da hiçbir şey ifade etmeyen bir değer (`None`). (Haskell'deki karşılığı `Maybe`dir.) Bu tip tipi belirtilebilen herhangi bir veriyi barındırabilir. Bizim örneğimizde üzerinde çalıştığımız tip `Option<&i32>`'dir, C++'ın "Genellemeler (generics)" yazılımı ile gösterirsek. Paketi açmak bir patlamaya sebep olabilir ancak bu mevzu Schrödinger'in kedisi kadar karmaşık değil ve önceden paketin içinde ne var bilebiliriz.  
 
-## Vectors
+Rust fonksiyonlarının ve metotların bu tür paketleri döndürmesi gayet olağandır ve üzerinde uzmanlaşana kadar nasıl kullanıldığını öğrenin.
 
-We'll return to slice methods again, but first: vectors. These are _re-sizeable_
-arrays and behave much like Python `List` and C++ `std::vector`. The Rust type
-`Vec` (pronounced 'vector') behaves very much like a slice in fact; the
-difference is that you can append extra values to a vector - note that it must
-be declared as mutable.
+# Vektörler
+Ç.N: Doğrusunu isterseniz ilk gördüğümde bu vektörleri geometrideki vektörlerle ilişkili zannetmiştim. Yüzde yüz programlama deyimi, aklınıza farklı şeyler gelmesin. :)
+
+Tekrar dilim metotlarına döneceğiz ancak vektörleri gözden geçirelim. Bunlar *yeniden biçimlendirilebilen* dizilerdir ve Python'un `List`ine ve C++'ın `std::vector`'üne epey benzerler. Rust'ın `Vec` tipi ("vektör" olarak okunur.) dilimlere çok benzerler; esas farklılıkları ise vektöre yeni bir veri ekleyebiliyor olmanız - *değişebilir (mutable)* olarak değişkenin bildirilmesi kaydı ile.
 
 ```rust
 // vec1.rs
@@ -734,8 +592,8 @@ fn main() {
 // first is 10
 // maybe_first is Some(10)
 ```
-A common beginner mistake is to forget the `mut`; you will get a helpful error
-message:
+
+Yeni başlayan başına sıklıkla gelen şey `mut` eklemeyi unutmalarıdır; bunu yaparsanız dostça uyarılırsınız.
 
 ```
 3 |     let v = Vec::new();
@@ -744,7 +602,7 @@ message:
   |     ^ cannot borrow mutably
 ```
 
-There is a very intimate relation between vectors and slices:
+Vektörler ve dilimler arasında çok yakın bir bağ vardır.
 
 ```rust
 // vec2.rs
@@ -764,60 +622,27 @@ fn main() {
     println!("slice is {:?}", slice);
 }
 ```
-That little, so-important borrow operator `&` is _coercing_ the vector into a
-slice. And it makes complete sense, because the vector is also looking after an array of
-values, with the difference that the array is allocated _dynamically_.
 
-If you come from a dynamic language, now is time for that little talk. In systems
-languages, program memory comes in two kinds: the stack and the heap. It is very fast
-to allocate data on the stack, but the stack is limited; typically of the order of
-megabytes. The heap can be gigabytes, but allocating is relatively expensive, and
-such memory must be _freed_ later. In so-called 'managed' languages (like Java, Go
-and the so-called 'scripting' languages) these details are hidden from you by that
-convenient municipal utility called the _garbage collector_. Once the system is sure
-that data is no longer referenced by other data, it goes back into the pool
-of available memory.
+Ufak ama önemli ödünç alma operatörümüz `&`, vektörü dilime çevirmeye *zorluyor. (coercing)*. Ve bu pek mantıksız değil çünkü vektörler bellekte *dinamik* bir yer tutarlar ve dizi gibi çalışırlar.
 
-Generally, this is a price worth paying. Playing with the stack is terribly unsafe,
-because if you make one mistake you can override the return address of the current
-function, and you die an ignominious death or (worse) got pwned by some guy living
-in his Mom's basement in Minsk.
+Eğer dinamik tipli bir dilden geliyorsanız, sizinle bazı şeyleri konuşmanın vakti geldi. Sistem programlama dillerinde iki farklı bellek yönetim tarzı vardır:  Yığıt (Stack) ve Öbek (Heap).\* Stack bellek üzerinde oldukça hızlı bir şekilde alan tahsis ederler ancak yapıları ancak bir kaç megabaytla çıkabilecek kadar sınırlıdır. Heap ise gigabaytlara kadar çıkabilir ancak alan tahsis etme süreci biraz meşakkatlidir ve bu bellek alanının sonradan temizlemesi gereklidir. Bazı sözüm ona "yönetilen (managed)" dillerde (Bunlar Java olur, Go olur, bazı sözde betik dilleri olur) bu tarz detaylar sizden gizlenir ve belediyemizin *çöp toplayıcıları (garbage collector)* tarafından bu pis işler halledilir. Sistem, bir verinin başka bir veriye referans gösterilmediğine emin olunca kullanılabilir bellek alanına geri döner.
 
-The first C program I wrote (on a DOS PC)
-took out the whole computer. Unix systems always behaved better, and only the process died
-with a _segfault_. Why is this worse than a Rust (or Go) program panicking?
-Because a panic happens when the original problem happens, not when the program
-has become hopelessly confused and eaten all your homework. Panics are _memory safe_
-because they happen before any illegal access to memory. This is a common cause of
-security problems in C, because all memory accesses are unsafe and a cunning attacker
-can exploit this weakness.
+\* Yığıt ve Öbek, benim çeviri standartlarıma göre bile aşırı yapay kalıyor. Bundan ötürü kafa karışıklığını ortadan kaldırmak için Heap ve Stack kelimelerinden devam ettim. 
 
-Panicking sounds desperate and unplanned, but Rust panics are structured - the stack is _unwound_
-just as with exceptions. All allocated objects are dropped, and a backtrace is generated.
+İşin özü bu durumun faydaları olsa da bazı sorunları da vardır. Stack ile oynamanın bazı tehlikeleri var ve içinde bulunduğunuz fonksiyonun dönüş adresini bozabilirsiniz, sonra da iğrenç bir şekilde can verirsiniz. Ya da daha da kötüsü, Hacker Okan'ın elini öpmek zorunda kalabilirsiniz.
 
-The downsides of garbage collection? The first is that it is wasteful of memory, which
-matters in those small embedded microchips which increasingly rule our world. The
-second is that it will decide, at the worst possible time, that a clean up must happen
-_now_. (The Mom analogy is that she wants to clean your room when you are at a
-delicate stage with a new lover). Those embedded systems need to respond to things
-_when they happen_ ('real-time') and can't tolerate unscheduled outbreaks of
-cleaning. Roberto Ierusalimschy, the chief designer of Lua (one of the most elegant
-dynamic languages ever) said that he would not like to fly on an airplane that
-relied on garbage-collected software.
+Yazdığım ilk C programını (DOS'ta yazmıştım) tüm bilgisayarı çökertmişti. Unix sistemleri bu tarz şeylere karşı daha iyi tavır alırdı, ve *segfault* ile kontrolden çıkan süreçleri öldürürler. Peki, bu neden Rust'ın (ya da Go'nun) paniklemesinden daha kötüdür? Çünkü panik sorunun olduğu yerde meydana gelir, bütün program birbirine girdiğinde ve ev ödevlerine dadandığında değil. Panikler *bellek için güvenlidir (memory safe)* çünkü belleğin canına okunmadan hemen önce gerçekleşirler. Bu, C'deki güvenlik sorunlarının yaygın bir nedenidir çünkü bütün bellek erişimleri güvensizddir ve işi bilen bir saldırgan bu güvensizlikten faydalanabilir.
 
-Back to vectors: when a vector is modified or created, it allocates from the heap and becomes
- the _owner_ of that memory. The slice _borrows_ the memory from the vector.
-When the vector dies or _drops_, it lets the memory go.
+Panikler kulağınıza korkunç ve plansız gelebilir ama Rust'ın panikleri bile yapılandırılmıştır - stack tek tek serbest bırakılır. Bellekte tahsis edilmiş alanı olan bütün veriler boşatılır ve geriye dönük bir rapor oluşturulur.
 
-## Iterators
+Peki çöp toplayıcıların dezavantajları nedir? Birincisi belleği çok hoyratça bullanıyorlar, sizin için önemli olmayabilir ama gömülü mikroçiplerde bu çok fena bir sorun oluşturur. İkincisi, en olur olmaz zamanlarda belleği temizlemeye başlamasıdır. (Odanızda uzanmış telefonda sevgilinizle hassas bir konuşma yaparken birden odanızı temizlemeye kalkışan annenizi düşünün.) Gömülü sistemlerin olaylara *gerçekleştiği anda* yanıt vermesi gerekir ve planlanmamış bir temizleye hiç tahammütleri yoktur. Roberto Lerusalimsch, Lua gibi çok zarif bir dinamik dilin baş tasarımcısı, çöp toplayıcılı bir yazılımın kullanıldığı uçakta asla uçmak isteyemeyeceğini söylemiştir.
 
-We have got so far without mentioning a key part of the Rust puzzle - iterators.
-The for-loop over a range was using an iterator (`0..n` is actually similar to the
-Python 3 `range` function).
+Vektörlere geri dönelim, bir vektör yaratıldığı ya da düzenlendiğinde heap içerisinden alan tahsis eder ve bu tahsis edilen alanın sahibi olur. Vektör öldüğünde ya da belelkten temizlendiğinde, bellek de serbst bırakılır.
 
-An iterator is easy to define informally. It is an 'object' with a `next` method
-which returns an `Option`. As long as that value is not `None`, we keep calling
-`next`:
+# Döngüleyiciler (Iterators)
+Rust bilinmezinin en temel noktasından henüz bahsetmedik - döngüleyiciler. Bir aralık (range) üzerinde kullanılan for döngüsü bir döngüleyici (iterator) kullanır. (`0..n` Python3'teki `range` fonksiyonuna benzer.)
+
+Bir döngüleyiciyi fark etmek oldukça kolaydır. `Option` dönen `next` metotuna sahip bir "objedir". `None` dönene kadar, `next` kullanabiliriz.
 
 ```rust
 // iter1.rs
@@ -829,12 +654,12 @@ fn main() {
     assert_eq!(iter.next(), None);
 }
 ```
-And that is exactly what `for var in iter {}` does.
 
-This may seem an inefficient way to define a for-loop, but `rustc` does crazy-ass
-optimizations in release mode and it will be just as fast as a `while` loop.
+`for var in iter {}` 'in yaptığı da tam olarak budur.
 
-Here is the first attempt to iterate over an array:
+Bu size for döngüsü tanımlamanın faydasız bir yolu gibi görünebilir ancak `rustc`'nin yapacağı akıl almaz optimizasyonların sonucunda While döngüsü kadar hızlı çalışacaktır.
+
+Bir dizi üzerinde döngü kurmayı deneyelim:
 
 ```rust
 // iter2.rs
@@ -845,7 +670,8 @@ fn main() {
     }
 }
 ```
-which fails, but helpfully:
+
+Elbette ki hata dönecek. Ama çıktıya bakınca:
 ```
 4 |     for i in arr {
   |     ^ the trait `std::iter::Iterator` is not implemented for `[{integer}; 3]`
@@ -855,10 +681,10 @@ which fails, but helpfully:
   = note: required by `std::iter::IntoIterator::into_iter`
 ```
 
-Following `rustc`'s advice, the following program works as expected.
+`Rustc`'nin tavsiyesiyle programımız bir kez daha çalıştı:
 
 ```rust
-// iter3.rs
+`// iter3.rs
 fn main() {
     let arr = [10, 20, 30];
     for i in arr.iter() {
@@ -872,12 +698,10 @@ fn main() {
     }
 }
 ```
-In fact, it is more efficient to iterate over an array or slice this way
-than to use `for i in 0..slice.len() {}` because Rust does not have to obsessively
-check every index operation.
 
-We had an example of summing up a range of integers earlier. It involved a `mut`
-variable and a loop. Here's the _idiomatic_, pro-level way of doing the sum:
+Aslında, dizi üzerinde `for i in 0..slice.len() {}` gibi bir kullanımdansa bu yöntem çok daha verimlidir çünkü Rust'ı obsesifçe her indeks operasyonunda bir ton şeyi kontrol etmeye yönlendirmemiş oluyoruz.
+
+Bir de bir aralığın hepsini hızlıca toplamanın bir başka örneğine bakalım. Daha önce bir döngü ve `mut` değişkenini kullanıyordum. Burada ise toplamayı "*idiomatic*" ve profesyonelce bir yolu var:
 
 ```rust
 // sum1.rs
@@ -890,22 +714,13 @@ fn main() {
 }
 ```
 
-Note that this is one of those cases where you need to be explicit about
-the _type_ of the variable, since otherwise Rust doesn't have enough information.
-Here we do sums with two different integer sizes, no problem. (It is also no
-problem to create a new variable of the same name if you run out of names to
-give things.)
+Rust'ta tiplerin önceden bildirilmiş olması gereken durumlardan birisi olduğuna dikkat edin, aksi taktirde Rust tam olarak ne yapması gerektiğini bilemeyecektir. Burada farklı tam sayı tipleriyle çalışmaktayız ki bu sorun teşkil etmez. (Aynı zamanda, isim sıkıntısı çektiğiniz zamanlarda aynı ismi tekrar kullanmanız da sorun teşkil etmez.)
 
-With this background, some more of the [slice methods](https://doc.rust-lang.org/std/primitive.slice.html)
-will make more sense.
-(Another documentation tip; on the right-hand side of every doc page there's a '[-]' which you can
-click to collapse the method list. You can then expand the details of anything
-that looks interesting. Anything that looks too weird, just ignore for now.)
+Bu bilgiyle birlikte, [dilim metotları](https://doc.rust-lang.org/std/primitive.slice.html) gözünüze biraz daha anlamlı gelecektir. (Belgelendirme hakkında bir bilgi; her belgenin sağ tarafında '[-]' işareti bulunur ve bu butona tıklayınca metot listesini kapatabilirsiniz. İlginizi çeken şeylerin detaylarını da genişletebilirsiniz. Şimdilik biraz tuhaf görünüyor, görmezden geliverin.)
 
-The `windows` method gives you an iterator of slices - overlapping windows of
-values!
-
+`windows` metotu size dilimlerin döngüleyicisini verir - birbiriyle örtüşen pencereler olarak değerler (Ç.N: Burada ne demek istediği benim için bile bir bilinmez.)
 ```rust
+
 // slice4.rs
 fn main() {
     let ints = [1, 2, 3, 4, 5];
@@ -920,10 +735,9 @@ fn main() {
 // window [3, 4]
 // window [4, 5]
 ```
-Or `chunks`:
-
+`Chunks` da benzer işlevi yapabilir.
 ```rust
-    for s in slice.chunks(2) {
+ for s in slice.chunks(2) {
         println!("chunks {:?}", s);
     }
 // chunks [1, 2]
@@ -931,11 +745,8 @@ Or `chunks`:
 // chunks [5]
 ```
 
-## More about vectors...
-
-There is a useful little macro `vec!` for initializing a vector. Note that you
-can _remove_ values from the end of a vector using `pop`, and _extend_ a vector
-using any compatible iterator.
+# Vektörler Üzerine Biraz Daha Konuşalım
+Bir vektör kurmak için `vec!` isminde oldukça kullanışlı bir makromuz var. Bununla birlikte vektörün sonundaki verileri `pop` ile *silebiliriz* ve vektörü bir başka vektörle *genişletebiliriz (extend).*
 
 ```rust
 // vec3.rs
@@ -954,19 +765,14 @@ fn main() {
     assert_eq!(v2, &[10, 20, 30, 0, 1]);
 }
 ```
-Vectors compare with each other and with slices by value.
 
-You can insert values into a vector at arbitrary positions with `insert`,
-and remove with `remove`. This is not as efficient as pushing and popping since
-the values will have to be moved to make room, so watch out for these operations on big
-vectors.
+Vektörler birbirleriyle kıyaslanacağı zaman dilim olarak karşılaştırılır.
 
-Vectors have a size and a _capacity_. If you `clear` a vector, its size becomes zero,
-but it still retains its old capacity. So refilling it with `push`, etc only requires
-reallocation when the size gets larger than that capacity.
+Vektörün belirli noktalarına `insert` kullanarak verileri yerleştirebilirsiniz, `remove` ile de silebilirsiniz. Bu vektörün sonuna veri eklemekten (*push*) ya da veri çıkartmaktan (*pop*) daha verimsizdir çünkü veriler yeni yer yaratmak için taşınır, büyük boyutlu vektörlerle çalışırken bu duruma dikkat etmeniz gerekir.
 
-Vectors can be sorted, and then duplicates can be removed - these operate in-place
-on the vector. (If you want to make a copy first, use `clone`.)
+Vektörlerin bir büyüklüğü ve *kapasitesi* vardır. Eğer bir vektörü `clear` ile temizlerseniz, büyüklüğü sıfır olur ama eski kapasitesini korur. Bu durumda `push` vs ile yeni veriler eklerken yeniden bellek alanı tahsis edilmesi yalnızca eski kapasitenin aşımıyla gerekli olur.
+
+Vektörler sıralanabilir ve içinde tekrarlayan veriler temizlenebilir - bu işlemler vektörü değiştirir. (Eğer önce vektörü kopyalamak isterseniz, `clone` kullanın.)
 
 ```rust
 // vec4.rs
@@ -978,21 +784,10 @@ fn main() {
 }
 ```
 
-## Strings
+# Karakter Dizileri (String)
+Rust'taki karakter dizileri diğer dillerden biraz daha gelişkindir. `String` tipi, `Vec` gibi, belleği dinamik olarak tahsis eder ve yeniden boyutlandırılabilir. (C++'ın `std::string` tipine çok benzer ancak Java'nın ve Python'nun değişemez karakter dizileri gibi değildir.) Ancak bir program, pek çok `string` kalıbı *(string literal)* de barındırabilir ("selam" gibi) ve bir sistem programlama dili bunları çıktı dosyasının içinde barındırabilmelidir. Gömülü mikroçiplerde bunun anlamı, bunları pahalı RAM'a yerine ucuz ROM'a yerleştirmektir. (Düşük seviyeli cihazlar için, RAM'ın pahalılığı aynı zamanda enerji üretimi pahalılığıdır.) Bir sistem programlama dilinde iki tür karakter dizisi bulunmalıdır, statik ya da bellekte yeri tahsis edilmiş.
 
-Strings in Rust are a little more involved than in other languages; the `String` type,
-like `Vec`, allocates dynamically and is resizeable. (So it's like C++'s `std::string`
-but not like the immutable strings of Java and Python.) But a program may contain a lot
-of _string literals_ (like "hello") and a system language should be able to store
-these statically in the executable itself. In embedded micros, that could mean putting
-them in cheap ROM rather than expensive RAM (for low-power devices, RAM is
-also expensive in terms of power consumption.) A _system_ language has to have
-two kinds of string, allocated or static.
-
-So "hello" is not of type `String`. It is of type `&str` (pronounced 'string slice').
-It's like the distinction between `const char*` and `std::string` in C++, except
-`&str` is much more intelligent.  In fact, `&str` and `String` have a very
-similar relationship to each other as do `&[T]` to `Vec<T>`.
+Yani "selam" bir `String` değildir. Onun tipi `&str`'dir. ("Karakter dizisi dilimi *String Slice* olarak okunur.") Bu ayrım, C++'daki `const char*` ve `std::string` arasındaki fark gibidir ancak `&str` biraz daha kullanışlıdır. Doğrusu, `&str` ve `String` ilişki `&[T]` ile `Vec<T>` arasındaki ilişkiye çok benzer.
 
 ```rust
 // string1.rs
@@ -1008,13 +803,12 @@ fn main() {
     dump(&s);
 }
 ```
-Again, the borrow operator can coerce `String` into `&str`, just as `Vec<T>` could
-be coerced into `&[T]`.
 
-Under the hood, `String` is basically a `Vec<u8>` and `&str` is `&[u8]`, but
-those bytes _must_ represent valid UTF-8 text.
+Tekrar edelim, ödünç alma operatörü tıpkı `Vec<T>`'yi `&[T]`'ye çevirmesi gibi `Strin g`'i de `&str`'ye çevirir.
 
-Like a vector, you can `push` a character and `pop` one off the end of `String`:
+Aslında içten içe, `String` aslında bir `Vec<u8>`'dir ve `&str` de bir `&[u8]`'dir, ancak bu baytlar UTF-8 yazısını *kesinlikle* göstermelidir.
+
+Vektör gibi, bir karakteri `push`layabilirsiniz veyahut sonundaki karakteri `pop`layabilirsiniz.
 
 ```rust
 // string5.rs
@@ -1031,10 +825,7 @@ fn main() {
     assert_eq!(s, "Hello World");
 }
 ```
-You can convert many types to strings using `to_string`
-(if you can display them with '{}' then they can be converted).
-The `format!` macro is a very useful way to build
-up more complicated strings using the same format strings as `println!`.
+Pek çok tipi String'e `to_string` diyerek çevirebilirsiniz. (Eğer onları "{}" ile ekranda gösterebiliyorsanız, çevrilebilirler.) `format!` makrosu da tıpkı `println!` gibi karmaşık karakter dizileri üretmek için kullanılabilir.
 
 ```rust
 // string6.rs
@@ -1056,10 +847,10 @@ fn main() {
     assert_eq!(res, "hello [10,20,30]");
 }
 ```
-Note the `&` in front of `v.to_string()` - the `+=` operator is defined on a string
-slice, not a `String` itself, so it needs a little persuasion to match.
 
-The notation used for slices works with strings as well:
+`v.to_string()`'in önündeki `&` operatörüne dikkat edin - operatör bir karakter dizesi dilimi üzerinde tanımlanmış, `String`'in kendisine değil, uyuşması için bazı detaylar eklememiz gerekiyor.
+
+Dilimlerde kullanılan ifade şekli karakter dizilerinde de gösterilebilir:
 
 ```rust
 // string2.rs
@@ -1075,8 +866,7 @@ fn main() {
 // slices "tatic" "na"
 ```
 
-But, you cannot index strings!  This is because they use the One True Encoding,
-UTF-8, where a 'character' may be a number of bytes.
+Ancak karakter dizilerini indeksleyemezsiniz. Çünkü onlar tek ve gerçek kodlama olan UTF-8'i kullanırlar ki bu kodlamada bazı "karakterler" sadece baytların sayısı olabilir.
 
 ```rust
 // string3.rs
@@ -1101,69 +891,52 @@ fn main() {
 // Russian hi привет!
 ```
 
-Now, let that sink in - there are 25 bytes, but only 18 characters! However, if
-you use a method like `find`, you will get a valid index (if found) and then
-any slice will be fine.
+Şimdi şuna bakalım - 25 baytımız var ama sadece 18 kataktere sahibiz! Fakat, eğer `find` gibi bir metot kullanırsak (bulunması hâlinde) geçerli bir indeks elde alırsınız ve herhangi bir dilimleme doğru çalışacaktır. 
 
-(The Rust `char` type is a 4-byte Unicode code point. Strings are _not_ arrays
-of chars!)
+(Rust'ın `char` tipi 4-baytlık Unicode karakteridir. Karakter dizileri ise `char`ların dizisi değildir!)
 
-String slicing may explode like vector indexing, because it uses byte offsets. In this case,
-the string consists of two bytes, so trying to pull out the first byte is a Unicode error. So be
-careful to only slice strings using valid offsets that come from string methods.
+Karakter dizelerini dilimlemek vektör dilimlemek gibi riskli bir iştir, çünkü bayt "aralıkları" kullanılır. Alttaki koşulda karakter dizesi iki bayttan oluşur, bunun ilk baytını almaya çalışmak bir Unicode hatasıdır. Bundan dolayı karakter dizisi metotlarından gelen uygun aralıkları kullanmaya dikkat edin.
 
 ```rust
     let s = "¡";
     println!("{}", &s[0..1]); <-- bad, first byte of a multibyte character
 ```
 
-Breaking up strings is a popular and useful pastime. The string `split_whitespace`
-method returns an _iterator_, and we then choose what to do with it. A common need
-is to create a vector of the split substrings.
+Karakter dizilerini parçalamak popüler ve faydalı bir meşgaledir.  `split_whitespace` metotu bir döngüleyici döner ve bunun ne yapacağımızı biz belirleriz. Genelde bir karakter dizisini daha ufak karakter dizilerinin vektörünü kurmak için buna ihtiyaç duyarız.
 
-`collect` is very general and so needs some clues about _what_ it is collecting - hence
-the explicit type.
+`collect` ise çok geneldir ve *neyi* topladığımız (collect) hakkında bir ipucu ister - bundan dolayı açıkça tip belirtilir.
 
 ```rust
     let text = "the red fox and the lazy dog";
     let words: Vec<&str> = text.split_whitespace().collect();
     // ["the", "red", "fox", "and", "the", "lazy", "dog"]
 ```
-You could also say it like this, passing the iterator into the `extend` method:
+
+Döngüleyicilerin `extend` metotuyla da aynı işi yapabilirdiniz.
 
 ```rust
     let mut words = Vec::new();
     words.extend(text.split_whitespace());
 ```
-In most languages, we would have to make these _separately allocated strings_,
-whereas here each slice in the vector is borrowing from the original string.
-All we allocate is the space to keep the slices.
 
-Have a look at this cute two-liner; we get an iterator over the chars,
-and only take those characters which are not space. Again, `collect` needs
-a clue (we may have wanted a vector of chars, say):
+Pek çok dilde bunları yapmak için *bellekte ayrıca alanı tahsis edilmiş karakter dizilerine* ihtiyacımız olurdu, oysa burada sadece bir ödünç alma olayı var. Tek tahsis edilen alan, dilimleri bellekte tutacak alandır.
+
+Şu şirin çift-satıra bir bakınız; karakterler üzerine bir döngüleyici kuruyoruz ve boşluk olmayan karakterleri alıyoruz. Hatırlatalım, `collect` ipucu ister. (Ve biz de karakterler vektörü istemiş olabiliriz)
 
 ```rust
-    let stripped: String = text.chars()
+	let stripped: String = text.chars()
         .filter(|ch| ! ch.is_whitespace()).collect();
     // theredfoxandthelazydog
 ```
-The `filter` method takes a _closure_, which is Rust-speak for
-lambdas or anonymous functions.  Here the argument type is clear from the
-context, so the explicit rule is relaxed.
 
-Yes, you can do this as an explicit loop over chars, pushing the returned slices
-into a mutable vector, but this is shorter, reads well (_when_ you are used to it,
-of course) and just as fast. It is not a _sin_ to use a loop, however, and I encourage
-you to write that version as well.
+`filter` metotu ise argüman olarak *kapama (closure)* alır, kapama dediğimiz de Rust'ın dilinde lambdalara veya anonim fonksiyonlara verdiğimiz isim. Argüman, işlevsel olarak çalışmayı bozmadığı için apaçık tip belirtme kuralını genişletebiliyoruz.
 
-## Interlude: Getting Command Line Arguments
+Tabii bunca şeyi apaçık bir döngü ile değişebilir bir vektöre karakter dizilerini iterek de yapabilirsiniz, ama şimdi yaptığımız daha kısa, daha okunaklı (*alışınca* tabii) ve denk bir hızda. Bir döngü kullanmak elbet ayıp değildir ama bu şekilde yazmanızı şiddetle tavsiye ederim.
 
-Up to now our programs have lived in blissful ignorance of the outside world; now
-it's time to feed them data.
+# Reklam Arası: Komut Satırından Argümanları Almak 
+Şimdiye kadar programlarımız neyin ne olduğundan habersiz bir şekilde kendi kendilerine yaşayıp gittiler. Artık onları gerçek dünya ile tanıştırmalıyız.
 
-`std::env::args` is how you access command-line arguments; it returns an iterator
-over the arguments as strings, including the program name.
+`std::env::args` ile komut satırındaki argümanlara ulaşabilirsiniz; size bütün argümanları, programın ismi de dahil olmak üzere, birer karakter dizisi olarak döner.
 
 ```rust
 // args0.rs
@@ -1171,7 +944,7 @@ fn main() {
     for arg in std::env::args() {
         println!("'{}'", arg);
     }
-}
+} 
 ```
 ```
 src$ rustc args0.rs
@@ -1181,9 +954,8 @@ src$ ./args0 42 'hello dolly' frodo
 'hello dolly'
 'frodo'
 ```
-Would it have been better to return a `Vec`? It's easy enough to use `collect` to
-make that vector, using the iterator `skip` method to move past the program
-name.
+
+Bir `Vec` dönse daha iyi olmaz mıydı? Bunu `collect` ile bir vektöre çevirmek de pek zor değildir, hatta döngüleyicilerin `skip` metotu ile programın adını atlayabilirsiniz.
 
 ```rust
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -1191,10 +963,10 @@ name.
         ...
     }
 ```
-Which is fine; it's pretty much how you would do it in most languages.
 
-A more Rust-y approach to reading a single argument (together with parsing an
-integer value):
+İşin en iyi tarafı, bütün dillerde bunu bu şekilde kullanıyor olmanız.
+
+Biraz daha Rustça yaklaşım ise tek bir argümanı okumak. (Ve aynı zamanda bir tam sayı verisini okumak):
 
 ```rust
 // args1.rs
@@ -1206,19 +978,14 @@ fn main() {
     // do your magic
 }
 ```
-`nth(1)` gives you the second value of the iterator, and `expect`
-is like an `unwrap` with a readable message.
 
-Converting a string into a number is straightforward, but you do need to specify
-the type of the value - how else could `parse` know?
+`nth(1)` size bir döngüleyicinin ikinci verisini döner, `expect` ise `unwrap` gibi çalışır ancak bir de mesaj belirtmenize izin verir.
 
-This program can panic, which is fine for dinky test programs. But don't get too
-comfortable with this convenient habit.
+Bir karakter dizisini bir sayıya çevirmenin yolu gayet bariz, ancak dönüştürülecek tipi açıkça belirtmeniz gerekmekte - yoksa `parse` bunu nereden bilecek?
 
-## Matching
+# Örüntü Eşleştirme (Matching)
 
-The code in `string3.rs` where we extract the Russian greeting is not how it would
-be usually written. Enter _match_:
+`string3.rs` dosyasındaki Rusça selamlamayı kullandığımız kodda aslında bu tarz durumları o şekilde çözmeyiz. `Match` ekleyin.
 
 ```rust
     match multilingual.find('п') {
@@ -1229,27 +996,20 @@ be usually written. Enter _match_:
         None => println!("couldn't find the greeting, Товарищ")
     };
 ```
-`match` consists of several _patterns_ with a matching value following the fat arrow,
-separated by commas.  It has conveniently unwrapped the value from the `Option` and
-bound it to `idx`.  You _must_ specify all the possibilities, so we have to handle
-`None`.
 
-Once you are used to it (and by that I mean, typed it out in full a few times) it
-feels more natural than the explicit `is_some` check which needed an extra
-variable to store the `Option`.
+`Match` şu kızılderili okunu barındıran, virgüllerle ayrılmış pek çok örüntü tanımından oluşur. Bu ifade, çok rahat bir şekilde `Option` içerisinden ifadeyi ayıklayabilir ve `idx`'e bağlayabilir. Bütün koşulların *muhakkak* karşılanması gerektiği için `None`'u da ele alıyoruz. 
 
-But if you're not interested in failure here, then `if let` is your friend:
+Buna bir kere alışınca (yani, bir kaç kez yazınca) size ayrıca `Option` tutacak ek bir değişken gerektiren `is_some` yazmaktan çok daha rahat gelecek.
+
+Ancak hatalarla ilgilenmiyorsanız, mahalleden `if let`'i çağırabiliriz:
 
 ```rust
     if let Some(idx) = multilingual.find('п') {
         println!("Russian hi {}", &multilingual[idx..]);
     }
 ```
-This is convenient if you want to do a match and are _only_ interested in one possible
-result.
 
-`match` can also operate like a C `switch` statement, and like other Rust constructs
-can return a value:
+`Match` C'deki `switch` gibi de çalışabilir ve diğer Rust kurucuları gibi veri de dönebilir:
 
 ```rust
     let text = match n {
@@ -1259,12 +1019,10 @@ can return a value:
         _ => "many",
     };
 ```
-The `_` is like C `default` - it's a fall-back case. If you don't provide one then
-`rustc` will consider it an error. (In C++ the best you can expect is a warning, which
-says a lot about the respective languages).
 
-Rust `match` statements can also match on ranges. Note that these ranges have
-_three_ dots and are inclusive ranges, so that the first condition would match 3.
+`_`'ı C'deki `default` olarak düşünebilirsiniz - varsayılan değer ifadesidir kendileri. Eğer bunu belirtmezseniz `rustc` bunun bir hata olduğunu düşünür. (C++'da bekleyebileceğiniz ilgili koşullar hakkında pek çok şeyi belirtilen bir uyarıyı almak olur.)
+
+Rust'ın `match` deyimleri aralıkları da eşleştirebilir. Bu aralıkların üç noktalı olduğuna dikkat edin, bunlar kapsayan aralıklardır, mesela ilk koşul "3" sayısıyla eşleşecektir.
 
 ```rust
     let text = match n {
@@ -1273,12 +1031,11 @@ _three_ dots and are inclusive ranges, so that the first condition would match 3
         _ => "large",
      };
 ```
-## Reading from Files
 
-The next step to exposing our programs to the world is to _reading files_.
+# Dosyaları Okumak
+Bizim programlarımızı dünyaya açacak olan bir sonraki adımımız ise *dosyaları okumaktır.*
 
-Recall that `expect` is like `unwrap` but gives a custom error message. We are
-going to throw away a few errors here:
+`expect`'in `unwrap` gibi çalıştığını ancak fazladan bir hata mesajı girmemize izin verdiğini aklınızda tutun. Şimdi birden çok hata hortlatacağız:
 
 ```rust
 // file1.rs
@@ -1308,25 +1065,12 @@ src$ file1 file1
 thread 'main' panicked at 'can't read the file: Error { repr: Custom(Custom { kind: InvalidData, error: StringError("stream did not contain valid UTF-8") }) }', ../src/libcore/result.rs:837
 note: Run with `RUST_BACKTRACE=1` for a backtrace.
 ```
-So `open` can fail because the file doesn't exist or we aren't allowed to read it,
-and `read_to_string` can fail because the file doesn't contain valid UTF-8. (Which is
-fair enough, you can use `read_to_end` and put the contents into a vector of bytes
-instead.) For files that aren't too big, reading them in one gulp is useful and
-straightforward.
 
-If you know anything about file handling in other languages, you may wonder when
-the file is _closed_. If we were writing to this file, then not closing it could
-result in loss of data.
-But the file here is closed when the function ends and the `file` variable is _dropped_.
+Dosyanın var olmadığı veyahut okunmasına izin olmadığı durumlarda `open` hata dönebilir, `read_to_string` ise dosya içeriğinin UTF-8 olmaması durumunda hata döner. (Tabii, bu koşulda yerine `read_to_end` kullanıp içeriği bayt vektörlerine koymak olabilir.) Çok da büyük olmayan dosyaları tek hamlede okumak daha faydalı ve basittir.
 
-This 'throwing away errors' thing is getting too much of a habit. You do not
-want to put this code into a function, knowing that it could so easily crash
-the whole program.  So now we have to talk about exactly what `File::open` returns.
-If `Option` is a value that may contain something or nothing, then `Result` is a value
-that may contain something or an error. They both understand `unwrap` (and its cousin
-`expect`) but they are quite different. `Result` is defined by _two_ type parameters,
-for the `Ok` value and the `Err` value.
-The `Result` 'box' has two compartments, one labelled `Ok` and the other `Err`.
+Eğer diğer dillerde dosya işleme nasıl olur bir fikriniz varsa dosyanın ne zaman kapatılması gerektiğini düşünüyor olabilirsiniz. Eğer dosyaya bir şeyler yazdırsaydık kapatmamak veri kaybına sebebiyet verebilirdi ancak burada dosya kendiliğinden kapatılıyor ve fonksiyon sona erdiği zaman da `file` değişkeni *düşürülüyor.*
+
+Bu "hata hortlatma işi"ne biraz fazla alıştık galiba. Bütün programı böyle dandik şeylere çökertebilen bir programı kendi fonksiyonlarınıza yerleştirmek istemezsiniz. O zaman `File::open`'ın ne döndüğüne bakalım. Eğer `Option` bir şeyin varlığını ya da yokluğunu  işaret ediyorsa `Result` da bir şeyin olup olmadığını gösterir. İkisi de `unwrap`'i bilir (ve amcaoğlu `expect`i de) ancak biraz farklıdırlar. `Result`, `Ok` ve `Err` için iki farklı tür parametre içerir. `Result` "paketi" iki farklı kompartmana sahiptir, birisi `Ok` ve diğeri de `Err`.
 
 ```rust
 fn good_or_bad(good: bool) -> Result<i32,String> {
@@ -1351,12 +1095,10 @@ fn main() {
 
 }
 ```
-(The actual 'error' type is arbitrary - a lot of people use strings until
-they are comfortable with Rust error types.) It's a convenient way to _either_
-return one value _or_ another.
 
-This version of the file reading function does not crash. It returns a `Result` and
-it is the _caller_ who must decide how to handle the error.
+(Aslında "hata (error)" için seçtiğimiz tip biraz gereksiz - pek çok insan `Rust`'ın hata tiplerine alışana kadar karakter dizelerini tercih eder.) Bu, bir veriyi ya da başka bir veriyi döndürmenin gayet uygun bir yoludur.
+
+Dosya okumamızın bu şekli çökmez. `Result` döner ve onu *çağırana* gelen verinin nasıl işlenmesi gerektiğini seçtirir.
 
 ```rust
 // file2.rs
@@ -1386,24 +1128,15 @@ fn main() {
 }
 ```
 
-The first match safely extracts the value from `Ok`, which
-becomes the value of the match. If it's `Err` it returns the error,
-rewrapped as an `Err`.
+Birinci eşleşme `Ok` içindeki veriyi güvenli bir şekilde dışarı çıkartır ve eşleşmenin değeri yapar. Eğer bir `Err` verisi ise, hatayı döner ve onu tekrar `Err` içerisine paketler.
 
-If successful, the second match returns the number of bytes which were
-read and appended to `text`, wrapped up as an `Ok`, otherwise (again)
-the error. The actual value in the `Ok` is unimportant, so we ignore
-it with `_`.
+İkinci eşleşme ise `Ok` içerisine paketlenmiş bir karakter dizesi döner ya da hatayı tekrar eder. `Ok` içindeki esas veriye ihtiyacımız yok ondan dolayı `_` ile yok sayıyoruz.
 
-This is not so pretty; when most of a function is error handling, then
-the 'happy path' gets lost. Go tends to have this problem, with lots of
-explicit early returns, or just _ignoring errors_.  (That is, by the way,
-the closest thing to evil in the Rust universe.)
+Bu biraz sıkıcı, fonksiyonun çoğu hatayı işlemek olunca "işin ruhunu" kaybediyoruz. Mesela Go'da bunu hissedersiniz, düzinesiyle erken dönen hataları kontrol etmeniz gerekir ya da sadece *görmezden gelirsiniz*. (Rust evreninde bu tuvalette ekmek çiğnemek kadar kötü bir şeydir.)
 
-Fortunately, there is a shortcut.
+Neyse ki, bir kısayolumuz var.
 
-The `std::io` module defines a type alias `io::Result<T>` which is exactly
-the same as `Result<T,io::Error>` and easier to type.
+`std::io` modülü `io::Result<T>` diye bir tipe sahiptir ki bu `Result<T, io::Error>` ile aynı şeydir ve daha kolay yazılabilir.
 
 ```rust
 fn read_to_string(filename: &str) -> io::Result<String> {
@@ -1413,13 +1146,10 @@ fn read_to_string(filename: &str) -> io::Result<String> {
     Ok(text)
 }
 ```
-That `?` operator does almost exactly what the match on `File::open` does;
-if the result was an error, then it will immediately return that error.
-Otherwise, it returns the `Ok` result.
-At the end, we still need to wrap up the string as a result.
 
-2017 was a good year for Rust, and `?` was one of the cool things that
-became stable. You will still see the macro `try!` used in older code:
+`?` operatörü `File::open` üzerinde denediğimiz eşleştirmelerle birebir aynı şeyi yapıyor; eğer sonuç hataysa hemen fonksiyonu döndürüyor. Değilse, `Ok` sonucunu dönüyor. Sonuç olarak hâlâ daha karakter dizisini paketlememiz gerekiyor.
+
+2017 senesi Rust için iyi bir yıldı ve `?` gibi karizmatik şeyler kararlı hâle geldi. Eski kodlarda `try!` diye bir makroyu görebilirsiniz:
 
 ```rust
 fn read_to_string(filename: &str) -> io::Result<String> {
@@ -1430,7 +1160,4 @@ fn read_to_string(filename: &str) -> io::Result<String> {
 }
 ```
 
-In summary, it's possible to write perfectly safe Rust that isn't ugly, without
-needing exceptions.
-
-
+Sonuç olarak, tek tek hataları bildirmeden güvenli Rust kodu yazmak düşündüğünüz kadar çirkin değil.
