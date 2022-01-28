@@ -52,6 +52,16 @@ Zed Shaw'ın programlamayı Python ile öğrenme [tavsiyesi](https://learnpython
 
 Kötü İngilizcemi veya yetersiz Rust bilgimi yakalayarak beni uyaran destekçilere teşekkürler etmek isterim, aynı zamanda David Marino'ya Rust'ı parlayan zırhı içerisinde sempatik ama sağlam bir yersiz şovalye olarak çizdiği için de teşekkürlerimi sunarım.
 
-Steve Donovan © 2017-2018 MIT Lisans Versiyon 0.4.0
+Steve Donovan © 2017-2018 MIT Lisans Versiyonu 0.4.0
 
 Çeviri: Emrecan Şuşter
+
+## Bazı Çeviri Notları
+
+Bu çeviriyi motamot çevirmek yerine, kaldı ki bunu makineler de yapabiliyor, içeriğinde de kültüre özgü değişiklikler yaptım. Maksat rehberin ana dilinde yazılmış gibi bir akıcılıkla okunabilmesi idi. Çoğu yerin birebir çevrilmediğini, bazı şeylerin eklendiğini de göreceksiniz. Bu İngilizce ile Türkçe arasındaki hem kültürel hem de anlamsal farklardan dolayıdır.
+
+Epey yerleşmiş, Türkçesi de (göreceli olarak) oldukça anlamsız gelen bazı kavramları doğrudan İngilizce hâliyle metin içinde kullandım. (Heap ve Stack gibi) Ancak bunun dışında çoğu yerde Türkçe karşılıkları kullanmaya özen gösterdim ve yanların parantez içinde veya "/" işareti ile İngilizce karşılıklarını bildirdim. Terimler için ["Rust Dili" projesinin sözlüğünden](https://github.com/RustDili/dokuman/tree/master/sozluk) faydalandım.
+
+Bunun dışında kod parçalarına dokunmadım, içindeki yorumları bile olduğu gibi bıraktım zira bu kod parçaları değiştiği zaman çıkacak ekstra iş gücünden çekindim.
+
+Çeviriyi geliştirmek için her zaman [çevirinin Github deposuna](https://github.com/Tarbetu/gentle-intro) uğrayabilirsiniz.

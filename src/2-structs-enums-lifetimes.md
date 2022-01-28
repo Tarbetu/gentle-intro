@@ -1,8 +1,9 @@
-# Structs, Enums and Matching
+# Yapılar, Numaralandırmalar ve Eşleştirme
 
-## Rust likes to Move It, Move It
+# Rust Alekta Movik Movik
+> Ç.N: Orijinal başlık - Rust likes to Move It, Move It. "I like to move it" isimli bir şarkıya gönderme. Bu şarkıyı Türk milleti olarak "Alekta Movik Movik" diye biliyoruz :(
 
-I'd like to move back a little, and show you something surprising:
+Fazla ileri gitmiyor muyuz? Mesela kaçırdığımız bazı şeyler var:
 
 ```rust
 // move1.rs
@@ -12,7 +13,8 @@ fn main() {
     println!("s1 {}", s1);
 }
 ```
-And we get the following error:
+
+Kod çalışınca da şu hatayı alırız:
 
 ```
 error[E0382]: use of moved value: `s1`
@@ -26,21 +28,12 @@ error[E0382]: use of moved value: `s1`
   = note: move occurs because `s1` has type `std::string::String`,
   which does not implement the `Copy` trait
 ```
-Rust has different behaviour than other languages. In a language where variables are
-always references (like Java or Python), `s2` becomes yet another reference to the
-string object referenced by `s1`. In C++, `s1` is a value, and it is _copied_ to `s2`.
-But Rust moves the value.  It doesn't see strings as copyable
-("does not implement the Copy trait").
 
-We would not see this with 'primitive' types like numbers, since they are just values;
-they are allowed to be copyable because they are cheap to copy. But `String` has allocated
-memory containing "Hello dolly", and copying will involve allocating some more memory
-and copying the characters. Rust will not do this silently.
+Rust diğer dillerden biraz daha farklı davranır. Bütün değişkenleri birer referans olduğu dillerde (Java ve Python gibi) `s2` `s1`'in karakter dizesi objesine bir başka referans olur. C++'da ise `s1` bir veridir ve `s2`'ye kopyalanır. Ancak Rust veriyi *taşır (move)*, karakter dizelerini ise kopyalanabilir bir tür olarak da görmez. ("does not implement the Copy trait" - "Kopyala özelliğini barındırmıyor")
 
-Consider a `String` containing the whole text of 'Moby-Dick'. It's not a big struct,
-just has the address in memory of the text, its size, and how big the allocated block is.
-Copying this is going to be expensive, because that memory is allocated on the heap and
-the copy will need its own allocated block.
+Böyle bir şeyi sayılar gibi "ilkel (primitive)" tiplerde görmeyiz çünkü onlar sadece veridir; kopyalanabilmelerine izin vardır çünkü kopyalaması ucuzdur. Ama `String` "Hello Dolly" için bellekte yer tahsis eder ve kopyalama daha fazla belleğin tahsis edilmesini ve karakterlerin tek tek kopyalanmasını içerir. Rust'ın bunu sessiz sedasız yapmasını bekleyemezsiniz. 
+
+`String`'in bütün "Moby Dick"i barındırdığını düşünün. Bu karmaşık bir *yapı (struct)* olmazdı; sadece yazının bulunduğu bellek bölgesini tutan adresi, büyüklüğünü ve ne kadar bellekte alan tahsis edildiğini barındırırdı. Kopyalamak epey bir yük olurdu çünkü bellek *heap* bölgesinde tahsis edilmişti ve kopyalamanın kendisi de bellekte alan tahsis etmeyi gerektirirdi. 
 
 ```
     String
@@ -55,17 +48,14 @@ the copy will need its own allocated block.
     f64
     | 8 bytes |
 ```
-The second value is a string slice (`&str`) which refers to the same memory as the string,
-with a size - just the guy's name. Cheap to copy!
 
-The third value is an `f64` - just 8 bytes. It does not refer to any other memory, so
-it's just as cheap to copy as to move.
+İkinci veri ise karakter dizisi dilimidir (`&str`) ve `String` ile aynı bellek alanına yönlendirir, büyüklüğü ile birlikte. Kopyalaması çok basit!
 
-`Copy` values are only defined by their representation in memory, and when
-Rust copies, it just copies those bytes elsewhere. Similarly, a non-`Copy` value
-is also _just moved_.  There is no cleverness in copying and moving, unlike in C++.
+Üçüncü verimiz ise `f64` - sadece 8 bayt tutuyor. Herhangi bir bellek alanına yönlendirilmiyor, yani kopyalaması onu taşımak kadar basit.
 
-Re-writing with a function call reveals exactly the same error:
+`Copy` verileri bellekteki karşılıklarıyla tanımlanır ve Rust kopyaladığı zaman bu baytları sadece başka bir yere kopyalar. Buna benzer olarak `Copy` olmayan bir veri ise *sadece taşınır*. C++'ın aksine kopyalama ve taşımada herhangi bir karmaşa yoktur.
+
+Aynı şeyi bir fonksiyon çağrısı olarak yazmak da aynı soruna sebep olur:
 
 ```rust
 // move2.rs
@@ -80,9 +70,8 @@ fn main() {
     println!("s1 {}", s1); // <---error: 'value used here after move'
 }
 ```
-Here, you have a choice. You may pass a reference to that string, or
-explicitly copy it using its `clone` method.  Generally, the first is the better way
-to go.
+
+Şimdi bir tercih yapmanız gerekiyor. Ya `String`'i bir referans olarak kullanacaksınız ya da açık açık `clone` metotu ile onu kopyalayacaksınız. Genelde ilk olan daha iyi bir seçenektir.
 
 ```rust
 fn dump(s: &String) {
@@ -95,14 +84,14 @@ fn main() {
     println!("s1 {}", s1);
 }
 ```
-The error goes away. But you'll rarely see a plain
-`String` reference like this, since to pass a string literal is really ugly _and_ involves
-creating a temporary string.
+
+Artık hatadan çok uzaktayız. Ancak `String` referansını çok nadir görürsünüz, çünkü bir karakter dizisi kalıbını bu şekilde kullanmak gerçekten çirkin ve bu yolla geçici bir `String` oluşturmak zorunda kalırsınız. 
 
 ```rust
     dump(&"hello world".to_string());
 ```
-So altogether the best way to declare that function is:
+
+Onun yerine en iyi yol şudur:
 
 ```rust
 fn dump(s: &str) {
@@ -110,22 +99,16 @@ fn dump(s: &str) {
 }
 ```
 
-And then both `dump(&s1)` and `dump("hello world")` work properly. (Here `Deref`
-coercion kicks in and Rust will convert `&String` to `&str` for you.)
+Ve böylece `dump(&s1)` ve `dump("hello world")` kullanımlarının ikisi de geçerli olacaktır. (Burada Rust'ın `Deref` zorlaması işin içine girer ve `&String`'i `&str` yapar.)
 
-To summarise, assignment of a non-Copy value moves the value from one location
-to another. Otherwise, Rust would be forced to _implicitly_ do a copy and break its
-promise to make allocations explicit.
+Sonuç olarak, `Copy` olmayan bir değerin değişkene atanması bir konumdan öbürüne taşınmasıdır. Eğer bu olmasaydı Rust *gizlice* kopyalamak zorunda kalırdı ve bellek tahsislerini *aleni* yapma sözünü tutamazdı.
 
-## Scope of Variables
+# Değişkenlerin Kapsamları
+Birinci kural, verileri kopyalamak yerine orijinal veriye referans göstermektir - yani "ödünç almak."
 
-So, the rule of thumb is to prefer to keep references to the original data - to 'borrow'
-it.
+Ancak bir referans sahibinden daha uzun *asla* yaşayamaz!
 
-But a reference must _not_ outlive the owner!
-
-First, Rust is a _block-scoped_ language. Variables only exist for the duration of their
-block:
+Öncelikle Rust blok kapsamlı bir dildir. Değişkenler kendi blokları kadar yaşar:
 
 ```rust
 {
@@ -133,47 +116,41 @@ block:
     let b = "hello";
     {
         let c = "hello".to_string();
-        // a, b and c are visible
+        // a,b and c are visible
     }
     // the string c is dropped
-    // a, b are visible
+    // a,b are visible
     for i in 0..a {
         let b = &b[1..];
         // original b is no longer visible - it is shadowed.
     }
-    // the slice b is dropped, original b is visible again
+    // the slice b is dropped
     // i is _not_ visible!
 }
 ```
-Loop variables (like `i`) are a little different, they are only visible in the loop
-block.  It is not an error to create a new variable using the same name ('shadowing')
-but it can be confusing.
 
-When a variable 'goes out of scope' then it is _dropped_. Any memory used is reclaimed,
-and any other _resources_ owned by that variable are given back to the system - for
-instance, dropping a `File` closes it.  This is a Good Thing. Unused resources are
-reclaimed immediately when not needed.
+(`i` gibi) Döngü değişkenleri biraz farklıdır, onlar sadece döngülerinin blokları için geçerlidir. Aynı isimle yeni bir değişken oluşturmak ("gölgelemek/*shadowing*") bir hata değildir ama kafa karıştırıcı olabilir.
 
-(A further Rust-specific issue is that a variable may appear to be in scope, but its
-value has moved.)
+Bir değişken "kapsam dışına çıkınca" *düşürülür (dropped)*. Kullanılan her bir bellek tanesi geri dönüştürülür ve sistemden alınan kaynaklar iade edilir - örneğin, `File`'ı düşürmek onu kapatır. Bu iyi bir şey. Kullanılmayan kaynaklar ihtiyaç olmayınca hemen geri teslim edilir.
 
-Here a reference `rs1` is made to a value `tmp` which only lives for the duration
-of its block:
+(Rust'a özgü bir başka sorun da verinin taşınmış olmasına rağmen kapsam dahilinde görünmüş olmasıdır.)
+
+Bu örnekte `rs1` isminde bir referans hazırladık ve değerini sadece iç bloğun ömrü kadar uzun kalan `tmp`'ye ayarladık.
 
 ```rust
-// ref1.rs
-fn main() {
-    let s1 = "hello dolly".to_string();
-    let mut rs1 = &s1;
-    {
-        let tmp = "hello world".to_string();
-        rs1 = &tmp;
-    }
-    println!("ref {}", rs1);
-}
+01 // ref1.rs
+02 fn main() {
+03    let s1 = "hello dolly".to_string();
+04    let mut rs1 = &s1;
+05    {
+06        let tmp = "hello world".to_string();
+07        rs1 = &tmp;
+08    }
+09    println!("ref {}", rs1);
+10 }
 ```
-We borrow the value of `s1` and then borrow the value of `tmp`. But `tmp`'s value
-does not exist outside that block!
+
+`s1`'in verisini ödünç aldık ve sonra da `tmp`'i ödünç aldık. Ancak `tmp`, bloğun dışında yok!
 
 ```
 error: `tmp` does not live long enough
@@ -187,14 +164,11 @@ error: `tmp` does not live long enough
 10 | }
    | - borrowed value needs to live until here
 ```
-Where is `tmp`? Gone, dead, gone back to the Big Heap in the Sky: _dropped_.
-Rust is here saving you from the dreaded 'dangling pointer' problem of C -
-a reference that points to stale data.
 
-## Tuples
+`Tmp` nerede? Gitti, yok, öldü o artık: *düşürüldü*. Rust sizi burada C'nin "sarkan işaretçiler (dangling pointer)" belasından koruyor - çoktan yitip gitmiş bir veriye işaret eden referanslardan yani.
 
-It's sometimes very useful to return multiple values from a function. Tuples are
-a convenient solution:
+# Demetler (Tuple)
+Bir fonksiyondan öoklu veriler dönmeyi gerektiren zamanlar gerekecektir. Demetler bunun için gayet uygun bir gözümdür.
 
 ```rust
 // tuple1.rs
@@ -220,7 +194,8 @@ fn main() {
 // add 12 mul 20
 // add 12 mul 20
 ```
-Tuples may contain _different_ types, which is the main difference from arrays.
+
+Demetlerin dizilerden temel farkları, demetler *farklı* tipler barındırabilmesidir.
 
 ```rust
 let tuple = ("hello", 5, 'c');
@@ -229,8 +204,8 @@ assert_eq!(tuple.0, "hello");
 assert_eq!(tuple.1, 5);
 assert_eq!(tuple.2, 'c');
 ```
-They appear in some `Iterator` methods. `enumerate` is like the Python generator
-of the same name:
+
+Bazen `Iterator` metotlarından karşınıza fırlarlar. `enumerate` tıpkı Python'daki aynı isimli oluşturucu gibi çalışır:
 
 ```rust
     for t in ["zero","one","two"].iter().enumerate() {
@@ -238,8 +213,8 @@ of the same name:
     }
     //  0 zero; 1 one; 2 two;
 ```
-`zip` combines two iterators into a single iterator of
-tuples containing the values from both:
+
+`zip` ise iki döngüleyiciyi birbiriyle eşleştirir ve bir demet içerisinde veri dönen tek bir döngüleyici olarak birleştirir.
 
 ```rust
     let names = ["ten","hundred","thousand"];
@@ -250,12 +225,10 @@ tuples containing the values from both:
     //  ten 10; hundred 100; thousand 1000;
 ```
 
-## Structs
+# Yapılar (Struct)
+Demetler fena şeyler değiller ancak `t.1` gibi anlaşılmaz şeylerle parçalarını incelemek biraz can sıkıcı olabilirler. 
 
-Tuples are convenient, but saying `t.1` and keeping track of the meaning of each part
-is tedious for anything that isn't straightforward.
-
-Rust _structs_ contain named _fields_:
+Rust *yapıları* ise isimli *alanlar (field)* barındırır:
 
 ```rust
 // struct1.rs
@@ -274,13 +247,9 @@ fn main() {
 }
 ```
 
-The values of a struct will be placed next to each other in memory, although you should
-not assume any particular memory layout, since the compiler will organize the memory for
-efficiency, not size, and there may be padding.
+Sizin bunu fark etmemenize rağmen yapıların verileri bellekte yanyana dururlar çünkü derleyici belleği verimliliğe göre düzenler, büyüklüğüne göre değil ve arada bazı boşluklar olabilir.
 
-Initializing this struct is a bit clumsy, so we want to move the construction of a `Person`
-into its own function. This function can be made into an _associated function_ of `Person` by putting
-it into a `impl` block:
+Bu yapıyı ilklemek (initalize) biraz şekilsiz görünebilir, bundan dolayı `Person` yapısını oluşturmayı bir fonksiyon içerisine taşıyorum. Bu fonksiyon bir `impl` bloğunun içerisine taşınarak `Person`'a ait bir *ilişkili fonksiyona (associated function)* dönüştürülebilir.
 
 ```rust
 // struct2.rs
@@ -306,10 +275,10 @@ fn main() {
     println!("person {} {}", p.first_name,p.last_name);
 }
 ```
-There is nothing magic or reserved about the name `new` here. Note that it's accessed
-using a C++-like notation using double-colon `::`.
 
-Here's a `Person` _method_ , that takes a _reference self_ argument:
+`new` ile ilişkili özel bir şey yok. C++ tarzı `::` notasyonu ile bu fonksiyona ulaşabiliyoruz.
+
+Bir de argüman olarak *kendisini referans alan (reference self)* `Person` metotu hazırlayalım.
 
 ```rust
 impl Person {
@@ -324,11 +293,10 @@ impl Person {
     println!("fullname {}", p.full_name());
 // fullname John Smith
 ```
-The `self` is used explicitly and is passed as a reference.
-(You can think of `&self` as short for `self: &Person`.)
 
-The keyword `Self` refers to the struct type - you can mentally substitute `Person`
-for `Self` here:
+`self`, bir referans olarak açıkça belirtildi. (`&self`'i `self: &Person`'un kısaltması olarak düşünebilirsiniz.)
+
+`Self` kelimesi `struct` tipine atıfta bulunur - kafanızda `Person` yerine `Self` koyabilirsiniz:
 
 ```rust
     fn copy(&self) -> Self {
@@ -336,33 +304,33 @@ for `Self` here:
     }
 ```
 
-Methods may allow the data to be modified using a _mutable self_ argument:
+Metotlar veri düzenlemek için kendilerini *`mutable self`* olarak argüman alırlar.
 
 ```rust
     fn set_first_name(&mut self, name: &str) {
         self.first_name = name.to_string();
     }
 ```
-And the data will _move_ into the method when a plain self argument is used:
+
+Ve sadece `self` kullanıldığında veri *taşınacaktır*:
 
 ```rust
     fn to_tuple(self) -> (String,String) {
         (self.first_name, self.last_name)
     }
 ```
-(Try that with `&self` - structs will not let go of their data without a fight!)
 
-Note that after `v.to_tuple()` is called, then `v` has moved and is no longer
-available.
+(Bunu bir de `&self` ile deneyin ve yapıların (struct) kendi verileri konusunda ne kadar inatçı olduğunu bir de siz görün!)
 
-To summarize:
-  -  no `self` argument: you can associate functions with structs, like the `new` "constructor".
-  - `&self` argument: can use the values of the struct, but not change them
-  - `&mut self` argument: can modify the values
-  - `self` argument: will consume the value, which will move.
+`v.to_tuple()` çağrıldığı zaman `v`'nin taşındığını ve kullanılamaz hâle geldiğini göreceksiniz.
 
-If you try to do a debug dump of a `Person`, you will get an informative error:
+Özetlersek:
+- `self` kullanılmazsa: fonksiyonları bu şekilde bağlayabilirsiniz, `new` "oluşturucusu" gibi .
+- `&self` ile: Yapının verilerini kullanabilir ancak değiştiremezsiniz.
+- `&mut self` ile: Yapının verilerini düzenleyebilirsiniz.
+- `self` ile: Veriyi tüketirsiniz, yani taşırsınız.
 
+ Eğer `Person`'u veri ayıklama şeklinde ekrana yazdırırsanız, bilgilendirici bir hata alırsınız:
 ```
 error[E0277]: the trait bound `Person: std::fmt::Debug` is not satisfied
   --> struct2.rs:23:21
@@ -374,19 +342,16 @@ error[E0277]: the trait bound `Person: std::fmt::Debug` is not satisfied
     add `#[derive(Debug)]` or manually implement it
    = note: required by `std::fmt::Debug::fmt`
 ```
-The compiler is giving advice, so we put `#[derive(Debug)]` in front of `Person`, and now
-there is sensible output:
+
+Derleyici bazı tavsiyesine uyuyoruz ve `Person`'un tanımı üstüne  `#[derive(Debug)]` ekliyoruz, böylece işe yarar bir çıktımız oluyor:
 
 ```
 Person { first_name: "John", last_name: "Smith" }
 ```
 
-The _directive_ makes the compiler generate a `Debug` implementation, which is very
-helpful. It's good practice to do this for your structs, so they can be
-printed out (or written as a string using `format!`).  (Doing so _by default_ would be
-very un-Rustlike.)
+Bu direktif, derleyicinin faydalı bir özellik olan `Debug`'u eklemesine yarıyor ki bu da sizin kendi yapılarınızla (struct) ekrana yazdırarak pratik yapmanıza yardımcı olur. (Ya da `format!` ile yazdırabilirsiniz). (Bunu sürekli olarak yapmak pek Rust geleneğine yakışmaz doğrusu.)
 
-Here is the final little program:
+İşte minik programımızın son hâli:
 
 ```rust
 // struct4.rs
@@ -438,10 +403,9 @@ fn main() {
 // ("Jane", "Smith")
 ```
 
-## Lifetimes Start to Bite
+# Yaşam Sürelerinin Yüreğimizi Dağlamaya Başladığı O An
 
-Usually structs contain values, but often they also need to contain references.
-Say we want to put a string slice, not a string value, in a struct.
+Yapıların çoğu zaman veri taşır ancak bazen referans taşıması da gerekebilir. Mesela düşünelim ki yapımıza karakter dizisi değeri yerine bir karakter dizisi dilimi ekleyeceğiz.
 
 ```rust
 // life1.rs
@@ -457,7 +421,6 @@ fn main() {
     println!("{:?}", a);
 }
 ```
-
 ```
 error[E0106]: missing lifetime specifier
  --> life1.rs:5:8
@@ -465,18 +428,12 @@ error[E0106]: missing lifetime specifier
 5 |     s: &str
   |        ^ expected lifetime parameter
 ```
-To understand the complaint, you have to see the problem from the point of view of Rust.
-It will not allow a reference to be stored without knowing its lifetime. All
-references are borrowed from some value, and all values have lifetimes. The lifetime of
-a reference cannot be longer than the lifetime of that value.
-Rust cannot allow
-a situation where that reference could suddenly become invalid.
 
-Now, string slices borrow from _string literals_
-like "hello" or from `String` values. String literals exist for the duration
-of the whole program, which is called the 'static' lifetime.
+Buradaki sorunu anlayabilmek için problemi bir de Rust'ın gözünden görmeniz gerekmekte. Rust, bir referansın ömrünün ne kadar uzun süreceğini hesaplamadan o referansa izin vermeyecektir. Bütün referanslar bir veriyi önüç alır ve her verinin bir yaşam süresi vardır. Referansların yaşam süreleri o verinin yaşam süresinden uzun olamaz. Rust, referansın geçersiz olduğu bir koşulun oluşma ihtimaline izin vermeyecektir. 
 
-So this works - we assure Rust that the string slice always refers to such static strings:
+Şimdi, karakter dizisi diliminin referansı bir `String` değerini ya da "selam" gibi bir *karakter dizisi kalıbını* ödünç alır. Karakter dizesi kalıpları programın yaşamı boyunca yaşar ki buna "statik (static)" yaşam süresi deriz.
+
+İşte şimdi tıkır tıkır çalışıyor - Rust'ın bir karakter dizisi kalıbının sürekli olarak var olacağını garanti etmiş olduk. 
 
 ```rust
 // life2.rs
@@ -493,10 +450,10 @@ fn main() {
 }
 // A { s: "hello dammit" }
 ```
-It is not the most _pretty_ notation, but sometimes ugliness is the necessary
-price of being precise.
 
-This can also be used to specify a string slice that is returned from a function:
+Tabii bu hâli de çok şık görünmüyor ama kesin olmak için bazı bedeller ödmemiz gerekiyor.
+
+Bunu bir fonksiyondan karakter dizisi dilimi döndürmek için de kullanabiliriz.
 
 ```rust
 fn how(i: u32) -> &'static str {
@@ -507,10 +464,10 @@ fn how(i: u32) -> &'static str {
     }
 }
 ```
-That works for the special case of static strings, but this is very restrictive.
 
-However we can specify that the lifetime of the reference is _at least as long_ as that of
-the struct itself.
+Kısıtlayıcı olmasına karşın statik karakter dizilerinin bu tarz durumları için işe yarar.
+
+Buna karşın, biz bir referansın yaşam ömrünü *en az yapının ömrü kadar uzun* olarak da belirtebiliriz. 
 
 ```rust
 // life3.rs
@@ -527,13 +484,12 @@ fn main() {
     println!("{:?}", a);
 }
 ```
-Lifetimes are conventionally called 'a', 'b', etc but you could just as well call it
-'me' here.
 
-After this point, our `a` struct and the `s` string are bound by a strict contract:
-`a` borrows from `s`, and cannot outlive it.
+Yaşam ömürleri geleneksel olarak "a", "b" gibi harflerle belirtilir ancak siz dilerseniz "ben" gibi kelimelerle de ifade edebilirsiniz.
 
-With this struct definition, we would like to write a function that returns an `A` value:
+Bu ekleme ile beraber, bizim `A` yapısı ile `s` karakter dizisi birbirine sıkı sıkıya bağlanmıştır: `a`, `s`ten ödünç alır ve o olmadan yaşayamaz.
+
+Bu tanımla birlikte şu şekilde `A` dönen bir fonksiyon yazabiliriz.
 
 ```rust
 fn makes_a() -> A {
@@ -542,14 +498,15 @@ fn makes_a() -> A {
 }
 ```
 
-But `A` needs a lifetime - "expected lifetime parameter":
+Ancak bu sefer de `A`'nın açıkça yaşam süresinin belirtilmesine ihtiyaç vardır - "expected lifetime parameter" (beklenilen yaşam süresi parametresi)
 
 ```
   = help: this function's return type contains a borrowed value,
    but there is no value for it to be borrowed from
   = help: consider giving it a 'static lifetime
 ```
-`rustc` is giving advice, so we follow it:
+
+`rustc`'nin verdiği tavsiyeye uyalım:
 
 ```rust
 fn makes_a() -> A<'static> {
@@ -557,7 +514,8 @@ fn makes_a() -> A<'static> {
     A { s: &string }
 }
 ```
-And now the error is
+
+Ve hatamız:
 
 ```
 8 |      A { s: &string }
@@ -566,32 +524,20 @@ And now the error is
   | - borrowed value only lives until here
 ```
 
-There is no way that this could safely work, because `string` will be dropped when the
-function ends, and no reference to `string` can outlast it.
+Bunu güvenli bir şekilde yapmanın bir yolu yok, çünkü fonksiyon sona verdiği zaman `string` düşecek ve `string`e yapılan referanslar kendinden daha uzun süre yaşayamaz.
 
-You can usefully think of lifetime parameters as being part of the type of a value.
+Bazen, bir yapının değer ve o değeri içeren bir referans taşıması iyi bir fikirmiş gibi görünebilir. Ama bu çok basit bir şekilde imkansızdır çünkü yapılar *taşınabilir* olmalıdır, ve her türlü taşınma referansı geçersiz kılacaktır. Üstelik bunu yapmanın bir gereği de yok - mesela yapınızın karakter dizisi alanı varsa ve bunun dilimlerini sunmaya ihtiyacınız varsa, indeks numaralarını tutabilir ve bir metot içerisinde gerçek dilimleri dönebilirsiniz.
 
-Sometimes it seems like a good idea for a struct to contain a value _and_ a reference
-that borrows from that value.
-It's basically impossible because structs must be _moveable_, and any move will
-invalidate the reference.  It isn't necessary to do this - for instance, if your
-struct has a string field, and needs to provide slices, then it could keep indices
-and have a method to generate the actual slices.
+# Özellikler (Trait)
+Rust'ta `struct`'ı *sınıf (class)* olarak görmediğine dikkat edin. `class` kelimesinin anlamı diğer dillerde içi öylesine doldurulmuştur ki size nasıl düşüneceğinizi dikte eder hâle gelmiştir.
 
-## Traits
+Şimdi şunlara dikkat edin: Rust'ta yapılar birbirini *miras (inherit)* alamaz; hepsi özgün tiplerdir. *Alt-tip* diye bir şey yok, onlar sadece bir saçmalıktan ibaretti.
 
-Please note that Rust does not spell `struct` _class_. The keyword `class` in other
-languages is so overloaded with meaning that it effectively shuts down original thinking.
+Peki ya tipler arasındaki ilişkiler nasıl kurulur?
 
-Let's put it like this: Rust structs cannot _inherit_ from other structs; they are
-all unique types. There is no _sub-typing_. They are dumb data.
+`rustc` bazen "implementing X trait (X özelliğini uygulamak)" diye gevezelik eder ve şimdi özellikler (tipler) hakkında konuşmanın tam zamanı.
 
-So how _does_ one establish relationships between types? This is where _traits_ come in.
-
-`rustc` often talks about `implementing X trait` and so it's time to talk about traits
-properly.
-
-Here's a little example of defining a trait and _implementing_ it for a particular type.
+Aşağıdaki bir özellik tanımlamanın ve belirli tiplere nasıl *uygulandığının* örneğini görüyorsunuz.  
 
 ```rust
 // trait1.rs
@@ -623,14 +569,12 @@ fn main() {
 // show four-byte signed 42
 // show eight-byte float 3.14
 ```
-It's pretty cool; we have _added a new method_ to both `i32` and `f64`!
 
-Getting comfortable with Rust involves learning the basic traits of the
-standard library (they tend to hunt in packs.)
+Şahane; `i32` ve `f64` içerisine *yeni bir metot* ekledik.
 
-`Debug` is very common.
-We gave `Person` a default implementation with the
-convenient `#[derive(Debug)]`, but say we want a `Person` to display as its full name:
+Rust ile haşır neşir oldum diyebilmek için standart kütüphanedeki basit özellikleri de bilmeniz gerekir. (Ki genelde bir arada bulunurlar.)
+
+`Debug` epey yaygındır. `Person` üzerinde `#[derive(Debug)]` ile uyguladık, ancak isteseydik tam ismi görüntüleyecek şekilde de uygulayabilirdik.
 
 ```rust
 use std::fmt;
@@ -644,29 +588,19 @@ impl fmt::Debug for Person {
     println!("{:?}", p);
     // John Smith
 ```
-`write!` is a very useful macro - here `f` is anything that implements `Write`.
-(This would also work with a `File` - or even a `String`.)
 
-`Display` controls how values are printed out with "{}" and is implemented
-just like `Debug`. As a useful side-effect, `ToString` is automatically
-implemented for anything implementing `Display`. So if we implement
-`Display` for `Person`, then `p.to_string()` also works.
+`write!` da epey kullanışlı bir makrodur - burada `f` `Write` özelliğini uygulamış her şeyi temsil ediyor. (Mesela bu bir `File` olabilir - ya da sadece bir `String`)
 
-`Clone` defines the method `clone`, and can simply be defined with
-"#[derive(Clone)]" if all the fields themselves implement `Clone`.
+`Display` ise "{}" ile yazdırılabilen verileri kontrol ve tıpkı `Debug` gibi uygulanır. Ve faydalı bir yan etki olarak, `ToString` `Display`'e sahip olan her türlü tipe uygulanır. Mesela `Display`'ı `Person` için uygularsak `p.to_string()` de çalışır hâle gelir.
 
-## Example: iterator over floating-point range
+`Clone` ise `clone` metotunu tanımlar ve sadece `#[derive(Clone)]` ile tanımlanabilir - eğer bütün alanların (fields) tipleri `Clone`'a sahipse. (Ç.N: Clone - İngilizce Klonlamak)
 
-We have met ranges before (`0..n`) but they don't work for floating-point values. (You
-can _force_ this but you'll end up with a step of 1.0 which is uninteresting.)
+# Örnek: Noktalı sayı aralıklarının döngüleyicisi
+Daha önce aralıklarla (range, `0..n`) karşılaştık ancak noktalı sayı kabul etmiyorlar. (*Şansınızı zorlayabilirsiniz* ancak pek de numarası olmayan 1.0'da takılıp kalırsınız.) 
 
-Recall the informal definition of an iterator; it is an struct with a `next` method
-which may return `Some`-thing or `None`. In the process, the iterator itself gets modified,
-it keeps the state for the iteration (like next index and so forth.) The data that
-is being iterated over doesn't change usually, (But see `Vec::drain` for an
-interesting iterator that does modify its data.)
+Bir döngüleyici (iterator) için yaptığımız gayriresmi tanımı hatırlayın; `Some` veya `None` dönebilen bir `next` metotuna sahip yapı. Bu süreçte, döngüleyicinin kendisi düzenlenir ve döngülemenin durumu hakkında bilgi tutar. (Sonraki indeks gibi) Döngülenen verinin içeriği genellikle değişmez. (Ancak `Vec::drain` gibi kendi verisini düzenleyen enteresan bir döngüleyiciyi de inceleyeceğiz.)
 
-And here is the formal definition: the [Iterator trait](https://doc.rust-lang.org/std/iter/trait.Iterator.html).
+Ve şimdi de resmi tanımı görelim: ["Iterator" özelliği](https://doc.rust-lang.org/std/iter/trait.Iterator.html)
 
 ```rust
 trait Iterator {
@@ -675,16 +609,12 @@ trait Iterator {
     ...
 }
 ```
-Here we meet an [associated type](https://doc.rust-lang.org/stable/book/associated-types.html) of the `Iterator` trait.
-This trait must work for any type, so you must specify that return type somehow.
-The method `next` can then be written without using a
-particular type - instead it refers to that type parameter's `Item` via `Self`.
 
-The iterator trait for `f64` is written `Iterator<Item=f64>`, which can be read as
-"an Iterator with its associated type Item set to f64".
+`Iterator` için [ilişkili tipi (associated type)](https://doc.rust-lang.org/stable/book/associated-types.html) de tanımış olduk. Bu özelliğin (trait) çalışması için bir tipe ihtiyaç vardır ve dönüş tipini de belirtmeniz gerekmektedir. `next` metotu belirli bir tip belirtilmeden çalışabilir, sadece `Self` üzerinden `Item`'e atışta bulunulması yeterlidir.
 
-The `...` refers to the _provided methods_ of `Iterator`. You only need to define `Item`
-and `next`, and the provided methods are defined for you.
+`f64` tipi için uygulanmış bir `Iterator`, `Iterator<Item=f64>` ile belirtilir ki bunu "f64 tipi ile ilişkilendirilmiş bir döngüleyici" olarak okuyabilirsiniz. 
+
+`...` ile gösterilen kısım `Iterator`ün tedarik ettiği metotlardır. Sadece `Item` ve `next`'i belirttikten sonra pek çok metot da sizin için sunulacaktır.
 
 ```rust
 // trait3.rs
@@ -720,7 +650,8 @@ fn main() {
     }
 }
 ```
-And the rather messy looking result is
+
+Ve şöyle biçimsiz bir görüntüyü elde etmiş oluyoruz:
 
 ```
 0
@@ -735,28 +666,21 @@ And the rather messy looking result is
 0.8999999999999999
 0.9999999999999999
 ```
-This is because 0.1 is not precisely representable as a float, so a little formatting
-help is needed. Replace the `println!` with this
 
+`0.1` tam olarak noktalı sayı olarak gösterilemediğinden böyle tuhaf şeyler yaşıyoruz, minik bir formatlama yardımı ile bundan kurtulabiliriz. `println!` kısımını şöyle düzeltelim:
 ```rust
 println!("{:.1} ", x);
 ```
-And we get cleaner output (this [format](https://doc.rust-lang.org/std/fmt/index.html)
- means 'one decimal after dot'.)
+Ve daha temiz bir çıktımız olmuş oluyor. (Bu [formatlama](https://doc.rust-lang.org/std/fmt/index.html) "noktadan sonra bir nokta" anlamına geliyor.)
 
-All of the default iterator methods are available, so we can collect these values into
-a vector, map them, and so forth.
+Şimdi bütün döngüleyici metotlarını kullanabiliriz, hadi bütün verileri bir vektörde toplayalım, `map` kullanalım ve daha da coşalım:
 
 ```rust
     let v: Vec<f64> = range(0.0, 1.0, 0.1).map(|x| x.sin()).collect();
 ```
 
-## Generic Functions
-
-We want a function which will dump out any value that implements `Debug`. Here is
-a first attempt at a generic function, where we can pass a reference to _any_ type
-of value. `T` is a type parameter, which needs to be declared just after the
-function name:
+# Jenerik Fonksiyonlar
+Diyelim ki `Debug` özelliiğine sahip herhangi bir tipi argüman olarak alan bir fonksiyon yazacağız. Burada jenerik fonksiyon kullanmamızın bir örneğini görüyorsunuz, herhangi bir verinin referansını argüman olarak alabilir. `T`, tip parametresi oluyor ki fonksiyon ismi yazıldıktan hemen sonra tanımlandı:
 
 ```rust
 fn dump<T> (value: &T) {
@@ -766,7 +690,8 @@ fn dump<T> (value: &T) {
 let n = 42;
 dump(&n);
 ```
-However, Rust clearly knows nothing about this generic type `T`:
+
+Ancak, Rust kelimenin tam anlamıyla `T` tipi hakkında hiçbir şey bilmiyor.
 
 ```
 error[E0277]: the trait bound `T: std::fmt::Debug` is not satisfied
@@ -774,7 +699,8 @@ error[E0277]: the trait bound `T: std::fmt::Debug` is not satisfied
    = help: the trait `std::fmt::Debug` is not implemented for `T`
    = help: consider adding a `where T: std::fmt::Debug` bound
 ```
-For this to work, Rust needs to be told that `T` does in fact implement `Debug`!
+
+Bunun çalışması için, `T`'nin `Debug` içermesi gerektiğinden bahsetmeliyiz:
 
 ```rust
 fn dump<T> (value: &T)
@@ -786,11 +712,10 @@ let n = 42;
 dump(&n);
 // value is 42
 ```
-Rust generic functions need _trait bounds_ on types - we are saying here that
-"T is any type that implements Debug". `rustc` is being very helpful, and
-suggests exactly what bound needs to be provided.
 
-Now that Rust knows the trait bounds for `T`, it can give you sensible compiler messages:
+Rust'ın jenerik fonksiyonlarının tipe *özellikleri bağlaması (trait bounds)* gerekir - burada "T is any type that implements Debug" kısmını anlatıyoruz. (T, Debug'ı içeren herhangi bir tiptir) `rustc` epey yardımcı oluyor ve hangi tipin tam olarak belirtilmesi gerektiğini bize bildiriyor.
+
+Şimdi Rust, `T` için tip bağlarını biliyor, artık derleyiciden mantıklı mesajlar alabiliriz.
 
 ```rust
 struct Foo {
@@ -801,18 +726,12 @@ let foo = Foo{name: "hello".to_string()};
 
 dump(&foo)
 ```
-And the error is "the trait `std::fmt::Debug` is not implemented for `Foo`".
 
-Functions are already generic in dynamic languages because values carry their actual type around,
-and the type checking happens at run-time - or fails miserably. For larger programs, we really
-do want to know about problems at compile-time rather! Rather than sitting down calmly with
-compiler errors, a programmer in these languages has to deal with problems that only
-show up when the program is running. Murphy's Law then implies that these problems
-will tend to happen at the most inconvenient/disastrous time.
+Buradaki hata ise  "the trait `std::fmt::Debug` is not implemented for `Foo` (`std::fmt::Debug` özelliği `Foo` için uygulanmadı)"
 
-The operation of squaring a number is generic:  `x*x` will work for integers,
-floats and generally for anything that knows about the multiplication operator `*`.
-But what are the type bounds?
+Fonksiyonlar dinamik dillerde aslında jeneriktir çünkü değerler beraberinde türlerini taşırlar ve tür denetimi çalışma zamanı denetlenir - ya da başarısız olur. Karmaşık programlarda daha derleme zamanında tiplerin kontrol edilmesini ciddi anlamda isteriz! Bu dillerdeki bir programcı, derleme hatalarını sakince incelemek yerine programın çalışma anındadaki sürprizleri incelemek zorundadır. Murphy kanununa göre sorunlar en uygunsuz, ters zamanda ortaya çıkmaya meyillidir.
+
+Bir sayının karesini almak jeneriktir; tam sayılar, noktalı sayılar ve çarpım operatörünü içeren her türlü şeyin karesini `x*x` ile alabilirsiniz. Peki ya tip bağları?
 
 ```rust
 // gen1.rs
@@ -826,7 +745,8 @@ fn main() {
     println!("res {}",res);
 }
 ```
-The first problem is that Rust does not know that `T` can be multiplied:
+
+Sorun, Rust'ın `T`'nin çarpılabilir olduğunu bilmemesidir.
 
 ```
 error[E0369]: binary operation `*` cannot be applied to type `T`
@@ -841,8 +761,8 @@ note: an implementation of `std::ops::Mul` might be missing for `T`
 4 |     x * x
   |     ^
 ```
-Following the advice of the compiler, let's constrain that type parameter using
-[that trait](https://doc.rust-lang.org/std/ops/trait.Mul.html), which is used to implement the multiplication operator `*`:
+
+Derleyicinin tavsiyesine uyarak bu tipi `*` çarpım operatörünü barındıran [ilgili özelliğe](https://doc.rust-lang.org/std/ops/trait.Mul.html) zorlamayı deneyelim.
 
 ```rust
 fn sqr<T> (x: T) -> T
@@ -851,10 +771,10 @@ where T: std::ops::Mul {
 }
 ```
 
-Which still doesn't work:
+Yine de hâlen daha çalışmıyor:
 
 ```
-rror[E0308]: mismatched types
+error[E0308]: mismatched types
  --> gen2.rs:6:5
   |
 6 |     x * x
@@ -863,32 +783,8 @@ rror[E0308]: mismatched types
   = note: expected type `T`
   = note:    found type `<T as std::ops::Mul>::Output`
 ```
-What `rustc` is saying that the type of `x*x` is the associated type `T::Output`, not `T`.
-There's actually no reason that the type of `x*x` is the same as the type of `x`, e.g. the dot product
-of two vectors is a scalar.
 
-```rust
-fn sqr<T> (x: T) -> T::Output
-where T: std::ops::Mul {
-    x * x
-}
-```
-
-and now the error is:
-
-```
-error[E0382]: use of moved value: `x`
- --> gen2.rs:6:7
-  |
-6 |     x * x
-  |     - ^ value used here after move
-  |     |
-  |     value moved here
-  |
-  = note: move occurs because `x` has type `T`, which does not implement the `Copy` trait
-```
-
-So, we need to constrain the type even further!
+Bu tipi daha da kısıtlamayı deneyelim:
 
 ```rust
 fn sqr<T> (x: T) -> T::Output
@@ -896,10 +792,10 @@ where T: std::ops::Mul + Copy {
     x * x
 }
 ```
-And that (finally) works. Calmly listening to the compiler will often get you closer
-to the magic point when ... things compile cleanly.
 
-It _is_ a bit simpler in C++:
+(Ancak) şimdi oldu! Derleyiciyi sakince dinlemek sizi esas noktaya yaklaştırır, ta ki temizce program derlenene dek.
+
+Tabii *bunu* `C++`'da yapmak daha kolay.
 
 ```cpp
 template <typename T>
@@ -907,32 +803,17 @@ T sqr(x: T) {
     return x * x;
 }
 ```
-but (to be honest) C++ is adopting cowboy tactics here. C++ template errors are famously
-bad, because all the compiler knows (ultimately) is that some operator or method is
-not defined. The C++ committee knows this is a problem and so they are working
-toward [concepts](https://en.wikipedia.org/wiki/Concepts_(C%2B%2B)), which are pretty
-much like trait-constrained type parameters in Rust.
 
-Rust generic functions may look a bit overwhelming at first, but being explicit means
-you will know exactly what kind of values you can safely feed it, just by looking at the
-definition.
+Ama (dürüst olmak gerekirse), C++ laz müteahhit mantığını benimsiyor. C++'ın şablon (template) hataları berbattır çünkü derleyicinin tek bildiği şey bazı metotların ya da operatörlerin tanımlanıp tanımlanmadığıdır. C++ komitesi bu sorunu biliyor ve [konseptler](https://en.wikipedia.org/wiki/Concepts_(C%2B%2B)) üzerinde çalışıyorlar ki bunlar daha çok özelliklerle kısıtlanmış tip parametrelerine çok benziyorlar. 
 
-These functions are called _monomorphic_, in constrast to _polymorphic_. The body of
-the function is compiled separately for each unique type.  With polymorphic functions,
-the same machine code works with each matching type, dynamically _dispatching_
-the correct method.
+Jenerik fonksiyonlar başta biraz zorlayıcı gelebilir ancak net olmak, ne tür değerleri güvenle kullanabileceğinizi sadece tanıma bakarak kullanabileceğiniz anlamına geliyor.
 
- Monomorphic produces faster code,
-specialized for the particular type, and can often be _inlined_.  So when `sqr(x)` is
-seen, it's effectively replaced with `x*x`.  The downside is that large generic
-functions produce a lot of code, for each type used, which can result in _code bloat_.
-As always, there are trade-offs; an experienced person learns to make the right choice
-for the job.
+Bu fonksiyonlar *çok biçimli*nin tersi olarak *tek biçimli* olarak bilinir. (ÇN: Tek biçimli - monomorfik, çok bilimli - polimorfik) Fonksiyonun gövdesi her bir tip için ayrı ayrı derleme yapar. Çok biçimli fonksiyonlarda ise makine eşlesen her tip için aynı kodu kullanır, dinamik olarak doğru metota *yönlendirir (dispatch)*.
 
-## Simple Enums
+Tek biçimlilik hızlı kod üretir, tipler için özelleştirilmiştir ve *satır içi* çalışabilirler. `sqr(x)` görüldüğü anda hemen `x*x` ile değiştirirlir. Ancak bunun dezavantajı, büyük jenerik fonksiyonların her için çok fazla kod üretmesidir ki buna *kod şişmesi (code bloat)* denir. Her zaman bir takas vardır ve deneyimli bir kişi hangi iş için doğru aracı seçeceğini bilmelidir.
 
-Enums are types which have a few definite values. For instance, a direction has
-only four possible values.
+# Basit Numaralandırmalar
+Numaralandırmalar (Enums) birkaç verisi bulunan tiplerdir. Örneğin, bir yön dört farklı şekil alabilir:
 
 ```rust
 enum Direction {
@@ -945,8 +826,8 @@ enum Direction {
     // `start` is type `Direction`
     let start = Direction::Left;
 ```
-They can have methods defined on them, just like structs.
-The  `match` expression is the basic way to handle `enum` values.
+
+Çeşitli metotlar alabilirler, tıpkı yapılar gibi. `Match` ifadesi `enum` tiplerini kontrol etmenin en basit yoludur.
 
 ```rust
 impl Direction {
@@ -961,33 +842,30 @@ impl Direction {
 }
 ```
 
-Punctuation matters. Note that `*` before `self`. It's easy to forget, because often
-Rust will assume it (we said `self.first_name`, not `(*self).first_name`). However,
-matching is a more exact business. Leaving it out would give a whole spew of messages,
-which boil down to this type mismatch:
+Noktalama da önemlidir. `self`'ten önce `*` operatörünü kullandığımıza dikkat edin. Unutması kolaydır çünkü çoğu zaman Rust böyle düşünür. (`self.first_name` deriz, `(*self).first_name` değil.) Fakat eşleştirmenin biraz daha net olması gerekir. Olduğu gibi bırakmak buna kadar varan bir sürü çıktıya sebep olur:
 
 ```
    = note: expected type `&Direction`
    = note:    found type `Direction`
 ```
-This is because `self` has type `&Direction`, so we have to throw in the `*` to
-_deference_ the type.
 
-Like structs, enums can implement traits, and our friend `#[derive(Debug)]` can
-be added to `Direction`:
+
+Çünkü `self` `&Direction` tipidir, bundan dolayı `*` ile deferans ederiz. 
+
+Yapılar gibi numaralandırmalar da özellikleri içerebilir, `#[derive(Debug)]` arkadaş da `Direction`'a eklenebilir.
 
 ```rust
         println!("start {:?}",start);
         // start Left
 ```
-So that `as_str` method isn't really necessary, since we can always get the name from `Debug`.
-(But `as_str` does _not allocate_, which may be important.)
 
-You should not assume any particular ordering here - there's no implied integer
-'ordinal' value.
+Yani `as_str` metotu aslında o kadar da gerekli değil, `Debug` ile isimleri her zaman alabiliriz. (Ancak `as_str` alan tahsis etmez, ki bu önemli olabilir.)
 
-Here's a method which defines the 'successor' of each `Direction` value. The
-very handy _wildcard use_ temporarily puts the enum names into the method context:
+Ancak burada net bir sıralama aramamalısınız - numaralandırmalar tam sayı değeri barındırmaz. 
+
+(Ç.N: Numaralandırma olarak çevrilen `enum` sözcüğü gerçekten de C ve C++'da sayılandırma işlemi için kullanılır ancak Rust'ta böyle bir özellik yoktur. C++'daki karşılığı `enum` değil, `enum class`'tır.)
+
+Şimdi her `Direction` değerinin ardılını gösteren bir metot yazdık. *Yıldız jokerini* kullanmak metotun içeriğine bütün numaralandırma değerlerini sıraladığı için epey kullanışlıdır.
 
 ```rust
     fn next(&self) -> Direction {
@@ -1015,10 +893,10 @@ very handy _wildcard use_ temporarily puts the enum names into the method contex
     // d Right
     // d Down
 ```
-So this will cycle endlessly through the various directions in this particular, arbitrary,
-order. It is (in fact) a very simple _state machine_.
 
-These enum values can't be compared:
+Bu şekilde istenen ve belirlenmiş düzende bütün yönleri sonsuza dek sıralamaya izin verir. (Aslında) bu oldukça basit bir *durum makinesidir*.
+
+Numaralandırma veriler kıyaslanamaz:
 
 ```
 assert_eq!(start, Direction::Left);
@@ -1032,17 +910,11 @@ error[E0369]: binary operation `==` cannot be applied to type `Direction`
 note: an implementation of `std::cmp::PartialEq` might be missing for `Direction`
   --> enum1.rs:42:5
 ```
+Çözüm, `enum Direction` tanınımının üstüne `#[derive(Debug,PartialEq)]` eklemektir.
 
-The solution is to say `#[derive(Debug,PartialEq)]` in front of `enum Direction`.
+Önemli bir nokta, Rust'ın kullanıcı tiplerinin bir eklenti ile birlikte gelmemesidir. Genel özellikleri (trait) tanımlayarak onlara olağan davranışları tanımlarsınız. Bu yapılar için de geçerlidir - eğer bir yapıya `PartialEq` verirseniz akla yatkın bir şey belirleyecektir, tüm alanların `PartialEq`'e sahip olduğunu düşünerek bir kıyas yapacaktır. Eğer alanlar buna sahip değilse, eşitliği tanımlananız gerekmektedir ki bunu açıkça tanımlamanıza izin vardır.
 
-This is an important point - Rust user-defined types start out fresh and unadorned.
-You give them sensible default behaviours by implementing the common traits. This
-applies also to structs - if you ask for Rust to derive `PartialEq` for a struct it
-will do the sensible thing, assume that all fields implement it and build up
-a comparison. If this isn't so, or you want to redefine equality, then you are free
-to define `PartialEq` explicitly.
-
-Rust does 'C style enums' as well:
+Rust'ta "C tarzı numaralandırmalar" da kullanılabilir.
 
 ```rust
 // enum2.rs
@@ -1059,11 +931,10 @@ fn main() {
     println!("speed {}", speed);
 }
 ```
-They are initialized with an integer value, and can be converted into that integer
-with a type cast.
 
-You only need to give the first name a value, and thereafter the
-value goes up by one each time:
+İlklendiği zaman tam sayı değeri alırlar ve tip dönüşümleriyle tam sayıya dönüşebilirler.
+
+Bunun için sadece ilk isme değer vermeniz yeterlidir, diğerleri de bir arttırarak onu takip edecektir:
 
 ```rust
 enum Difficulty {
@@ -1073,17 +944,12 @@ enum Difficulty {
 }
 ```
 
-By the way, 'name' is too vague, like saying 'thingy' all the time. The proper term here
-is _variant_ - `Speed` has variants `Slow`,`Medium` and `Fast`.
+Tabii bunun isim olarak çağırınca havada kaldı, tıpkı her şeye "şey" demek gibi. Esas kullanılması gereken terim *varyanttır* - `Speed`in varyantları `Slow`, `Medium` ve `Fast`tır.
 
-These enums _do_ have a natural ordering, but you have to ask nicely.
-After placing `#[derive(PartialEq,PartialOrd)]` in front of `enum Speed`, then it's indeed
-true that `Speed::Fast > Speed::Slow` and `Speed::Medium != Speed::Slow`.
+Numaralandırmalar doğal bir sıralama da alabilir, ancak bunu kibarca istemelisiniz. `enum Speed`'in başına `#[derive(PartialEq,PartialOrd)]` ekledikten sonra `Speed::Fast > Speed::Slow` ve `Speed::Medium != Speed::Slow` gibi ifadeler kullanılabilir olur.
 
-## Enums in their Full Glory
-
-Rust enums in their full form are like C unions on steroids, like a Ferrari compared
-to a Fiat Uno. Consider the problem of storing different values in a type-safe way.
+# Numaralandırmalar Tam Teçhizatlıyken
+Rust'ın numaralandırmaları tam anlamıyla kullanıldığı zaman C'deki birliklerin (union) steroidli hâline benzer, tıpkı Ferrari ile Fiat Uno arasındaki ilişki gibi. Çeşitli tiplerden verileri bir araya güvenlice toplamanın zorluğunu düşünün.
 
 ```rust
 // enum3.rs
@@ -1105,12 +971,10 @@ fn main() {
 }
 // n Number(2.3) s Str("hello") b Bool(true)
 ```
-Again, this enum can only contain _one_ of these values; its size will be the size of
-the largest variant.
 
-So far, not really a supercar, although it's cool that enums know how to print themselves
-out. But they also know how _what kind_ of value they contain, and _that_ is the
-superpower of `match`:
+Numaralandırma bu verilerden sadece birisini taşıyabilir, büyüklüğü bir varyantın en büyük değeri kadardır.
+
+Şimdiye kadar bir süper araba etmese de numaralandırmaların kendilerini yazdırabilmeleri de güzel şey. Bunun yanında verilerinin ne tarz veriler olduğunu da biliyorlar ki bu `match`'ın süpergücüdür. 
 
 ```rust
 fn eat_and_dump(v: Value) {
@@ -1130,10 +994,9 @@ eat_and_dump(b);
 //boolean is true
 ```
 
-(And that's what `Option` and `Result` are - enums.)
+(`Result` ve `Option` kardeşleri hatırladınız mı? Onlar da bir numaralandırma.)
 
-We like this `eat_and_dump` function, but we want to pass the value as a reference, because currently
-a move takes place and the value is 'eaten':
+`eat_and_dump` fonksiyonu hiç fena değil ancak veriyi bir referans olarak iletsek iyi olur çünkü şu an verinin yerini taşıyor ve onu "yiyor":
 
 ```rust
 fn dump(v: &Value) {
@@ -1154,13 +1017,10 @@ error[E0507]: cannot move out of borrowed content
 14 |     Str(s) => println!("string is '{}'",s),
    |         - hint: to prevent move, use `ref s` or `ref mut s`
 ```
-There are things you cannot do with borrowed references. Rust is not letting
-you _extract_ the string contained in the original value. It did not complain about `Number`
-because it's happy to copy `f64`, but `String` does not implement `Copy`.
 
-I mentioned earlier that `match` is picky about _exact_ types;
-here we follow the hint and things will work; now we are just borrowing a reference
-to that contained string.
+Ödünç alınmış referanslarla yapamayacağınız bazı şeyler var. Rust, orijinal değerin içerisindeki karakter dizisini *dışarı çıkartmanıza* izin vermeyecektir. `Number` üzerinde sorun yok çünkü `f64`'ün kopyalanmasında bir sakınca yok ama `String` `Copy`'i içermez.
+
+`match`'ın kesin tipler hakkında seçici olduğunu söyledim, şimdi ipucunu takip edelim ve sıkıntı çıkartmayacaktır, şimdi içerideki karakter dizisine bir referans ödünç alıyoruz.
 
 ```rust
 fn dump(v: &Value) {
@@ -1176,28 +1036,17 @@ fn dump(v: &Value) {
     dump(&s);
     // string is 'hello'
 ```
-Before we move on, filled with the euphoria of a successful Rust compilation, let's
-pause a little. `rustc` is unusually good at generating errors that have enough
-context for a human to _fix_ the error without necessarily _understanding_ the error.
 
-The issue is a combination of the exactness of matching, with the determination of the
-borrow checker to foil any attempt to break the Rules.  One of those Rules is that
-you cannot yank out a value which belongs to some owning type. Some knowledge of
-C++ is a hindrance here, since C++ will copy its way out of the problem, whether that
-copy even _makes sense_.  You will get exactly the same error if you try to pull out
-a string from a vector, say with `*v.get(0).unwrap()` (`*` because indexing returns references.)
-It will simply not let you do this. (Sometimes `clone` isn't such a bad solution to this.)
+Devam etmeden önce, başarılı bir Rust derlemesinin mutluluğu ile dolup taşmışken, bir saniye bekleyelim. `Rustc` o kadar iyi ki sorunu tam olarak *anlamadan* onu çözmemizi sağlıyor. 
 
-(By the way, `v[0]` does not work for non-copyable values like strings for precisely this reason.
-You must either borrow with `&v[0]` or clone with `v[0].clone()`)
+Sorun, eşleştirmenin kesinliğinden ve ödünç kontrolünün kuralların çiğnenmemesinden kaynaklanıyor. Bu kurallardan birisi, sahipliği olan bir tipe dahil olan veriyi zart diye çekemiyor olmamızdan geliyor. Biraz C++ bilmek burada kafa karıştırabilir çünkü akla yatkın olsa bile C++ problemin yolunu kopyalayacaktır. Bir vektörden karakter dizesi alırken de aynı hatayı alabilirsiniz, mesela `*v.get(0).unwrap` ile deneyin. (`*` kullanmanızın sebebi indekslemenin referans dönmesi) Buna yapmanıza izin vermecektir. (Bu tarz durumlarda `Clone` çok da kötü bir tercih olmayabilir.)
 
-As for `match`, you can see `Str(s) =>` as short for `Str(s: String) =>`. A local variable
-(often called a _binding_) is created.  Often that inferred type is cool, when you
-eat up a value and extract its contents. But here we really needed is `s: &String`, and the
-`ref` is a hint that ensures this: we just want to borrow that string.
+(Bu arada, `v[0]` karakter dizeleri gibi kopyalanamaz verilerde tam olarak bundan dolayı çalışmayacaktır. `&v[0]` ile ödünç almanız ya da `v[0].clone()` kullanmanız gerekmektedir.)
 
-Here we do want to extract that string, and don't care about
-the enum value afterwards. `_` as usual will match anything.
+
+`match` kullanırken `Str(s: String) =>` yerine `Str(s)` yazıldığını görebilirsiniz. Yeni bir yerel değişken yaratılır. (bazen *bağlama (binding)* olarak anılır) Çoğu zaman tatmin edilen tip tutar, veriyi alıp onun içinden çıkartırken. Ancak burada `s: &String` yazmaya ihtiyacımız oldu ve `ref` ile sadece `String`'i ödünç almak istediğimizi bildirmiş olduk.
+
+Burada da bir karakter dizisini dışarı çıkartıyoruz ve değerin daha sonra ne olacağını umursamıyoruz. `_` her şeyle eşleşecektir.
 
 ```rust
 impl Value {
@@ -1213,11 +1062,10 @@ impl Value {
     // s? Some("hello")
     // println!("{:?}", s) // error! s has moved...
 ```
-Naming matters - this is called `to_str`, not `as_str`. You can write a
-method that just borrows that string as an `Option<&String>` (The reference will need
-the same lifetime as the enum value.)  But you would not call it `to_str`.
 
-You can write `to_str` like this - it is completely equivalent:
+İsimlendirme önemlidir -, `as_str` olarak değil de `to_str` olarak tanımlamamıza dikkat edin. (Ç.N: To Str - Str'ye çevir, As Str - Str olarak) Bir karakter dizisini `Option<&String>` olarak dönen  bir metot yazabilirsiniz. (Referansın da numaralandırma değeri ile aynı yaşam süresinde olmasına gerek vardır) Ancak onu `to_str` olarak isimlendirmemelisiniz. 
+
+`to_str` örneğimizi şöyle yazabilirsiniz - tamamen aynı işi yapar:
 
 ```rust
     fn to_str(self) -> Option<String> {
@@ -1229,9 +1077,8 @@ You can write `to_str` like this - it is completely equivalent:
     }
 ```
 
-## More about Matching
-
-Recall that the values of a tuple can be extracted with '()':
+# Eşleştirme Hakkında Daha Fazlası
+"()" kullanarak bir demeti dışarı çıkartabileceğinizi hatırladınız mı?
 
 ```rust
     let t = (10,"hello".to_string());
@@ -1241,12 +1088,9 @@ Recall that the values of a tuple can be extracted with '()':
     // n is i32, s is String
 ```
 
-This is a special case of _destructuring_; we have some
-data and wish to either pull it apart (like here) or just borrow its values.
-Either way, we get the parts of a structure.
+Bu *parçalama* işleminin özel bir durumudur; elimizdeki bazı veriler var ve (buradaki gibi) parçalara ayırmayı ya da verilerini ödünç almayı düşünebiliriz. Her iki durum da da bir bütünün parçalarına ulaşmaya çalışıyoruz.
 
-The syntax is like that used in `match`. Here
-we are explicitly borrowing the values.
+Sözdizimi `match`'taki gibi kullanılabilir. Burada açıkça ödünç alınmış verileri ödünç alıyoruz.
 
 ```rust
     let (ref n,ref s) = t;
@@ -1254,7 +1098,7 @@ we are explicitly borrowing the values.
     // n is &i32, s is &String
 ```
 
-Destructuring works with structs as well:
+Yapıları parçalamak da pekâlâ mümkün:
 
 ```rust
     struct Point {
@@ -1269,13 +1113,7 @@ Destructuring works with structs as well:
     // both x and y are f32
 ```
 
-Time to revisit `match` with some new patterns. The first two patterns are exactly like `let`
-destructuring - it only matches tuples with first element zero, but _any_ string;
-the second adds an `if` so that it only matches `(1,"hello")`.
-Finally, just a variable matches _anything_. This is useful if the `match` applies
-to an expression and you don't want to bind a variable to that expression. `_` works
-like a variable but is ignored. It's a common
-way to finish off a `match`.
+`match`'ı yeni örüntülerle tekrar inceleyelim. İlk iki örüntü `let` parçalaması gibi çalışır - ilki ilk elemanı sıfır olan, ikinci indeksi karakter dizesi olan her türlü demetle eşleşir, ikincisi ise sadece `(1, "hello")` ile eşleşir. Son koşulda ise olarak, bir değişken *herhangi bir şeyle* eşleşir. Eğer `match` bir ifadeyi eşleştiriyorsa ancak bunu değişkene bağlamak istemiyorsanız bu epey kullanışlıdır. `_` da bir değişken gibi çalışır ancak görmezden gelinir, bir `match`'ı bitirmenin yaygın bir yoludur.
 
 ```rust
 fn match_tuple(t: (i32,String)) {
@@ -1289,20 +1127,16 @@ fn match_tuple(t: (i32,String)) {
 }
 ```
 
-Why not just match against `(1,"hello")`? Matching is an exact business, and the compiler
-will complain:
+Peki neden sadece `(1, "hello")` kullanmıyoruz? Eşleştirme kesin olarak çalışır ve derleyici de bundan bahsedecektir:
 
 ```
   = note: expected type `std::string::String`
   = note:    found type `&'static str`
 ```
 
-Why do we need `ref s`? It's a slightly obscure gotcha (look up the E00008 error) where
-if you have an _if guard_ you need to borrow, since the if guard happens in a different
-context, a move will take place otherwise. It's a case of the implementation leaking
-ever so slightly.
+Neden `ref s`'e ihtiyacımız var? Bu biraz belirsiz bir durum (E00008 numaralı hataya bakın.) ve eğer bir koşula bağlayacaksanız bunu ödünç almanız gerekir, koşula bağlamanız farklı bir bağlamda gerçekleştiğinden bellekteki alanın taşınması gerekebilir. Bu, işin en civcivli olduğu yerlerden birisi.
 
-If the type _was_ `&str` then we match it directly:
+Eğer tipimiz `&str` olsaydı bunu doğrudan eşleştirebilirdik:
 
 ```rust
     match (42,"answer") {
@@ -1311,10 +1145,7 @@ If the type _was_ `&str` then we match it directly:
     };
 ```
 
-What applies to `match` applies to `if let`. This is a cool example, since if we
-get a `Some`, we can match inside it and only extract the string from the tuple. So it
-isn't necessary to have nested `if let` statements here. We use `_` because we aren't interested
-in the first part of the tuple.
+`match` için geçerli olan `if let` için de geçerlidir. Bu mesela güzel bir örnek, bir `Some` verimiz olduğu için içindeki veriyi çekebiliriz ve içinden sadece bir karakter dizisini çıkartabiliriz. İç içe geçmiş `if let` ifadelerine ihtiyacımız da yok üstelik. Burada `_` kullanıyoruz çünkü demetin ilk parçası ilgimizi çekmiyor. 
 
 ```rust
     let ot = Some((2,"hello".to_string());
@@ -1325,8 +1156,7 @@ in the first part of the tuple.
     // we just borrowed the string, no 'destructive destructuring'
 ```
 
-An interesting problem happens when using `parse` (or any function which needs to work
-out its return type from context)
+`parse` ile ilgili bir enteresan bir sorunumuz da var. (Ya da dönüş tipini bilmesi gereken fonksiyonlar için de bunu düşünebiliriz)
 
 ```rust
     if let Ok(n) = "42".parse() {
@@ -1334,8 +1164,7 @@ out its return type from context)
     }
 ```
 
-So what's the type of `n`? You have to give a hint somehow - what kind of integer? Is it
-even an integer?
+`n`'in tipi nedir? Bir ipucu vermeniz gerekir, ne tür bir tam sayılı değer bu? Hatta bu tam sayı mıdır?
 
 ```rust
     if let Ok(n) = "42".parse::<i32>() {
@@ -1343,21 +1172,19 @@ even an integer?
     }
 ```
 
-This somewhat non-elegant syntax is called the 'turbofish operator'.
+Bu rezil söz diziminin adı "[turbofish operatörüdür](https://turbo.fish/)". 
 
-If you are in a function returning `Result`, then the question-mark operator provides a much
-more elegant solution:
+Eğer `Result` dönen bir fonksiyonun içerisindeyseniz, soru işareti ile çok daha şık bir çözüm kullanabilirsiniz:
 
 ```rust
     let n: i32 = "42".parse()?;
 ```
-However, the parse error needs to be convertible to the error type of the `Result`, which is a topic
-we'll take up later when discussing [error handling](6-error-handling.html).
 
-## Closures
+Her neyse, herhangi bir `parse` hatası `Result`'ın hata tipine dönüştürülebilir bir tipe ihtiyaç duyar ki bunu sonra [hata kontrolü](#bu_yayınlanınca_düzenlenecek) kısmında ele alacağız.
 
-A great deal of Rust's power comes from _closures_. In their simplest form, they
-act like shortcut functions:
+# Kapamalar (Closure)
+
+Rust'ın gücünün büyük bir kısmı bu kapamalardan gelir. En basit hâliyle bir fonksiyonun kısa yoluna benzerler:
 
 ```rust
     let f = |x| x * x;
@@ -1368,11 +1195,9 @@ act like shortcut functions:
     // res 100
 ```
 
-There are no explicit types in this example - everything is deduced, starting with the
-integer literal 10.
+Burada açıkça belirtilmiş bir tip yoktur - bir "10" tam sayı kalıbının kullanılmasına kadar her şey birer tahmin edilmiştir. 
 
-We get an error if we call `f` on different types - Rust has already decided that
-`f` must be called on an integer type:
+Ancak `f`'i farklı farklı tipler için kullanırsak hata alırız - Rust `f`'in tam sayılarla çalışması gerektiğine karar vermişti.
 
 ```
     let res = f(10);
@@ -1384,10 +1209,9 @@ We get an error if we call `f` on different types - Rust has already decided tha
   |
   = note: expected type `{integer}`
   = note:    found type `{float}`
-
 ```
 
-So, the first call fixes the type of the argument `x`. It's equivalent to this function:
+İlk kullanım `x` için argümanı belirlemişti. Aslında yaptığımız şey şudur:
 
 ```rust
     fn f (x: i32) -> i32 {
@@ -1395,8 +1219,7 @@ So, the first call fixes the type of the argument `x`. It's equivalent to this f
     }
 ```
 
-But there's a big difference between functions and closures, _apart_ from the need for explicit typing.
-Here we evaluate a linear function:
+Ancak açıkça tiplerin yazılması gerektiği sorunun dışında fonksiyonlar ve kapamaların bir farkı daha vardır. Doğru fonksiyonunu inceleyelim:
 
 ```rust
     let m = 2.0;
@@ -1408,12 +1231,9 @@ Here we evaluate a linear function:
     // res 3 5
 ```
 
-You cannot do this with the explicit `fn` form - it does not know about variables
-in the enclosing scope. The closure has _borrowed_ `m` and `c` from its context.
+Bunu `fn` ile böyle yapamayız, kapsamının dışında kalan hiçbir şeyle `fn` ilgilenmez. Buradaki kapama, `m` ve `c`'yi kendi kapsamı içerisine ödünç aldı.
 
-Now, what's the type of `lin`? Only `rustc` knows.
-Under the hood, a closure is a _struct_ that is callable ('implements the call operator').
-It behaves as if it was written out like this:
+Peki ya `lin`'in tipi nedir? Ancak `rustc` bilebilir. Aslında görünenin altında kapama, çağrılabilir bir (çağırma operatörünü içeren bir) *yapıdır (struct).* Şu şekilde yazılmış gibi davranır:
 
 ```rust
 struct MyAnonymousClosure1<'a> {
@@ -1427,12 +1247,10 @@ impl <'a>MyAnonymousClosure1<'a> {
     }
 }
 ```
-The compiler is certainly being helpful, turning simple closure syntax into all
-that code! You do need to know that a closure is a _struct_ and it _borrows_ values
-from its environment. And that therefore it has a _lifetime_.
 
-All closures are unique types, but they have traits in common.
-So even though we don't know the exact type, we know the generic constraint:
+Derleyici bu konuda epey yardımcı oluyor ve basit bir kapamayı buna dönüştürüyor! Tek bilmeniz gereken kapama bir *yapıdır* ve verileri içinde bulunduğu çevreden *ödünç alır.* Bu referansların da bir *yaşam ömrü* vardır. 
+
+Bütün kapamaların benzersiz tipleri vardır ancak benzer özellikleri (trait) içerirler. Türü tam bilmesek de en azından jeneriklerde nasıl ifade edeceğimi biliyoruz:
 
 ```rust
 fn apply<F>(x: f64, f: F) -> f64
@@ -1444,10 +1262,9 @@ where F: Fn(f64)->f64  {
     let res2 = apply(3.14, |x| x.sin());
 ```
 
-In English: `apply` works for _any_ type `T` such that `T` implements `Fn(f64)->f64` - that
-is, is a function which takes `f64` and returns `f64`.
+El-meal: `apply` `Fn(f64)->f64`'e sahip herhangi bir T tipi ile çalışabilir - yani `f64` alıp `f64` dönen bir fonksiyon olabilir bu.
 
-After the call to `apply(3.0,lin)`, trying to access `lin` gives an interesting error:
+`apply(3.0, lin)` şeklinde çağırdıktan sonra `lin`'e erişmek şu tuhaf hatayı ortaya çıkartıyor:
 
 ```
     let l = lin;
@@ -1463,22 +1280,18 @@ error[E0382]: use of moved value: `lin`
    = note: move occurs because `lin` has type
     `[closure@closure2.rs:12:15: 12:26 m:&f64, c:&f64]`,
      which does not implement the `Copy` trait
-
 ```
 
-That's it, `apply` ate our closure. And there's the actual type of the struct that
-`rustc` made up to implement it. Always thinking of closures as structs is helpful.
+Ve bu kadar, `apply` bizim kapamamızı yedi. Ve ayrıca, `rustc`'nin kullanmaya çalıştığı yapının (struct) gerçek tipi. Kapamaları bir yapı olarak düşünmek işi epey kolaylaştırıyor.
 
-Calling a closure is a _method call_:  the three kinds of function traits
-correspond to the three kinds of methods:
+Bir kapama çağırmak aslında *metot çağrısıdır*: Üç tip fonksiyon özelliği (trait) üç tip metoda sahiptir:
+- `Fn`, `&self` olarak geçer.
+- `FnMut`, `&mut self` olarak geçer.
+- `FnOnce` ise sadece `self` olarak geçer.
 
-  - `Fn` struct passed as `&self`
-  - `FnMut` struct passed as `&mut self`
-  - `FnOnce` struct passed as `self`
-
-So it's possible for a closure to mutate its _captured_ references:
-
-```rust
+ Bir kapama içerisinde *yakalanmış referansları* düzenlemek de mümkündür.
+ 
+ ```rust
     fn mutate<F>(mut f: F)
     where F: FnMut() {
         f()
@@ -1488,11 +1301,9 @@ So it's possible for a closure to mutate its _captured_ references:
     assert_eq!(s, "hello");
 ```
 
-Note that `mut` - `f` needs to be mutable for this to work.
+`mut`'a dikkat edin - `f`'in değişebilir olması gerekiyor.
 
-[#71: NLL makes this work]
-
-However, you cannot escape the rules for borrowing. Consider this:
+Yine de, ödünç alma ile ilgili kurallardan kaçınamazsınız. Şuna bakın:
 
 ```rust
 let mut s = "world";
@@ -1505,11 +1316,7 @@ changer();
 assert_eq!(s, "world");
 ```
 
-Can't be done! The error is that we cannot borrow `s`
-in the assert statement, because it has been previously borrowed by the
-closure `changer` as mutable. As long as that closure lives, no other
-code can access `s`, so the solution is to control that lifetime by
-putting the closure in a limited scope:
+Çalışamaz! Çünkü `s`'i `assert` deyiminde ödünç alamıyoruz, çünkü daha önce `changer` kapamasında değişken olarak ödünç almıştır. Kapama düşürülmediği sürece `s`'e hiç kimse erişemez, bundan dolayı iç bir kapsam alanı içerisinde kullanarak yaşam süresini kontrol etmek en iyi çözümdür.
 
 ```rust
 let mut s = "world";
@@ -1520,13 +1327,9 @@ let mut s = "world";
 assert_eq!(s, "world");
 ```
 
-At this point, if you are used to languages like JavaScript or Lua, you may wonder at the
-complexity of Rust closures compared with how straightforward they are in those languages.
-This is the necessary cost of Rust's promise to not sneakily make any allocations. In JavaScript,
-the equivalent `mutate(function() {s = "hello";})` will always result in a dynamically
-allocated closure.
+Eğer Lua ve JavaScript gibi dillere aşinaysanız, bu dillerde gayet sade iken Rust'ta kapamaların bu denli karmaşık olduğunu merak ediyor olabilirsiniz. Bu, Rust'ın gizlice bellek tahsis etmemesi için gerekli bir bedeldir. JavaScript'te, `mutate(function() {s = "hello";})` gibi bir ifadenin karşılığı her zaman dinamik bellek tahsis edilmiş kapamadır. 
 
-Sometimes you don't want a closure to borrow those variables, but instead _move_ them.
+Bazen kapamaların verileri ödünç almasını değil direkt taşımasını isteyebilirsiniz.
 
 ```rust
     let name = "dolly".to_string();
@@ -1541,8 +1344,7 @@ Sometimes you don't want a closure to borrow those variables, but instead _move_
     println!("name {}",name);
 ```
 
-And the error at the last `println` is: "use of moved value: `name`". So one solution
-here - if we _did_ want to keep `name` alive - is to move a cloned copy into the closure:
+Burada alacağımız hata son `println`'dadır: "taşınmış verinin kullanımı: `name` (use of moved value: `name`)". Burada tek bir çözüm var, kapamanın içine verinin klonunu taşımak: 
 
 ```rust
     let cname = name.to_string();
@@ -1550,33 +1352,24 @@ here - if we _did_ want to keep `name` alive - is to move a cloned copy into the
         println!("name {} age {}",cname,age);
     };
 ```
-Why are moved closures needed? Because we might need to call them at a point where
-the original context no longer exists.
-A classic case is when creating a _thread_.
-A moved closure does not borrow, so does not have a lifetime.
 
-A major use of closures is within iterator methods. Recall the `range` iterator we
-defined to go over a range of floating-point numbers. It's straightforward to operate
-on this (or any other iterator) using closures:
+Neden taşıyan kapamalara ihtiyacımız var? Çünkü orijinal verinin erişilemeyeceği bir durumda onları çağırmamız gerekebilir. En basit örneği *iş parçacıklarıdır.* Taşıyan kapamalar ödünç almaz, bundan dolayı yaşam süresi açısından hiçbir sorunları olmaz.
+
+Kapamaların esas kullanımı döngüleyici metotlarıdır. Noktalı sayılar için hazırladığımız `range` döngüleyicisini hatırlayın. Kapama kullanarak bu döngüleyici (veya başka döngüleyiciler) üzerinde işlem yapmak gayet kolay:
 
 ```rust
     let sine: Vec<f64> = range(0.0,1.0,0.1).map(|x| x.sin()).collect();
 ```
 
-`map` isn't defined on vectors (although it's easy enough to create a trait that does this),
-because then _every_ map  will create a new vector.  This way, we have a choice. In this
-sum, no temporary objects are created:
+`map` vektörler üzerinde tanımlanmadı (Bunu kullanan bir özellik (trait) yaratmak oldukça kolay olmasına rağmen) çünkü `map`'ın yeni bir vektör yaratması gerekirdi. Bu şekilde elimizde seçeneklerimiz oluyor. Üstelik, geçici hiçbir öğe yaratılmış olmuyor:
 
 ```rust
  let sum: f64 = range(0.0,1.0,0.1).map(|x| x.sin()).sum();
 ```
 
-It will (in fact) be as fast as writing it out as an explicit loop! That performance
-guarantee would be impossible if Rust closures were as 'frictionless'
-as Javascript closures.
+(İşin özü) Tıpkı bir döngü yazmak kadar kadar hızlı. Eğer Rust kapamaları JavaScript kapamaları kadar "acısız" olsaydı bu performansı garanti edemezdik.
 
-`filter` is another useful iterator method - it only lets through values that match
-a condition:
+`filter` da ayrıca bir iterator metotudur - geriye sadece koşullara uyanlar kalır:
 
 ```rust
     let tuples = [(10,"ten"),(20,"twenty"),(30,"thirty"),(40,"forty")];
@@ -1589,11 +1382,8 @@ a condition:
     // forty
 ```
 
-## The Three Kinds of Iterators
-
-The three kinds correspond (again) to the three basic argument types. Assume we
-have a vector of `String` values. Here are the iterator types explicitly, and
-then _implicitly_, together with the actual type returned by the iterator.
+# Üç çeşit döngüleyici
+Üç farklı çeşit (yine) üç basit argüman tipine denk düşüyor. Bir `String` vektörümüz olduğunu düşünelim. Bunlar bizim döngüleyici tiplerimiz, ilk üçü aleni bir şekilde sonraki üçü de gizil bir şekilde belirtilmiştir. 
 
 ```rust
 for s in vec.iter() {...} // &String
@@ -1605,27 +1395,16 @@ for s in &vec {...} // &String
 for s in &mut vec {...} // &mut String
 for s in vec {...} // String
 ```
-Personally I prefer being explicit, but it's important to understand both forms,
-and their implications.
 
-`into_iter` _consumes_ the vector and extracts its strings,
-and so afterwards the vector is no longer available - it has been moved. It's
-a definite gotcha for Pythonistas used to saying `for s in vec`!
+Şahsen ben aleni bir şekilde ifade etmeyi tercih ediyorum, ancak iki formu da anlamak ve nasıl kullanıldığını bilmek önemlidir. 
 
- So the
-implicit form `for s in &vec` is usually the one you want, just as `&T` is a good
-default in passing arguments to functions.
+`into_iter` vektörü tüketir ve içeriğindeki karakter dizilerini çıkartır, ve ardından artık vektör kullanılamaz - artık taşınmış olur. Pythonistalar alışkanlıktan `for s in vec` dediği zaman başlarına bu gelir.
 
-It's important to understand how the three kinds works because Rust relies heavily
-on type deduction - you won't often see explicit types in closure arguments. And this
-is a Good Thing, because it would be noisy if all those types were explicitly
-_typed out_. However, the price of this compact code is that you need to know
-what the implicit types actually are!
+`for s in &vec` şeklindeki gizil form muhtemelen kullanmak isteyeceğiniz şekildir, tıpkı fonksiyon argümanlarında `&T` kullanmak gibi.
 
-`map` takes whatever value the iterator returns and converts it into something else,
-but `filter` takes a _reference_ to that value. In this case, we're using `iter` so
-the iterator item type is `&String`. Note that `filter` receives a reference to this type.
+Üç çeşidi de anlamak önemlidir çünkü Rust tip tahminlerini epeyce kullanır - kapama argümanlarında tip bildirimlerini pek görmezsiniz. Bu iyi bir şey çünkü bu tiplerin hepsi yazılsaydı kafa şişirici olurdu. Ancak, bu ufak kodun bedeli gizil tiplerin ne olduğunu net olarak bilmenizin gerekmesidir!
 
+`map` döngüleyicinin değerini ne olursa olsun alır ve onu başka bir şeye dönüştürür, ancak `filter` veriye bir *referans* alır. Aşağıda, `iter` kullanıyoruz ve bundan dolayı döngüleyici tipi `&String`tir. `filter`'ın her veriyi referansını aldığını gözden kaçırmayın:
 ```rust
 for n in vec.iter().map(|x: &String| x.len()) {...} // n is usize
 ....
@@ -1636,11 +1415,7 @@ for s in vec.iter().filter(|x: &&String| x.len() > 2) { // s is &String
 }
 ```
 
-When calling methods, Rust will derefence automatically, so the problem isn't obvious.
-But `|x: &&String| x == "one"|` will _not_ work, because operators are more strict
-about type matching. `rustc` will complain that there is no such operator that
-compares `&&String` and `&str`. So you need an explicit deference to make that `&&String`
-into a `&String` which _does_ match.
+Metotları çağırdığınız zaman Rust kendiliğinden dereferans eder, ondan dolayı sorunu pek anlamazsınız. Ancak `|x: &&String| x == "one"` çalışmayacaktır çünkü operatörler tip eşleştirmesinden daha katıdır. `rustc`, `&str` ve `&&String`'i kıyaslayacak bir operatör olmadığını bildirecektir. Bundan dolayı eşleşme yapabilmek için `&&String`'i `&String`e çevirmek için dereferans etmeniz gerekecektir.
 
 ```rust
 for s in vec.iter().filter(|x: &&String| *x == "one") {...}
@@ -1648,22 +1423,18 @@ for s in vec.iter().filter(|x: &&String| *x == "one") {...}
 for s in vec.iter().filter(|x| *x == "one") {...}
 ```
 
-If you leave out the explicit type, you can modify the argument so that the type of `s`
-is now `&String`:
+Eğer tipleri bildirmeyi bırakırsanız, argümanı şu şekilde düzeltebilirsiniz ki bu sefer s'in tipi `&String` olur.
 
 ```rust
 for s in vec.iter().filter(|&x| x == "one")
 ```
 
-And that's usually how you will see it written.
+Ve çoğu zaman bu şekilde yazıldığını görürsünüz.
 
-## Structs with Dynamic Data
+# Dinamik Verili Yapılar
+*Kendisine yönlenen yapı* tekniği en güçlü tekniktir.
 
-A most powerful technique is _a struct that contain references to itself_.
-
-Here is the basic building block of a _binary tree_, expressed in C (everyone's
-favourite old relative with a frightening fondness for using power tools without
-protection.)
+Aşağıda C ile yazılmış bir *ikili ağacın* temel tuğlasını görüyorsunuz. (C... Âdeta Beyoğlu'nun arka sokakları gibi... "Acaba başıma ne gelecek?" demeden dolaştığınız tarihî sokaklarda nefes kesici bir gezi...)
 
 ```rust
     struct Node {
@@ -1673,19 +1444,14 @@ protection.)
     };
 ```
 
-You can not do this by _directly_ including `Node` fields, because then the size of
-`Node` depends on the size of `Node`... it just doesn't compute. So we use pointers
-to `Node` structs, since the size of a pointer is always known.
 
-If `left` isn't `NULL`, the `Node` will have a left pointing to another node, and so
-moreorless indefinitely.
+Bunu doğrudan `Node` alanlarını içererek yapamazsınız çünkü `Node`'un büyüklüğü yine `Node`'a dayanır. Ki bu hesaplanamaz. Bundan dolayı `Node` yapılarının göstericilerini (pointer) kullanıyoruz, ki göstericinin boyutu her zaman kestirilebilir.
 
-Rust does not do `NULL` (at least not _safely_) so it's clearly a job for `Option`.
-But you cannot just put a `Node` in that `Option`, because we don't know the size
-of `Node` (and so forth.)  This is a job for `Box`, since it contains an allocated
-pointer to the data, and always has a fixed size.
+Eğer `left`, `NULL` değilse `Node`'un `left` tarafı bir başka `Node` gösteriyordur ve bu böyle sonsuza kadar gidebilir.
 
-So here's the Rust equivalent, using `type` to create an alias:
+Rust'ta `NULL` yoktur (en azından bu güvensiz hâliyle yok), bu Option'un işidir. Ancak `Node`'u doğrudan `Option` içerisine ekleyemezsiniz çünkü `Node`'un boyutunu bilemezsiniz. (gibi gibi) Bu da `Box`'un işidir, kendisinin sabit bir boyutu vardır ancak bellekte alanı tahsis edilmiş veriyi içerir. 
+
+İşte Rust'taki karşılığına bakalım, `type` ile tipimize bir takma ad verdik:
 
 ```rust
 type NodeBox = Option<Box<Node>>;
@@ -1697,9 +1463,10 @@ struct Node {
     right: NodeBox
 }
 ```
-(Rust is forgiving in this way - no need for forward declarations.)
 
-And a first test program:
+(Rust işte böyle kalender meşreptir, ileriye dönük bildirimlere ihtiyacınız yoktur.)
+
+Şimdi bunu test edelim:
 
 ```rust
 impl Node {
@@ -1730,7 +1497,8 @@ fn main() {
     println!("arr {:#?}", root);
 }
 ```
-The output is surprisingly pretty, thanks to "{:#?}" ('#' means 'extended'.)
+
+Çıktı beklediğimizden çok daha iyi, "{:#?}" sağolsun. ("#" genişletilmiş demektir.)
 
 ```
 root Node {
@@ -1751,17 +1519,12 @@ root Node {
     )
 }
 ```
-Now, what happens when `root` is dropped? All fields are dropped; if the 'branches' of
-the tree are dropped, they drop _their_ fields and so on. `Box::new` may be the
-closest you will get to a `new` keyword, but we have no need for `delete` or `free`.
 
-We must now work out a use for this tree. Note that strings can be ordered:
-'bar' < 'foo', 'abba' > 'aardvark'; so-called 'alphabetical order'. (Strictly speaking, this
-is _lexical order_, since human languages are very diverse and have strange rules.)
+Peki ya `root` düşerse? Bütün alanlar da düşer, ağacın `dalları` düşerse kendi alanlarını da kaybolur ve böyle devam eder. `Box::new`, `new` anahtar kelimesine en çok ulaşacağınız alandır ancak `delete` veyahut `free` gibi bir kelimeye ihtiyacınız yoktur.
 
-Here is a method which inserts nodes in lexical order of the strings. We compare the new data
-to the current node - if it's less, then we try to insert on the left, otherwise try to insert
-on the right. There may be no node on the left, so then `set_left` and so forth.
+Bu ağacı kullanmak için bir yol bulmalıyız. Karakter dizilerinin sıralanabildiğine dikkat edin: "hede" < "hödö", "ayı" > "abi"; sözde alfabetik sıralama olarak anılır. (Aslını söylemek gerekirse, insan dillerinin çeşitliliğinden ve tuhaf kurallarına istinaden buna sözlüksel sıralama denir.)
+
+Aşağıda `Node`ları sözlüksel sıralamaya göre yerleştiren bir metot görüyorsunuz. Veriyi mevcut `Node` ile kıyaslıyoruz - eğer küçükse soluna yerleştiriyoruz, değilse de sağına yerleştirmeye çalışıyoruz. Solda bir `Node` olmayabilir, bundan dolayı `set_left` kullanıyoruz.
 
 ```rust
     fn insert(&mut self, data: &str) {
@@ -1789,12 +1552,9 @@ on the right. There may be no node on the left, so then `set_left` and so forth.
     }
 ```
 
-Note the `match` - we're pulling out a mutable reference to the box, if the `Option`
-is `Some`, and applying the `insert` method. Otherwise, we need to create a new `Node`
-for the left side and so forth. `Box` is a _smart_ pointer; note that no 'unboxing' was
-needed to call `Node` methods on it!
+`match`'a dikkat edin - `Box` içerisinden değişken bir referans çıkartıyoruz, eğer `Option`'un içeriği `Some` ise `insert` kullanıyoruz. Değilse, sol tarafa yeni bir `Node` ekliyoruz ve böyle devam ediyoruz. `Box`, akıllı bir göstericidir; `Node` metotlarını çağırmak için "kutudan çıkarmamıza" gerek yok!   
 
-And here's the output tree:
+İşte ağacımızın görüntüsü:
 
 ```
 root Node {
@@ -1821,11 +1581,10 @@ root Node {
     )
 }
 ```
-The strings that are 'less' than other strings get put down the left side, otherwise
-the right side.
 
-Time for a visit. This is _in-order traversal_ - we visit the left, do something on
-the node, and then visit the right.
+Diğerlerinden daha "küçük" olan karakter dizileri sol eklenir, aksi durumda ise sağa eklenirler.
+
+Şimdi gezinti zamanı. Bu *iç-sıralı gezinmedir. (inorder traversal)* - önce solu ziyaret ediyoruz, bir şeyler yapıyoruz ve sonra da sağa geçiyoruz.
 
 ```rust
     fn visit(&self) {
@@ -1845,15 +1604,11 @@ the node, and then visit the right.
     // 'root'
     // 'two'
 ```
-So we're visiting the strings in order! Please note the reappearance of `ref` - `if let`
-uses exactly the same rules as `match`.
 
+Karakter dizilerini bir sıralamaya göre geziyoruz! `ref`'in `if let` için kullanıldığına dikkat edin, `match` ile aynı kurallara sahiptir.
 
-## Generic Structs
-
-Consider the previous example of a binary tree. It would be _seriously irritating_ to
-have to rewrite it for all possible kinds of payload.
-So here's our generic `Node` with its type parameter `T`.
+# Jenerik Yapılar
+Önceki örneğimizde kullandığımız ikili ağaç yapısını düşünün. Bütün `payload` tipleri için yeniden yazmak epey *çıldırtıcı* olurdu doğrusu. `T` tip parametresiyle `Node`'u yeniden jenerik şekilde yazıyoruz.
 
 ```rust
 type NodeBox<T> = Option<Box<Node<T>>>;
@@ -1866,10 +1621,7 @@ struct Node<T> {
 }
 ```
 
-The implementation shows the difference between the languages. The fundamental operation
-on the payload is comparison, so T must be comparable with `<`, i.e. implements `PartialOrd`.
-The type parameter must be declared in the `impl` block with its constraints:
-
+Bu kullanım diller arasındaki farkları da belli ediyor. `Payload` üzerindeki temel işlem karşılaştırmadır, bundan dolayı T ile `<` kullanılabilmelidir ki `PartialOrd` bunu sağlar. Tip parametresi `impl` bloğu içerisinde özellik kısıtlamasıyla birlikte yazılmalıdır.
 
 ```rust
 impl <T: PartialOrd> Node<T> {
@@ -1915,11 +1667,6 @@ fn main() {
 }
 ```
 
-So generic structs need their type parameter(s) specified
-in angle brackets, like C++. Rust is usually smart enough to work out
-that type parameter from context - it knows it has a `Node<T>`, and knows
-that its `insert` method is passed `T`. The first call of `insert` nails
-down `T` to be `String`. If any further calls are inconsistent it will complain.
+Tıpkı C++ gibi jenerik yapımız tip parametrelerinin köşeli ayraçlarla gösterilmesine ihtiyaç duyar. Rust genellikle bu tür tip parametresini bağlamdan tahmin edebilecek kadar zekidir - Bunun `Node<T>` olduğunu biliyor ve `T` üzerinde `insert` kullanıyor. İlk `insert` tasarısı sadece `String` ile takılıp kalmıştı. Ancak yeni kullanım uymuyorsa muhtemelen bir şekilde bunu bildirecektir.
 
-But you do need to constrain that type appropriately!
-
+Ancak, tipi uygun biçimde kısıtlamanız gerektiğine dikkat edin.
