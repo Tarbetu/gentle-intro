@@ -1,24 +1,15 @@
-# Filesystem and Processes
+# Dosya Sistemi ve Süreçler 
 
-## Another look at Reading Files
+# Dosya Okumaya Farklı Bir Bakış
+Birinci bölümün sonunda bütün dosyayı bir karakter dizisi içerisine aktarmayı göstermiştim. Doğal olarak bu her zaman iyi bir fikir olmayabilir, bu yüzden bir dosyayı satır satır okumayı göstereceğim.
 
-At the end of Part 1, I showed how to read a whole file into a string. Naturally
-this isn't always such a good idea, so here is how to read a file line-by-line.
+`fs::File`, `io::Read`'ı tanımlar ki bu okunabilen her şeyin özelliğidir. (trait) Bu özellik, `u8` ile bayt içeren bir dilimi dolduran `read` metotunu tanımlar - bu özelliğin *gerekli* tek metotudur ve *beraberinde gelen* pek çok metotu bedavaya kapmış olursunuz, `Iterator` gibi. Bir bayt vektörünü doldurmak için `read_to_end`'u veya bir karakter dizisini doldurmak için `read_to_string`'i kullanabilirsiniz - UTF-8 ile kodlanmış olması bir zorunluluktur.
 
-`fs::File` implements `io::Read`, which is the trait for anything readable.
-This trait defines a `read` method which will fill a slice of `u8` with bytes -
-this is the only _required_ method of the trait, and you get some _provided_ methods
-for free, much like with `Iterator`.  You can use `read_to_end` to fill a vector of
-bytes with contents from the readable, and `read_to_string` to fill a string - which
-must be UTF-8 encoded.
+Bu arabellek kullanılmayan (buffering) "saf" bir okumadır. Arabellekli okuma için `read_line` ve `lines` döngüleyicisini sunan `io::BufRead` özelliğini kullanabilirsiniz. `io::BufReader`, `io::BufRead`'ın kullanımlarını okunabilir *herhangi* bir şey için sunacaktır.
 
-This is a 'raw' read, with no buffering. For buffered reading there is the
-`io::BufRead` trait which gives us `read_line` and a `lines` iterator.
-`io::BufReader` will provide an implementation of `io::BufRead` for _any_ readable.
+`fs::File` ise aynı zamanda `io::Write`'ı da barındırır.
 
-`fs::File` _also_ implements `io::Write`.
-
-The easiest way to make sure all these traits are visible is `use std::io::prelude::*`.
+Bütün bu özelliklerin kullanılabilir olduğunu görmenin en kolay yolu `use std::io::prelude::*` kullanmaktır.
 
 ```rust
 use std::fs::File;
@@ -38,19 +29,11 @@ fn read_all_lines(filename: &str) -> io::Result<()> {
 }
 ```
 
-The `let line = line?` may look a bit strange. The `line` returned by the
-iterator is actually an `io::Result<String>` which we unwrap with `?`.
-Because things _can_ go wrong during this iteration - I/O errors, swallowing
-a chunk of bytes that aren't UTF-8, and so forth.
+`let line = line?` gözünüze biraz tuhaf görünebilir. Döngüleyiciden dönen `line`  aslında `io::Result<String>` tipidir ve `?` ile onu paketinden dışarı çıkartıyoruz. Bunu yapmamızın sebeni döngü esnasında bir şeyleri yanlış gide*bile*ceğidir. - Girdi/çıktı hataları, UTF-8 olmayan bir bayt serisini almak gibi şeyler.
 
-`lines` being an iterator, it is straightforward to read a file into a vector
-of strings using `collect`, or print out the line with line numbers using the
-`enumerate` iterator.
+Bir döngüleyici olarak `lines`'i `collect` ile bir vektöre kolayca çevirebiliriz ya da `enumerate` döngüleyicisi ile her satırın sırasını öğrenebiliriz.
 
-It isn't the most efficient way to read all the lines, however, because a new
-string is allocated for each line. It is more efficient to use `read_line`, although
-more awkward. Note that the returned line includes the linefeed, which
-can be removed using `trim_right`.
+Yine de bütün satırları okumak için en iyi tercih bu değildir çünkü her satır için yeni bir `String` tahsis edilir. En iyi yöntem `read_line` kullanmaktır, biraz daha acayip görünse de. Satırın bir satır akışı içerdiğine dikkat edin ki bunu `trim_right` ile siliyoruz.
 
 ```rust
     let mut reader = io::BufReader::new(file);
@@ -64,23 +47,13 @@ can be removed using `trim_right`.
     }
 ```
 
-This results in far less allocations, because _clearing_ that string does not free its
-allocated memory; once the string has enough capacity, no more allocations will take
-place.
+Sonuçta çok daha az tahsis etme işlemimiz oluyor çünkü bir karakter dizisini *temizlemek* onun tahsis edilmiş alanını boşaltmıyor, bu alanı işgal eden yeni tahsis işlemleriyle uğraşmıyoruz.
 
-This is one of those cases where we use a block to control a borrow. `line` is
-borrowed from `buf`, and this borrow must finish before we modify `buf`.  Again,
-Rust is trying to stop us doing something stupid, which is to access `line` _after_
-we've cleared the buffer. (The borrow checker can be restrictive sometimes.
-Rust is due to get 'non-lexical lifetimes', where
-it will analyze the code and see that `line` isn't used after `buf.clear()`.)
+Bu arada ödünç alma işlemini bozmamak için blok kullandığımız durumlardan birisiyle karşı karşıyayız. `line`, `buf` tarafından ödünç alınıyor ve bu ödünç `buf`'ı tekrardan düzenlemeden önce belleği terk etmelidir. Yine Rust bizi aptalca bir şey yapmaktan alıkoymaya çalışıyor, ara belleği boşalttıktan *sonra* `line`'a ulaşmak gibi. (Ödünç alma mekanizması bazen sizi darlayabilir. Rust bu kodu inceleyecek ve `line`'ın, `buf.clear()`'dan sonra kullanılmadığını görecektir, bu "sözcüksel olmayan yaşam sürelerini (non-lexical lifetimes)" ayıklamasından kaynaklanır.
 
-This isn't very pretty. I cannot give you a proper iterator that returns references
-to a buffer, but I can give you something that _looks_ like an iterator.
+Bu pek şık görünmüyor. Belki size arabelleğe referanslar dönen bir döngüleyici veremem ama en azından döngüleyiciye *benzeyen* bir şeyler verebilirim.
 
-First define a generic struct;
-the type parameter `R` is 'any type that implements Read'. It contains the reader
-and the buffer which we are going to borrow from.
+Şimdi jenerik bir yapı tanımlayalım; `R` ismindeki tip parametremiz `Read` içeren her tipi kabul edebilir. Bu yapının içeriğinde okuyucu (reader) ve referansını alabileceğimiz bir arabelleğimiz (buffer, ya da kısaca buf) olacak.
 
 ```rust
 // file5.rs
@@ -101,14 +74,7 @@ impl <R: Read> Lines<R> {
 }
 ```
 
-Then the `next` method. It returns an `Option` - just like an iterator, when it
-returns `None` the iterator finishes. The returned type is a `Result` because
-`read_line` might fail, and we _never throw errors away_. So if fails, we
-wrap up its error in a `Some<Result>`.  Otherwise, it may have read zero bytes,
-which is the natural end of the file - not an error, just a `None`.
-
-At this point, the buffer contains the line with a linefeed (`\n') appended.
-Trim this away, and package up the string slice.
+Şimdi `next` metotunu kullanalım. Tıpkı bir döngüleyici gibi `Option` dönecek, `None` döndüğü zaman döngüleyici başa dönmüş olacak. İçerisinden dönen tip `Result` olacak çünkü `read_line` başarısız olabilir ve *asla hataları görmezden gelmiyoruz*. Eğer başarısız olursa hatayı `Some<Result>` olarak dönebiliriz. Eğer dosyanın doğal sınırı olan "sıfır baytları" okunursa bu bir hata değildir, sadece `None`'dur.  
 
 ```rust
     fn next<'a>(&'a mut self) -> Option<io::Result<&'a str>>{
@@ -124,18 +90,12 @@ Trim this away, and package up the string slice.
         }
     }
 ```
-Now, note how the lifetimes work. We need an explicit lifetime because Rust will never
-allow us to hand out borrowed string slices without knowing their lifetime. And here
-we say that the lifetime of this borrowed string is within the lifetime of `self`.
 
-And this signature, with the lifetime, is incompatible with the interface of `Iterator`.
-But it's easy to see problems if it were compatible; consider `collect` trying to make
-a vector of these string slices. There's no way this could work, since they're all
-borrowed from the same mutable string! (If you had read _all_ the file into a string, then
-the string's `lines` iterator can return string slices because they are all borrowed from
-_distinct_ parts of the original string.)
+Şimdi, yaşam sürelerinin nasıl çalıştığına dikkat edin. Açık bir yaşam süresi belirtmemiz gerekti çünkü Rust hiçbir zaman karakter dizelerini yaşam sürelerini belirtmeden ödünç almaya izin vermeyecektir ve burada ödünç alınan karakter dizisinin yaşam süresini `self` ile birlikte belirtiyoruz.
 
-The resulting loop is much cleaner, and the file buffering is invisible to the user.
+Bu yaşam süresiyle birlikte bu tanım `Iterator` özelliği ile uyumsuz. Ancak uyumlu olsaydı sorunları kolayca görebilirdik, `collect`'in karakter dizileririnden vektör yapmaya çalıştığını düşünün. Bu mümkün değil zira hepsi aynı değişebilir (mutable) karakter dizisini ödünç almış olurdu! (Eğer *bütün* dosyayı bir karakter dizesine çevirmek isteseydiniz karakter dizelerinin `lines` metotu karakter dizeleri dönebilirdi çünkü hepsi esas karakter dizilerinden ödünç alınmıştır.)
+
+Neticedeki döngü çok daha temizdir ve ara belleğe alma işlemi çok kullanıcı tarafından görünmez.
 
 ```rust
 fn read_all_lines(filename: &str) -> io::Result<()> {
@@ -151,8 +111,7 @@ fn read_all_lines(filename: &str) -> io::Result<()> {
 }
 ```
 
-You can even write the loop like this, since the explicit match can pull out the
-string slice:
+Hatta eşleştirme karakter dizisi dilimini dışarı çıkartacağından, döngüyü bu şekilde de yazabilirsiniz:
 
 ```rust
     while let Some(Ok(line)) = lines.next() {
@@ -160,33 +119,22 @@ string slice:
     }
 ```
 
-It's tempting, but you are throwing away a possible error here; this loop will
-silently stop whenever an error occurs. In particular, it will stop at the first place
-where Rust can't convert a line to UTF-8.  Fine for casual code, bad for production code!
+Bunu yapmak isteyebilirsiniz ancak muhtemelen hataları halının altına süpürmüş olursunuz; döngü bir hata söz konusu olduğu zaman sessizce duracaktır. Daha da ötesi, Rust'ın `UTF-8`'e çeviremediği ilk yerde duracaktır. Gündelik kodlar için kabul edilebilir ancak kodu yayına aldığınız zaman kötüdür.
 
-## Writing To Files
+# Dosyalara Yazmak
 
-We met the `write!` macro when implementing `Debug` - it also works with anything
-that implements `Write`. So here's a another way of saying `print!`:
+`Debug`'u kullanırken `write!` ile tanışmıştık - `Write`'ın kullanıldığı her yerde aynı zamanda `write!` kullanabiliriz. `print!` demenin farklı bir yoluna bakalım:
 
 ```rust
     let mut stdout = io::stdout();
     ...
     write!(stdout,"answer is {}\n", 42).expect("write failed");
 ```
+Eğer bir hata *söz konusu olabilirse* bunu idare edebilirsiniz. Bu *genellikle* gerçekleşmez ancak yine de söz konusu olabilir. Eğer bir girdi/çıktı işlemi yapıyor Bu genellikle kabul edilebilir çünkü bir dosyayla oynaşıyorsanız `?` eklemeniz gereken bazı yerler olabilir. 
 
-If an error is _possible_, you must handle it. It may not be
-very _likely_ but it can happen. It's usually fine, because if you
-are doing file i/o you should be in a context where `?` works.
+Ancak bir fark var; `print!`, `stdout`'u her yazım için kitler. Çoğu zaman istediğiniz şey budur çünkü çoklu süreçlerin yazıldığı programlarda `stdout`'u kitlemezseniz çıktınız tuhaf bir şekilde karmaşıklaşabilir. Ancak çok fazla metin yolluyorsanız `write!` çok daha hızlı davranacaktır.
 
-But there is a difference: `print!` locks stdout for each write. This is usually
-what you want for output, because without that locking multithreaded
-programs can mix up that output in interesting ways. But if you are pumping out
-a lot of text, then `write!` is going to be faster.
-
-For arbitrary files we need `write!`. The
-file is closed when `out` is dropped at the end of `write_out`, which is
-both convenient and important.
+Çeşitli dosyalar için `write!` kullanmamız gerekiyor. `out`,  `write_out`'un sonunda düşürüldüğü zaman dosya kapanır ki bu hem istenen şeydir hem de önemlidir.
 
 ```rust
 // file6.rs
@@ -204,25 +152,15 @@ fn main() {
   write_out("test.txt").expect("write failed");
 }
 ```
-If you care about performance, you need to know that Rust files are unbuffered
-by default. So each little write request goes straight to the OS, and this is
-going to be significantly slower. I mention this because this default is different
-from other programming languages, and could lead to the shocking discovery that Rust
-can be left in the dust by scripting languages!
-Just as with `Read` and `io::BufReader`, there is `io::BufWriter` for
-buffering any `Write`.
 
-## Files, Paths and Directories
+Eğer performansı önemsiyorsanız Rust'ın varsayılan olarak önbelleğe alınmadığını bilmeniz gerekir. Her bir yazma talebi doğrudan işletim sistemine gönderilir ki bu işleri oldukça yavaşlatır. Bundan bahsediyorum çünkü diğer programlama dillerinde varsayılan davranış farklıdır ve Rust'ın betik dilleri tarafından geride bırakıldığını görmek sizi epeyce şaşırtabilir! Nasıl ki `Read`'ın `io::BufReader`'ı varsa `io::BufWriter`ın da `Write`'ı var.
 
-Here is a little program for printing out the Cargo directory on a machine. The
-simplest case is that it's '~/.cargo'. This is a Unix shell expansion,
-so we use `env::home_dir` because it's cross-platform. (It might fail, but a
-computer without a home directory isn't going to be hosting Rust tools anyway.)
+# Dosyalar, Konumlar ve Dizinler
+Şimdi makinedeki Cargo dizinini bulan bir program yazalım. En basit yöntem `~/.cargo` altına bakmaktır. Ancak bu Unix kabuğu için geçerlidir, çoklu ortam desteği için `env::home_dir` fonksiyonunu kullanacağız. (Başarısız olabilir ancak ev dizini olmayan bir bilgisayar da Rust araçlarını barındırmaz.)
 
-We then create a [PathBuf](https://doc.rust-lang.org/std/path/struct.PathBuf.html)
-and use its `push` method to build up the full file path from its _components_.
-(This is much easier than fooling around with '/','\\' or whatever, depending on
-the system.)
+Ç.N: [`env::home_dir`](https://doc.rust-lang.org/std/env/fn.home_dir.html) fonksiyonu beklenildiği gibi çalışmadığı için `1.29.0`'dan itibaren tedavülden kaldırılmıştır. Bu fonksiyonu kullanmayın, Windows ve Unix ortamları için ev dizinlerini kendi yöntemlerinizle bulmanızı veya bir [crates.io](https://crates.io)'yu karıştırmanızı tavsiye ederim. 
+
+Sonra bir `PathBuf` yaratalım ve `push` metotunu *parçalardan* tam bir dosya konumu inşa etmek için kullanalım. (Bu `/` gibi bir şeyle ile debelenmekten çok daha kolaydır.)
 
 ```rust
 // file7.rs
@@ -240,16 +178,10 @@ fn main() {
     }
 }
 ```
-A `PathBuf` is like `String` - it owns a growable set of characters, but with methods
-specialized to building up paths.  Most of its functionality however comes from
-the borrowed version `Path`, which is like `&str`.  So, for instance, `is_dir` is
-a `Path` method.
 
-This might sound suspiciously like a form of inheritance, but the magic [Deref](https://doc.rust-lang.org/book/deref-coercions.html)
-trait works differently. It works just like it does with `String/&str` -
-a reference to `PathBuf` can be _coerced_ into a reference to `Path`.
-('Coerce' is a strong word, but this really
-is one of the few places where Rust does conversions for you.)
+`PathBuf`, `Karakter dizisi` gibi çalışır - karakterlerin büyüyebilen bir paketidir ancak konum inşa etmek için kendi araçlarını kullanır. Ancak özelliklerinin çoğunluğu `Path`'ın referans versiyonundan gelir, tıpkı `&str` gibi. Yani, mesela, `is_dir` bir `Path` metotudur.
+
+Bu kulağınıza şüphe uyandıran bir miras alma (inheritance) tarzı gibi gelebilir, ancak bu [Deref](https://doc.rust-lang.org/book/deref-coercions.html) özelliğinin maharetidir. Kulağınıza tıpkı `String/&str` gibi gelebilir - bir `PathBuf` referansı bir  `Path` referansına *dönüşür/zorlanır. (coerced)* ("Zorlamak (Coerce)" kelimesi biraz ağır kaçmış olabilir ancak bu Rust sizin için dönüşüm uyguladığı nadir yerlerden birisidir.)
 
 ```rust
 fn foo(p: &Path) {...}
@@ -258,36 +190,17 @@ let path = PathBuf::from(home);
 foo(&path);
 ```
 
-`PathBuf` has an intimate relationship with `OsString`, which represents strings we get
-directly from the system. (There is a corresponding `OsString/&OsStr` relationship.)
+`PathBuf`'un en yakın arkadaşı `OsString`'tir, kendisi sistemden doğrudan aldığımız karakter dizilerini gösterir. (Aynı şekilde buna karşılık `OsString/&OsStr` ilişkisi de vardır.)
 
-Such strings are not _guaranteed_ to be representable as UTF-8!
-Real life is a [complicated matter](https://news.ycombinator.com/item?id=10519932),
-particularly see the answer to 'Why are they so hard?'.  To summarize, first there are
-years of ASCII legacy coding, and multiple special encodings for other languages. Second,
-human languages are complicated. For instance 'noël' is _five_ Unicode code points!
+Bu tarz karakter dizilerinin UTF-8 olacağını *garanti edilmemiştir!* Gerçek hayatta her şey [karmaşıktır](https://news.ycombinator.com/item?id=10519932), özellikle "Her şey neden bu kadar zor" diye düşünürken. Sadede gelelim. Birincisi antik ASCII kodlamanın ve diğer diller için özel kodlamanın kullanıldığı yıllar oldu. İkincisi kendi aramızda konuştuğumuz dillerin kendisi de epey karmaşıktır. Mesela "noël" kelimesi *beş* Unikod kodu kadar yer tutar.
 
-It's true that most of the time
-with modern operating systems file names will be Unicode (UTF-8 on the Unix side, UTF-16
-for Windows), except when they're not. And Rust must handle that possibility
-rigorously. For instance,
-`Path` has a method `as_os_str` which returns a `&OsStr`, but the `to_str` method
-returns an `Option<&str>`. Not always possible!
+Modern işletim sistemlerinin dosya adlarının çoğu zaman Unikod olabileceği doğrudur. (Unix tarafı için UT8, Windows UTF-8) Ama olmadığı zamanlar da vardır! Ve Rust bu olasılığı dikkatlice ele almalıdır. Örneğin `Path`, `as_os_str` diye `&OsStr` dönen bir metota sahiptir. Ancak `to_str`, bazen `Option<&str>` döner. Yani her zaman mümkün değildir!
 
-People have trouble at this point because they have become too attached to 'string' and
-'character' as the only necessary abstractions.  As Einstein could have said, a programming language
-has to be as simple as possible, but no simpler. A systems language _needs_ a
-`String/&str` distinction (owned versus borrowed: this is also very convenient)
-and if it wishes to standardize on Unicode strings then it needs another type to handle
-text which isn't valid Unicode - hence `OsString/&OsStr`. Notice that there aren't
-any interesting string-like methods for these types, precisely because we don't know the
-encoding.
+İnsanlar genelde bu konuda can çekişir çünkü "karakter" ve "karakter dizesi"ne fazlasıyla alıştılar. Einstein'ın dediği gibi programlama dilleri sade olmalı, basit değil. Bir sistem programlama dilinin `String/&str` ayrımına ihtiyacı vardır (ödünç alınmışa karşılık sahiplenmiş: kafaya epeyce yatıyor) ve Unikod karakter dizilerini standartlaştırmak için Unikod olmayan stilleri de kapsamalıdırlar - işte `OsString/&OsStr` kardeşlerin doğuşu. Bunların içeriğinde `String` benzeri enteresan metotlar bulunmadığına dikkat edin, çünkü tiplemelerinden tam olarak emin değiliz. 
 
-But, people are used to processing filenames as if they were strings, which is why
-Rust makes it easier to manipulate file paths using `PathBuf` methods.
+Ancak, insanlar dosya isimlerini olağan karakter dizileriymiş gibi işlemeye alışkınlardır ki kolayca dosya konumlarını kullanmak ve değiştirmek için Rust'ta `PathBuf` vardır.
 
-You can `pop` to successively remove path components. Here we start with the
-current directory of the program:
+Bir konumun adresinin parçalarını temizleyebilmek için `pop` kullanabilirsiniz. Mesela bulunduğumuz dizinden başlayalım.
 
 ```rust
 // file8.rs
@@ -310,9 +223,7 @@ fn main() {
 // /
 ```
 
-Here's a useful variation. I have a program which searches for a configuration file,
-and the rule is that it may appear in any subdirectory of the current directory.
-So I create `/home/steve/rust/config.txt` and start this program up in `/home/steve/rust/gentle-intro/code`:
+Bu da daha kullanışlı bir hâli. Bir konfigrasyon dosyasını aramak için bir program yazdık ve bütün altdizinleri bu dosya için arıyoruz. Bunun için `/home/steve/rust/config.txt` diye bir dosya yazdım ve program `/home/steve/rust/gentle-intro/code` içerisinden başlıyor:
 
 ```rust
 // file9.rs
@@ -336,11 +247,9 @@ fn main() {
 // gotcha /home/steve/rust/config.txt
 ```
 
-This is pretty much how __git__ works when it wants to know what the current repo is.
+Bu **git**'in nasıl çalıştığı depoyu nasıl bulduğunun yöntemidir de aynı zamanda. 
 
-The details about a file (its size, type, etc) are called its _metadata_. As always,
-there may be an error - not just 'not found' but also if we don't have permission
-to read this file.
+Bir dosya hakkındaki bilgiler *metaveri (metadata)* olarak geçer. Her zaman olduğu gibi bir hata olabilir - "Bulunamadı" dışında mesela dosyayı okumamız için gerekli izinlere sahip olamayabiliriz.
 
 ```rust
 // file10.rs
@@ -366,18 +275,11 @@ fn main() {
 // modified Ok(SystemTime { tv_sec: 1483866529, tv_nsec: 600495644 })
 ```
 
-The length of the file (in bytes) and modified time are straightforward to interpret.
-(Note we may not be able to get this time!)  The file type has methods `is_dir`,
-`is_file` and `is_symlink`.
+Bir dosyanın (bayt cinsinden) uzunluğu ve son değiştirilme tarihini bulmak oldukça kolaydır. (Ancak bunu yapamayacağımız zamanlar da vardır.) `File` tipinin ilgili metotları `is_dir` (Ç.N: Dizin midir?), `is_file` (Ç.N: Dosya mıdır?) ve `is_symlink`'dir. (Ç.N: "Sembolik bağ mıdır?")
 
-`permissions` is an interesting one. Rust strives to be cross-platform, and so it's
-a case of the 'lowest common denominator'. In general, all you can query is whether
-the file is read-only - the 'permissions' concept is extended in Unix and encodes
-read/write/executable for user/group/others.
+`permissions` da ilginç bir metottur. Rust platformlar arası geçerli olmaya özen gösterir ve bu da bir "en düşük ortak paydaya erişme" durumudur. Genel olarak, dosya salt okunur ise onu sorgulayabilirsiniz - "yetkiler (permissions) konsepti Unix'te oldukça geniştir ve kullanıcı/grup/diğerleri için okuma/yazma/çalıştırma yetkilerini barındırır. 
 
-But, if you are not interested in Windows, then bringing in a platform-specific trait will give
-us at least the permission mode bits. (As usual, a trait only kicks in when it is
-visible.) Then, applying the program to its own executable gives:
+Ancak Windows ile çalışmıyorsanız en azından yetki bitlerini öğrenmek için platforma yönelik özellikleri (trait) kapsama çağırabilirsiniz. (Genelde olduğu gibi özellikler kapsama çağrıldığı zaman etkinleşirler.) Sonrasında da programın dosyasını şöyle değiştirebiliriz:
 
 ```rust
 use std::os::unix::fs::PermissionsExt;
@@ -385,16 +287,14 @@ use std::os::unix::fs::PermissionsExt;
 println!("perm {:o}",data.permissions().mode());
 // perm 755
 ```
-(Note '{:o}' for printing out in _octal_)
 
-(Whether a file is executable on Windows is determined by its extension. The executable
-extensions are found in the `PATHEXT` environment variable - '.exe','.bat' and so forth).
+("{:o}" sekizli (octal) sayı sistemine göre biçimlendirir.)
 
-`std::fs` contains a number of useful functions for working with files, such as copying or
-moving files, making symbolic links and creating directories.
+(Windows'ta bir dosyanın çalıştırılıp çalıştırılamayacağı dosyanın uzantısından tanımlanır. Çalıştırılabilir dosya uzantıları `PATHEXT` çevre değişkeninden öğrenilebilir - ".exe", ".bat" vs.)
 
-To find the contents of a directory, `std::fs::read_dir` provides an iterator.
-Here are all files with extension '.rs' and size greater than 1024 bytes:
+Dosyalarla çalışmak için `std::fs` bize pek çok faydalı fonksiyonlar sunar, bir dosyayı kopyalayıp taşımak, sembolik bağ kurmak ve dizin oluşturmak gibi.
+
+Bir dizinin içeriğini öğrenmek için bir döngüleyici sunan `std::fs::read_dir`'i kullanabilirsiniz. İşte karşınızda boyutları 1024 bayttan büyük olan ve uzantısı `.rs` ile biten bütün dosyalar!
 
 ```rust
 fn dump_dir(dir: &str) -> io::Result<()> {
@@ -419,37 +319,21 @@ fn dump_dir(dir: &str) -> io::Result<()> {
 // ./new-sexpr.rs length 7719
 ```
 
-Obviously `read_dir` might fail (usually 'not found' or 'no permission'), but
-also getting each new entry might fail (it's like the `lines` iterator over a buffered
-reader's contents).  Plus, we might not be able to get the metadata corresponding to
-the entry.  A file might have no extension, so we have to check for that as well.
+`read_dir`'in başarısız olabileceği aşikar ("bulunamadı" ya da "yetki yok" gibi bir hata olur) ancak aynı zamanda her yeni bir girdiye erişmek de başarısız olabilir. (Okunmuş veriyi arabelleğe alan `lines` döngüleyicini düşünün.) Ek olarak, ilgili girdi için uygun metaveriye ulaşamış ulaşamayabiliriz de. Bir dosyanın uzantısı da pekala olmayabilir, bunu ayrıca kontrol etmemiz gerekir.
 
-Why not just an iterator over paths? On Unix this is the way the `opendir` system call works,
-but on Windows you cannot iterate over a directory's contents without getting the
-metadata. So this is a reasonably elegant compromise that allows cross-platform
-code to be as efficient as possible.
+Neden konumların üzerinde bir döngüleyici kullanmıyoruz? Unix'te `opendir` sistem çağrısı bu şekilde çalışır ancak Windows'ta dosyaların metaverisini almadan üzerinde bir döngü kuramazsınız. Dolayısıyla platformlar arasındaki kodun en verimli çalışmasının en zarif yoludur. 
 
-You can be forgiven for feeling 'error fatigue' at this point. But please note that
-the _errors always existed_ - it's not that Rust is inventing new ones. It's just
-trying hard to make it impossible for you to ignore them.  Any operating system call
-may fail.
+Bu noktada "hatalarla boğuştuğunuz" için kendinizi bitkin hissedebilirsiniz. Ancak *hatalar her zaman* vardı - Rust sizin için yeni hatalar icat etmedi. Sadece hataları görmezden gelmemeniz için elinden geleni yapıyor. Herhangi bir işletim sistemi çağrısı başarısız olabilir. 
 
-Languages like Java and Python throw exceptions; languages like Go and Lua return two
-values, where the first is the result and the second is the error: like Rust it is
-considered bad manners for library functions to raise errors. So there is a lot
-of error checking and early-returns from functions.
+Java ve Python gibi dillerde hata atarsınız (throw exceptions); Go ve Lua gibi diller ise size iki veri döner ve birincisi sonuç ikincisi de hata olur, Rust'ta kitaplık fonksiyonlarının hata oluşturmadı kötü bir davranış olarak kabul edilir. Bu nedenle pek çok hata denetimi vardır ve fonksiyonlar erkenden dönebilir.
 
-Rust uses `Result` because it's either-or: you cannot get both a result and an error.
-And the question-mark operator makes handling errors much cleaner.
+Ya hata alırsınız ya da almazsınız, Rust bu yüzden `Result` kullanır: hem hata hem de sonuç elde edemezsiniz. Ve soru işareti operatörü kontrol oldukça kolaylaştırır.
 
-## Processes
+# Süreçler
 
-A fundamental need is for programs to run programs, or to _launch processes_.
-Your program can _spawn_ as many child processes it likes, and as the name
-suggests they have a special relationship with their parent.
+Esas ihtiyaç duyduğumuz şeylerden bir şey programların başka bir programı çalıştırması ya da *süreç başlatmaktır*. Programınız pek çok alt süreç çalıştırabilir ve alt süreçler üst süreçlerle pek çok ilişkide bulunabilir.
 
-To run a program is straightforward using the `Command` struct, which builds up
-arguments to pass to the program:
+Bir programı, argümanları da beraberinde kullanmanızı sağlayan `Command` yapısı ile çalıştırabilirsiniz. 
 
 ```rust
 use std::process::Command;
@@ -465,14 +349,10 @@ fn main() {
 // rustc 1.15.0-nightly (8f02c429a 2016-12-15)
 // cool true code 0
 ```
-So `new` receives the name of the program (it will be looked up on `PATH` if not
-an absolute filename), `arg` adds a new argument, and `status` causes it to be run.
-This returns a `Result`, which is `Ok` if the program actually run, containing an
-`ExitStatus`. In this case, the program succeeded, and returned an exit code 0. (The
-`unwrap` is because we can't always get the code if the program was killed by
-a signal).
 
-If we change the `-V` to `-v` (an easy mistake) then `rustc` fails:
+`new` programın adını alır (Eğer kesin bir dosya konumu değilse `PATH` içinde arar), `arg` yeni argümanlar ekler ve `status` programın çalışmasını tetikler. Program çalışınca bir `Result` alırsınız, `Ok` programın çalıştığını belirtir ki içeriğinde `ExitStatus` bulunur. Bizim örneğimizde programımız başarıyla çalıştı ve çıkış değeri olarak 0 döndü. (`unwrap` kullanmamızın sebebi eğer program bir sinyal ile "öldürülürse" her zaman çıkış değerini öğrenemeyecek olmamız.)
+
+Eğer `-V`'yi `-v` ile değiştirirsek `rustc` başarısız olur.
 
 ```
 error: no input filename given
@@ -480,17 +360,14 @@ error: no input filename given
 cool false code 101
 ```
 
-So there are three possibilities:
+Üç farklı koşul gerçekleşebilir:
+- Program var olmayabilir, çalıştırma iznimiz olmayabilir ya da kullanılamaz hâlde olabilir
+- Program çalışmış ancak başarısız olmamış olabilir - sıfır olmayan çıkış değeri
+- Program sıfır olan çıkış değeri ile sonuçlanmış olabilir. Yani başarılıdır!
 
-  - program didn't exist, was bad, or we were not allowed to run it
-  - program ran, but was not successful - non-zero exit code
-  - program ran, with zero exit code. Success!
+Varsayılan olarak programın standart çıktısı (stdout/Standart output) ve standart hata çıktısı (stderr/Standart Error) terminale yönlendirilir.
 
-By default, the program's standard output and standard error streams
-go to the terminal.
-
-Often we are very interested in capturing that output, so there's the `output`
-method.
+Bazen çıktıyı yakalamakla da ilgilenebiliriz ki `output` metotu bu işe yarar.
 
 ```rust
 // process2.rs
@@ -511,23 +388,13 @@ fn main() {
 // len stdout 44 stderr 0
 ```
 
-As with `status` our program blocks until the child process is finished, and we get
-back three things - the status (as before), the contents of stdout and the contents
-of stderr.
+`status` ile alt süreçler sonuçlanana dek programımız durduruluyordu ve üç şey alıyorduk - sonuç (Önceden olduğu gibi), `stdout`'un ve `stderr`'un içeriği.
 
-The captured output is simply `Vec<u8>` - just bytes.  Recall we have no guarantee
-that data we receive from the operating system is a properly encoded UTF-8 string. In
-fact, we have no guarantee that it _even_ is a string - programs may return arbitrary
-binary data.
+Şimdi ise yakaladığımız çıktı `Vec<u8>` içerisinde tutuluyor - sadece bayt olarak. İşletim sisteminden aldığımız şeylerin her zaman geçerli bir UTF-8 karakter dizisi olamayacağını hatırlayın. Aslında, bunun bir karakter dizisi *bile* olamayacağını bilmemiz gerekiyor - programlar tuhaf ikili veriler dönebilirler.  
 
-If we are pretty sure the output is UTF-8, then `String::from_utf8` will convert those
-vectors or bytes - it returns a `Result` because this conversion may not succeed.
-A more sloppy function is `String::from_utf8_lossy` which will make a good attempt at
-conversion and insert the invalid Unicode mark � where it failed.
+Eğer çıktının UTF-8 olacağından eminsek bu vektörü ya da baytları `String::from_utf8` ile dönüştürebiliriz. Sonuç `Result` dönecektir çünkü dönüşümün gerçekleşeceğinden emin değiliz. İşi biraz daha gevşekçe yapan başka bir fonksiyonumuz var, `String::from_utf8_lossy`, bununla çeviriyi deneyebilir ve dönüştürülemeyen karakterlerin yerlerine � koyabilirsiniz. 
 
-Here is a useful function which runs a program using the shell. This uses the usual
-shell mechanism for joining stderr to stdout. The name of the shell is different
-on Windows, but otherwise things work as expected.
+Aşağıda kabukta programda çalıştıran kullanışlı bir fonksiyon görmektesiniz. Programımız `stderr` ile `stdout`'u birleştirmek için sıradan bir kabuk tekniği kullanıyor. Kabuğun ismi Windows'ta biraz farklı ancak diğerleriyle de sorunsuz çalışacaktır.
 
 ```rust
 fn shell(cmd: &str) -> (String,bool) {
@@ -552,17 +419,11 @@ fn shell_success(cmd: &str) -> Option<String> {
 }
 ```
 
-I'm trimming any whitespace from the right so that if you said `shell("which rustc")`
-you will get the path without any extra linefeed.
+Sağ taraftaki boşlukları biraz törpülüyorum ve böylece `shell("which rustc")` dediğimiz zaman doğrudan konumu alabiliyoruz. 
 
-You can control the execution of a program launched by `Process`
-by specifying the directory it will run
-in using the `current_dir` method and the environment variables it sees using `env`.
+`Process` ile çalıştırılmış bir programın `current_dir` ile çalışma dizinini, `env` ile çevre değişkenlerini belirleyerek çalışma şeklini kontrol edebilirsiniz.
 
-Up to now, our program simply waits for the child process to finish. If you use
-the `spawn` method then we return immediately, and must explicitly wait for it to
-finish - or go off and do something else in the meantime!  This example also
-shows how to suppress both standard out and standard error:
+Şimdiye kadar programımız alt süreçlerin tamamlanmasını bekledi. Eğer `spawn` metotunu kullanırsanız program size hemen döner ve programın basitçe bitişini bekler ki bu esnada gidip başka şeyler yapabiliriz. Aşağıdaki örnek `stdout` ve `stderr`in de aynı zamanda susturulmasına da örnektir. 
 
 ```rust
 // process5.rs
@@ -580,21 +441,14 @@ fn main() {
 }
 ```
 
-By default, the child 'inherits' the standard input and output of the parent. In this case,
-we redirect the child's output handles into 'nowhere'. It's equivalent to saying
-`> /dev/null 2> /dev/null` in the Unix shell.
+Varsayılan olarak alt süreç üst sürecin standart girdisini ve çıktısını "miras alır". Ancak bu örnekte alt sürecin çıktısını "hiçliğe" yönlendirmiş olduk. Unix kabuğunda `> /dev/null 2> /dev/null` demekle aynı şeyi yapmış olduk.
 
-Now, it's possible to do these things using the shell (`sh` or `cmd`) in Rust.
-But this way you get full programmatic control of process creation.
+Rustta yaptığımız bu şeyleri sistem kabuğu (`sh` veya `cmd`) ile de yapabilirdik. Ancak bu yolla tamamen programatik bir şekilde süreç oluşturmayı kontrol etmiş oldunuz.
 
-For example, if we just had `.stdout(Stdio::piped())` then the child's standard output
-is redirected to a pipe. Then `child.stdout` is something you can use to directly
-read the output (i.e. implements `Read`). Likewise, you can use the `.stdout(Stdio::piped())`
-method so you can write to `child.stdin`.
+Bu örnekte eğer sadece `.stdout(Stdio::piped())` kullanmış olsaydık alt sürecin çıktısını bir izole etmiş olurduk. Sonra da `child.stdout` üzerinden izole ettiğimiz çıktıyı doğrudan okuyabilirdik. (`Read` özelliğini kullanıyor). Aynı şekilde doğrudan `child.stdin`'e yazabilmek için de `.stdout(Stdio::piped())` kullanabilirsiniz.
 
-But if we used `wait_with_output` instead of `wait` then
-it returns a `Result<Output>` and the child's output is captured into the `stdout`
-field of that `Output` as a `Vec<u8>` just as before.
+Ancak `wait` yerine `wait_with_output`'u kullansaydık bize `Result<Output>` dönerdi ve alt sürecin çıktısı `Output`'un `stdout` alanında daha önce olduğu gibi `Vec<u8>` olarak sunulurdu.
 
-The `Child` struct also gives you an explicit `kill` method.
+`Child` yapısında aynı zamanda aleni bir şekilde `kill` (öldür) metotu da bulunur.
 
+Ç.N: Alt süreç İngilizce'de "çocuk süreç" anlamına gelen "Child process" olarak bahsedilir.
