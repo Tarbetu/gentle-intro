@@ -1,23 +1,14 @@
-# Modules and Cargo
+# Modüller ve Kargo
 
-## Modules
+# Modüller
 
-As programs get larger, it's necessary to spread them over more than one file
-and put functions and types in different _namespaces_.
-The Rust solution for both of these is _modules_.
+Programlar büyüdükçe onları bir dosyanın dışına taşımak ve fonksiyonlarla tipleri farklı *isim alanlarına (namespace)* taşımak gereklidir. Rust'ın bu iki şeye çözümü *modüllerdir. (modules)*
 
-C does the first, and not
-the second, so you end up with awful names like `primitive_display_set_width` and
-so forth. The actual filenames can be named arbitrarily.
+C ile başladı ama C ile bitmedi, bir süre sonra kendinizi `primitive_display_set_width` gibi rezilce isimler koyarken bulabilirsiniz. Sadece dosya isimlerini keyfinizce isimlendirebiliyorsunuz. 
 
-In Rust the full name would look like `primitive::display::set_width`,
-and after saying `use primitive::display` you can then refer to it as `display::set_width`.
-You can even say `use primitive::display::set_width` and then just say `set_width`, but
-it's not a good idea to get carried away with this. `rustc` will not be confused, but _you_
-may get confused later. But for this to work, filenames must follow some simple rules.
+Rust'ta aynı şeyi `primitive::display::set_width` şeklinde isimlendirebiliyorsunuz. Üstelik `use primitive::display` kullandıktan sonra bunu kısaca `display::set_width` olarak çağırabilirsiniz. Hatta `use primitive::display::set_width` dedikten sonra onu doğrudan `set_width` diye çağırabilirsiniz fakat nasıl kullandığınıza dikkat etmelisiniz. `rustc` tarafında sorun olmaz ancak sizin kafanız karışabilir. Ancak, bu sistemin çalışabilmesi için dosya isimlerinin basit bir kaç kurala bakması gereklidir.
 
-A new keyword `mod` is used to define a module as a block
-where Rust types or functions can be written:
+Yeni bir anahtar kelimemiz var, `mod`, bir bloğu içine yazılan tip ve fonksiyonlarla beraber topyekûn modül olarak ilan etmeye yarar. 
 
 ```rust
 mod foo {
@@ -32,20 +23,17 @@ fn main() {
     println!("{:?}", f);
 }
 ```
-
-But it's still not quite right - we get 'struct Foo is private'. To solve this, we need the `pub` keyword
-to export `Foo`. The error then changes to 'field s of struct foo::Foo is private', so put `pub`
-before the field `s` to export `Foo::s`. Then things will work.
+Ancak bu çalışmayacaktır - "Foo yapısı gizlidir (struct Foo is private)" diye bir hata alacağız. Bunu çözmek için `pub` anahtar kelimesi aracılığıyla `Foo`'yu görünür kılmalıyız. Sonra bu hata "foo::Foo yapısının s alanı gizlidir (field s of struct foo::Foo is private)" olacaktır, `pub` anahtar kelimesini alanın başına eklemeliyiz ki `Foo::s` de görünür olsun. Sonra güzelinden çalışacaktır.
 
 ```rust
     pub struct Foo {
         pub s: &'static str
     }
 ```
-Needing an explicit `pub` means that you must _choose_ what items to make public from a module.
-The set of functions and types exported from a module is called its _interface_.
 
-It is usually better to hide the insides of a struct, and only allow access through methods:
+Bir alanı açıkça `pub` olarak belirmek bir modulün içerisinden neyin ulaşılabilir olduğunu *seçmek* demektir. Bir modülün içerisindeki erişebilen tiplere ve fonksiyonlara modulün *arayüzü (interface)* denir.
+
+Bir yapının içindekileri gizlemek ve erişimi metotlarla sağlamak çoğunlukla doğru bir tercihtir.
 
 ```rust
 mod foo {
@@ -67,26 +55,19 @@ fn main() {
 }
 ```
 
-Why is hiding the implementation a good thing?  Because it means you may change it later
-without breaking the interface, without consumers of a module getting too dependent on its details.
-The great enemy of large-scale programing is a tendency for code to get entangled, so that understanding
-a piece of code is impossible in isolation.
+Neden bu yapıları gizlemek daha iyidir? Çünkü arayüzün canına okumadan ve modüle erişen diğer parçaların ayrıntılarıyla boğuşmadan onu değişebilirsiniz. Geniş ölçekli bir programın en büyük belası kodun birbirine girmeye olan meyilidir ki kodun gerekli parçasını izole etmeyi imkansız hâle getirir bu.
 
-In a perfect world a module does one thing, does it well, and keeps its own secrets.
+Cesur yeni dünyada modüller tek bir şeyi yapar ve kendi sırlarını kendilerine saklarlar.
 
-When not to hide? As Stroustrup says, when the interface _is_ the implementation, like
-`struct Point{x: f32, y: f32}`.
+Peki ne zaman gizlememeliyiz? Stroustrup'ın dediği gibi arayüzün kendisi kullanıldığı zaman, mesela `struct Point{x: f32, y: f32}`. 
 
-_Within_ a module, all items are visible to all other items. It's a cozy place where
-everyone can be friends and know intimate details about each other.
+Bir modülün içinde bütün nesneler birbirine görünürler. Burada herkesin birbirini tanıdığı ve sırlarını bildiği bir mahalle yaşantısı vardır. 
 
-Everyone gets to a point where they want to break a program up into separate files,
-depending on taste. I start getting uncomfortable around 500 lines, but we all agree
-that more than 2000 lines is pushing it.
+Herkesin programı çeşitli dosyalara ayırmaya başladığı bir sınırı vardır. Ben mesela 500 satıra geldiğimde bunu düşünmeye başlıyorum ancak hepimiz 2000 satırdan sonra sıkılırız.
 
-So how to break this program into separate files?
+Peki ya bir programı çeşitli dosyalara nasıl ayırırız?
 
-We put the `foo` code into `foo.rs`:
+`foo` kodunu `foo.rs` içine koyalım.
 
 ```rust
 // foo.rs
@@ -101,7 +82,8 @@ impl Foo {
     }
 }
 ```
-And use a `mod foo` statement _without_ a block in the main program:
+
+Ve sonra da ana dosyada `mod foo` deyimini bir blok olmadan kullanalım.
 
 ```rust
 // mod3.rs
@@ -112,11 +94,12 @@ fn main() {
     println!("{:?}", f);
 }
 ```
-Now `rustc mod3.rs` will cause `foo.rs` to be compiled as well. There is no need to fool around
-with makefiles!
 
-The compiler will also look at `MODNAME/mod.rs`, so this will work
-if I create a directory `boo` containing a file `mod.rs`:
+Şimdi `rustc mod3.rs` komutu herhangi bir hata olmadan derlenecektir. "Makefile"lar ile boğuşmaya hiç ihtiyacımız yok!
+
+Ç.N: Makefile çoğunlukla C ve C++ ile kullanılan ancak Crystal, Go gibi yüksek seviye dillerde bile tercih edilen bir dosya. İşlevi birden çok kod dosyasını bir araya getirmek, onu yönetmektir. 
+
+Derleyici aynı zamanda `MODULADI/mod.rs` içine de bakacaktır, mesela ben `boo` isminde bir dizin açıp içerisine `mod.rs` diye bir dosya yerleştirebilirim:
 
 ```rust
 // boo/mod.rs
@@ -124,9 +107,10 @@ pub fn answer()->u32 {
     42
 }
 ```
-And now the main program can use both modules as separate files:
 
-```
+Ana dosya bunu farklı bir dosyadaki farklı bir modül olarak tanımlayacaktır:
+
+```rust
 // mod3.rs
 mod foo;
 mod boo;
@@ -138,17 +122,14 @@ fn main() {
 }
 ```
 
-So far, there's `mod3.rs`, containing `main`, a module `foo.rs` and a directory `boo` containing
-`mod.rs`.  The usual convention is that the file containing `main` is just called `main.rs`.
+Şu ana kadar içinde `main`  fonksiyonu olan bir `mod3.rs` dosyamızla beraber `boo/mod.rs` dosyamız da vardır ki diğer modüller bunu `boo` olarak görür. Genel alışkanlık, `main` fonksiyonunu barındıran dosyanın adını `main.rs` yapmaktır.
 
-Why two ways to do the same thing? Because `boo/mod.rs` can refer to other modules defined in `boo`,
-Update `boo/mod.rs` and add a new module - note that this is explicitly exported. (Without the `pub`,
-`bar` can only be seen inside the `boo` module.)
+Neden bir şeyi yapmanın iki farklı yolu var? Çünkü `boo/mod.rs` aracılığıyla `boo` içerisinde yeni modüller tanımlayabilirsiniz. `boo/mod.rs`'yi değiştirelim ve yeni bir modül ekleyelim - bunu dışarıdan erişilebilir olmasına dikkat edin. (`pub` olmazsa `bar`a sadece `boo` modülü içerisinden erişebilirsiniz.)
 
 ```rust
 // boo/mod.rs
 pub fn answer()->u32 {
-	42
+    42
 }
 
 pub mod bar {
@@ -157,13 +138,16 @@ pub mod bar {
     }
 }
 ```
-and then we have the question corresponding to the answer (the `bar` module is inside `boo`):
+
+Ç.N: Question: Soru, Answer: Cevap
+
+Şimdi, cevabımızı anlamlandıracak bir sorumuz var. (`bar` modülü, `boo`'nun içindedir.)
 
 ```rust
 let q = boo::bar::question();
 ```
 
-That module block can be pulled out as `boo/bar.rs`:
+Dilersek modül bloğunu `boo/bar.rs` altına taşıyabiliriz.
 
 ```rust
 // boo/bar.rs
@@ -171,22 +155,21 @@ pub fn question() -> &'static str {
     "the meaning of everything"
 }
 ```
-And `boo/mod.rs` becomes:
+
+Ve `boo/mod.rs` şuna dönüşür:
 
 ```rust
 // boo/mod.rs
 pub fn answer()->u32 {
-	42
+    42
 }
 
 pub mod bar;
 ```
 
-In summary, modules are about organization and visibility,
-and this may or may not involve separate files.
+Sonuç olarak modüller organizasyon ve erişilebilirlikle alakalı ve tercihen başka dosyalara erişebilir.  
 
-Please note that `use` has nothing to do with importing, and simply specifies visibility
-of module names. For example:
+Lütfen `use`'ın herhangi bir içe aktarma işleminde kullanılmadığını ve kısayol oluşturduğumuza not edin. Örneğin:
 
 ```rust
 {
@@ -199,32 +182,30 @@ of module names. For example:
     let q = question();
     ...
 }
-
 ```
-An important point to note is there is no _separate compilation_ here. The main program and its
-module files will be recompiled each time. Larger programs will take a fair amount of time to build,
-although `rustc` is getting better at incremental compilation.
 
-## Crates
+Bir başka önemli nokta ise Rust'ta *parçalı derleme* işlemlerinin bulunmamasıdır. Ana program ve onun modül dosyaları sil baştan yeniden derlenir. Büyük programların derlenme süresini kayda değer bir sürede uzatır, `rustc` zaman içerisinde artımlı derlemede iyileşmesine rağmen.
 
-The 'compilation unit' for Rust is the _crate_, which is either an executable or a library.
+# Sandıklar
+> *Ç.N: Crate kelimesinin yaygınlığından ötürü "sandık" ya da "crate" arasında aklımda uzunca bir süre seçim yaptım. Çünkü bu genel programlamaya ait bir kelime değil, Rust terminolojisinin bir parçası ki bu da onu çevrilmemesi gereken bir özel isim yapar. Ancak "Sandık" kelimesi gerçekten mantığa uygun ve "Sandık" olarak düşünmenin hiçbir zararı yok. "Crate" diyerek geçseydim, İngilizce bilmeyen kişiler için bunu salt ezberlenmesi gereken, anlamsız bir kelimeye dönüştürürdüm.*
 
-To separately compile the files from the last section,
-first build `foo.rs` as a Rust _static library_ crate:
+"Her bir derleme parçasına" *sandık (crate)* denir ki bu bir kütüphane veyahut çalıştırılabilir bir dosya olabilir. 
+
+Geçen bölümdeki dosyaları hep birlikte değil de ayrıca derlemek için, önce `foo.rs`'ı bir *statik kütüphane sandığına* çevirelim.
 
 ```
 src$ rustc foo.rs --crate-type=lib
 src$ ls -l libfoo.rlib
 -rw-rw-r-- 1 steve steve 7888 Jan  5 13:35 libfoo.rlib
 ```
-We can now _link_ this into our main program:
+
+Şimdi bunu bizim ana programımıza *ilişkilendirebiliriz. (linking)*
 
 ```
 src$ rustc mod4.rs --extern foo=libfoo.rlib
 ```
-But the main program must now look like this, where the `extern` name is the same
-as the one used when linking. There is an implicit top-level module `foo` associated
-with the library crate:
+
+Ana programımızın bu yeni yapıya uyum sağlaması gerekmektedir, `extern` (Dışsal) ile kullandığımız isim ilişkilendirdiğimiz zaman kullandığımız isimle aynı olmalıdır. Yeni kütüphanemiz artık `foo` modülü aracılığıyla görünür olacaktır:
 
 ```
 // mod4.rs
@@ -235,46 +216,42 @@ fn main() {
     println!("{:?}", f);
 }
 ```
-Before people start chanting 'Cargo! Cargo!' let me justify this lower-level look at building Rust.
-I'm a great believer in 'Know Thy Toolchain', and this will reduce the amount of new magic you need
-to learn when we look at managing projects with Cargo. Modules are basic language features and can be
-used outside Cargo projects.
 
-It's time to understand why Rust binaries are so large:
+İnsanlar "Cargo! Cargo!" diye zikre başlamadan önce Rust'ın inşa araçlarını neden bu kadar düşük seviyeden gösterdiğini anlatmam için bana izin verin. Ben "Aletlerin Fıkhı"na dahilim ve bunları bilmek sizin Cargo ile yeni projeler yönetirken daha az "sinir"le karşılaşmanızı sağlar. Modüller basit dil işlevleridir ve Cargo olmadan da kullabilirler.
+
+Şimdi, Rust'ın çalıştırılabilir dosyaları neden bu kadr büyük onu anlayalım:
 
 ```
 src$ ls -lh mod4
 -rwxrwxr-x 1 steve steve 3,4M Jan  5 13:39 mod4
-```
-That's rather fat! There is a _lot_ of debug information in that executable. This is not a Bad Thing,
-if you want to use a debugger and actually want meaningful backtraces when your program panics.
 
-So let's strip that debug information and see:
+```
+Yarım dünya olmuş! Aslında bu çalıştırılabilir dosyada *pek çok* hata ayıklama bilgisi bulunur. Eğer niyetiniz bir hata ayıklayıcı kullanmaksa ve program paniklediği zaman anlamlı geri dönüşler almak istiyorsanız bu kötü bir şey değildir.
+
+Hata ayıklama bilgisini silelim ve bir de böyle bakalım:
 
 ```
 src$ strip mod4
 src$ ls -lh mod4
 -rwxrwxr-x 1 steve steve 300K Jan  5 13:49 mod4
 ```
-Still feels a little large for something so simple, but this program links _statically_ against
-the Rust standard library. This is a Good Thing, since you can hand this executable to anyone
-with the right operating system - they will not need a 'Rust runtime'. (And `rustup` will even let
-you cross-compile for other operating systems and platforms as well.)
 
-We can link dynamically against the Rust runtime and get truly tiny exes:
+Yine de basit bir şey için büyük bir dosya olduğunu düşünebilirsiniz ancak bu program Rust'ın standart kütüphanesine *statik* linklenmiştir. Bu iyi bir şey, bu programı doğru işletim sistemini kullanan herkesle paylaşabilirsiniz - Rust ile ilişkili hiçbir araca ihtiyaçları yoktur. (`rustup` sayesinde farklı işletim sistemlerine ve platformlara derleyebilirsiniz.)
+
+Rust'ın kütüphanelerine dinamik linkleyebiliriz ki bu koşulda gerçekten küçük çalıştırılabilir dosyalar elde ederiz.
 
 ```
 src$ rustc -C prefer-dynamic mod4.rs --extern foo=libfoo.rlib
 src$ ls -lh mod4
 -rwxrwxr-x 1 steve steve 14K Jan  5 13:53 mod4
 src$ ldd mod4
-	linux-vdso.so.1 =>  (0x00007fffa8746000)
-	libstd-b4054fae3db32020.so => not found
-	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3cd47aa000)
-	/lib64/ld-linux-x86-64.so.2 (0x00007f3cd4d72000)
+    linux-vdso.so.1 =>  (0x00007fffa8746000)
+    libstd-b4054fae3db32020.so => not found
+    libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3cd47aa000)
+    /lib64/ld-linux-x86-64.so.2 (0x00007f3cd4d72000)
 ```
-That 'not found' is because `rustup` doesn't install the dynamic libraries globally. We
-can hack our way to happiness, at least on Unix (yes, I know the best solution is a symlink.)
+
+"not found (bulunamadı)" çıktısının sebebi `rustup`'ın dinamik kütüphanelerinin sistem çapında kurulamamış olması. En azından Unix'te şöyle bir şey yapabiliriz. (Sembolik bağların en iyi çözüm olduğunu ben de biliyorum.)
 
 ```
 src$ export LD_LIBRARY_PATH=~/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib
@@ -282,22 +259,16 @@ src$ ./mod4
 Foo { s: "hello" }
 ```
 
-Rust does not have a _philosophical_ problem with dynamic linking, in the same way as Go does. It's
-just that when there's a stable release every 6 weeks it becomes inconvenient to have to recompile
-everything. If you have a stable version that Works For You, then cool. As stable versions of Rust
-get increasingly delivered by the OS package manager, dynamic linking will become more popular.
+*Teorik olarak* Rust'ın dinamik linklemeyle ilgili herhangi bir sorunu yok, tıpkı Go gibi. Sadece her altı haftada yeni bir stabil sürüm yayınlandığı için her şeyi tekrar tekrar derlemek biraz tuhaf kaçacaktır. Eğer her şeyin sizin için uygun olacağı bir stabil sürüm bulursanız, bunda sorun olmayacaktır. İşletim sistemlerinin paket yöneticileri Rust'ın standart kütüphanelerini sunmaya başlayacağı zaman dinamik linkleme daha popüler olacaktır.
 
-## Cargo
+# Cargo
+Java veya Python ile kıyaslarsanız Rust'ın standart kütüphanesi o kadar da büyük değildir, tabii yine de çoğu şeyini işletim sistemi kütüphanelerinden alan C ve C++'dan daha fazla şey bulursunuz.
 
-The Rust standard library is not very large, compared to Java or Python; although much more fully
-featured than C or C++, which lean heavily on operating system provided libraries.
+Bu durumu telafi etmek için **Cargo** aracılığı ile [crates.io](https://crates.io)'da yayınlanan topluluk kütüphanelerine ulaşabilirsiniz. Cargo sizin için doğru sürümü arayacak ve kaynağı indirecek ve diğer bağımlılıkların kurulduğunu da kontrol edecektir. 
 
-But it is straightforward to access community-provided libraries in [crates.io](https://crates.io)
-using __Cargo__.  Cargo will look up the correct version and download the source for you, and
-ensures that any other needed crates are downloaded as well.
+JSON okuyan basit bir program yapalım. Bu veri formatı yaygın olarak kullanılır ancak standart kütüphaneye eklenemeyecek kadar da karmaşıktır. Bundan ötürü yeni bir Cargo projesi açıyoruz, "--bin" de ekliyoruz ki çalıştırılabilir bir proje yapalım yoksa kütüphane projesi hazırlar.
 
-Let's create a simple program which needs to read JSON. This data format is very widely used,
-but is too specialized for inclusion in the standard library. So we initialize a Cargo project.
+Ç.N: Hayır hazırlamaz. Çevrilen belgenin eskiliğinden dolayı böyle bahsetmiş. Varsayılan davranış çalıştırılabilir proje hazırlamaktır, kütüphanesi projesi başlatmak için `--lib` kullanmanız gerekir. Yine de `--bin` kullanabilirsiniz ancak buna gerek yoktur. Bu arada bahsi geçen JSON sandığı bu yazının yazıldığı tarihe (8 şubat 2022) iki yıldır güncellenmemiş görünmektedir. Rust'ta kullanılan esas JSON çözümü [serde_json sandığıdır.](https://crates.io/crates/serde_json) Yazının devamını okuyabilirsiniz çünkü `serde_json` ve `json` sandıkları arasında pratikte pek fark yoktur. Kaldı ki bu bölümün ardından yazar `serde_json`'u inceliyor.
 
 ```
 test$ cargo init --bin test-json
@@ -312,18 +283,13 @@ authors = ["Your Name <you@example.org>"]
 [dependencies]
 ```
 
-The default is to create a binary (appication) project, so `--bin` is optional, use `--lib` for a
-libray project.
-
-To make the project depend on the [JSON crate](http://json.rs/doc/json/), edit the
-'Cargo.toml' file so:
+[JSON sandığını](https://github.com/maciejhirsz/json-rust) kullanan bir proje yapmak için "Cargo.toml" dosyasını düzenleyin:
 
 ```
 [dependencies]
 json="0.11.4"
 ```
-
-Then do a first build with Cargo:
+Sonra Cargo ile ilk derlememizi yapalım:
 
 ```
 test-json$ cargo build
@@ -333,11 +299,10 @@ test-json$ cargo build
    Compiling test-json v0.1.0 (file:///home/steve/c/rust/test/test-json)
     Finished debug [unoptimized + debuginfo] target(s) in 1.75 secs
 ```
-The main file of this project has already been created - it's 'main.rs' in the 'src'
-directory. It starts out just as a 'hello world' app, so let's edit it to be a proper test program.
 
-Note the very convenient 'raw' string literal - otherwise we would need to escape those double quotes
-and end up with ugliness:
+Programımızın `main` dosyası hâlihazırda oluşturdu - "src" dizinindeki "main.rs" dosyasıdır. Şimdilik henüz "hello world" çıktısı vermekten başka bir şeye yaramıyor, hadi onu doğru düzgün bir test programına çevirelim.
+
+"raw" karakter dizesinin nasıl kullanıldığına da dikkat edin - eğer kullanmasaydık kaçış dizelerini kullanmamız gerekirdi ki bu bayağı bir çirkinliğe sebep olurdu:
 
 ```rust
 // test-json/src/main.rs
@@ -363,7 +328,9 @@ fn main() {
 }
 ```
 
-You can now build and run this project - only `main.rs` has changed.
+Ç.N: Cargo aracılığıyla kurduğunuz sandıkların "extern crate *sandık_adı*" şeklinde çağrılmasına gerek yoktur. 
+
+Şimdi projeyi inşa edip çalıştırabilir - sadece `main.rs` değişti.
 
 ```
 test-json$ cargo run
@@ -375,13 +342,10 @@ debug Object(Object { store: [("code", Number(Number { category: 1, exponent: 0,
  Array([Short("awesome"), Short("easyAPI"), Short("lowLearningCurve")]), 0, 0)] }), 0, 0)] })
 display {"code":200,"success":true,"payload":{"features":["awesome","easyAPI","lowLearningCurve"]}}
 ```
-The debug output shows some internal details of the JSON document, but a
-plain '{}', using the `Display` trait, regenerates JSON from the parsed document.
 
-Let's explore the JSON API.
-It would not be useful if we could not extract values. The `as_TYPE` methods
-return `Option<TYPE>` since we cannot be sure that the field exists or is of the correct type.
-(see the [docs for JsonValue](http://json.rs/doc/json/enum.JsonValue.html))
+Hata ayıklama çıktısı JSON belgesi hakkında bazı iç detayları sundu ancak `Display` özelliğini kullanan sade `{}` bizim için taranmış JSON'u döner.
+
+Şimdi JSON API'sini keşfe çıkalım. Eğer verileri dışarı çıkartamasaydık bunun pek anlamı olmazdı. `as_TİP` metotu bize `Option<TİP>` döner, bunun nedeni belirtilen alanın varlığı kesin değildir ve doğru tipe çevirmeyebiliriz.
 
 ```rust
     let code = doc["code"].as_u32().unwrap_or(0);
@@ -398,24 +362,21 @@ return `Option<TYPE>` since we cannot be sure that the field exists or is of the
     // easyAPI
     // lowLearningCurve
 ```
-`features` here is a reference to `JsonValue` - it has to be a reference because otherwise
-we would be trying to move a _value_ out of the JSON document.  Here we know it's an array,
-so `members()` will return a non-empty iterator over `&JsonValue`.
 
-What if the 'payload' object didn't have a 'features' key? Then `features` would be set to `Null`.
-There will be no explosion. This convenience expresses the free-form, anything-goes nature of JSON
-very well. It is up to you to examine the structure of any document you receive and create your own
-errors if the structure does not match.
+`features`, `JsonValue` tipine bir referanstır - referans olması gerekir çünkü *veriyi* JSON dökümanı dışına taşımış oluruz. Ayrıca bir tür dizi olduğunu bildiğimiz için `members()` bize `&JsonValue` üzerinde çalışan dolu bir döngüleyici dönecektir. 
 
-You can modify these structures. If we had `let mut doc` then this would do what you expect:
+Ya eğer "payload"'ın "feratures" diye bir anahtarı olmasaydı? O zaman `features` bir `Null` olurdu, elimizde patlamazdı. Bu yaklaşım biraz serbestlik tanıyor ki bu JSON'un gevşek doğasına da pekâlâ uyuyor. Belgenin yapısını incelemek ve yapı uyuşmazsa hataları idare etmek size kalmış.
+
+Bu yapıları düzenleyebilirsiniz. Eğer `let mut doc` diye tanımlasaydık pekâlâ bunu yapabilirdik:
 
 ```rust
     let features = &mut doc["payload"]["features"];
     features.push("cargo!").expect("couldn't push");
 ```
-The `push` will fail if `features` wasn't an array, hence it returns `Result<()>`.
 
-Here's a truly beautiful use of macros to generate _JSON literals_:
+`push` başarısız olabilir çünkü `features` bir dizi olmayabilir, bundan ötürü `Result<()>` döner.
+
+*JSON kalıplarını* kullanmak için gerçekten şık bir makromuz da var:
 
 ```rust
     let data = object!{
@@ -429,22 +390,18 @@ Here's a truly beautiful use of macros to generate _JSON literals_:
     );
 ```
 
-For this to work, you need to explicitly import macros from the JSON crate thus:
+Bunun çalışabilmesi için makroları JSON sandığından açıkça içe aktarmanız gerekir:
 
 ```rust
 #[macro_use]
 extern crate json;
 ```
 
-There is a downside to using this crate, because of the mismatch between the amorphous, dynamically-typed
-nature of JSON and the structured, static nature of Rust. (The readme explicitly speaks of 'friction')
-So if you _did_ want to map JSON to Rust data structures, you would end up doing a lot of checking,
-because you can not assume that the received structure matches your structs! For that, a better
-solution is [serde_json](https://github.com/serde-rs/json) where you _serialize_ Rust data structures
-into JSON and _deserialize_ JSON into Rust.
+Bu sandığın kötü bir tarafı da var, o da JSON'un dengesiz ve dinamik tipli doğasını Rust'ın statik ve yapılandırmış doğası arasında uyumsuzluktan doğuyor. ("Readme" dosyasında bu sürtüşmeden ("friction") söz eder.) Eğer JSON'u Rust'ın veri yapılarına çevirmek isterseniz en sonunda pek çok düzenleme yapmanız gerekir çünkü elde ettiğiniz veriyi yapılarınıza uyacağınızdan emin olamazsınız! Bunun üstesinden gelebilmek için [serde_json](https://github.com/serde-rs/json) kullanabilirsiniz, bununla Rust veri yapılarınızı JSON'a *serileştirebilir/çevirebilir (serialize)* ya da JSON'dan Rust'a *serisizleştirebilirsiniz/geri çevirebilirsiniz. (deserialize)*
 
-For this, create another Cargo binary project with `cargo new test-serde-json`, go into
-the `test-serde-json` directory, and edit `Cargo.toml`. Edit it like so:
+Ç.N: "Muvaffakiyetsizleştiricileştiriveremeyebileceklerimizdenmişsinizcesine" gibi bir karmaşa yarattığımın farkındayım. Bundan dolayı bazı yerlerde *serialize* ve *deserialize* için *çevirmek* karşılığını kullanacağım. 
+
+Bunun için `cargo new --bin test-serde-json` ile çalıştırılabilir bir Cargo projesi başlatalım ve `test-serde-json` dizinine girip `Cargo.toml'u` değiştirelim. Buna benzer bir şey yapabiliriz:
 
 ```
 [dependencies]
@@ -453,7 +410,7 @@ serde_derive="0.9"
 serde_json="0.9"
 ```
 
-And edit `src/main.rs` to be this:
+`src/main.rs`'yi şu şekilde dolduralım:
 
 ```rust
 #[macro_use]
@@ -487,8 +444,7 @@ fn main() {
 }
 ```
 
-You have seen the `derive` attribute before, but the `serde_derive` crate defines _custom derives_
-for the special `Serialize` and `Deserialize` traits. And the result shows the generated Rust struct:
+`derive` özelliğini daha çok görünüz ancak `serde_derive` sandığı içerisinde `Serialize` ve `Deserialize` gibi önemli özellikleri içeren `derive`lar bulunmaktadır. Sonuç, oluşturulan Rust yapısını gösterecektir:
 
 ```
 Please call John Doe at the number 27726550023
@@ -505,41 +461,18 @@ Person {
 }
 ```
 
-Now, if you did this using the `json` crate, you would need a few hundred lines of custom conversion
-code, mostly error handling. Tedious, easy to mess up, and not where you want to put effort anyway.
+Eğer bunu `json` sandığı ile yapsaydınız pek çok satırda çoğu hata yönetimiyle ilişkili birkaç yüz tanecik çeviri kodu yazmanız gerekecekti. Bunaltıcı, batırması bir hataya bakar ve bunun için oturup uğraşmak anlamsız. 
 
-This is clearly the best solution if you are processing well-structured JSON from outside sources (it's
-possible to remap field names if needed) and provides a robust way for Rust programs to share data
-with other programs over the network (since everything understands JSON these days.) The cool thing
-about `serde` (for SERialization DEserialization) is that other file formats are also supported, such
-as `toml`, which is the popular configuration-friendly format used in Cargo. So your program can read .toml
-files into structs, and write those structs out as .json.
+Eğer dışarıdan gelen iyi yapılandırılmış JSON'u işleyecekseniz (gerekirse alanları yeniden isimlendirebilirsiniz) ve başka programlarla ağ üzerinden veri paylaşacaksanız (Şu günlerde JSON'u herkes anlıyor) bu bariz en iyi çözümdür. `serde` ("SERialization DEserialization") hakkındaki ilgi çeken bir nokta diğer dosya türlerini de desteklemesidir, mesela Cargo'da kullanılan yapılandırması kolay ve popüler `toml` da bunlardan birisidir. Eğer programınızın .toml dosyalarını yapılara çevirmesi gerekiyorsa bu tıpkı .json dosyalarında yaptığınız gibi bu yapıları hazırlayabilirsiniz.
 
-Serialization is an important technique and similar solutions exist for Java and Go - but with a big
-difference. In those languages the structure of the data is found at _run-time_ using _reflection_, but
-in this case the serialization code is generated at _compile-time_ - altogether more efficient!
+Serileştirme, Java ve Go'da da benzerleri bulunan önemli bir tekniktir - ancak büyük bir fark vardır. Bu dillerde verinin yapısı çalışma zamanında *yansıma (reflection)* kullanılarak bulunur. Ancak bu koşulda serileştirme işlemi *çalışma zamanında* oluşturulur - bu çok daha verimlidir.
 
-Cargo is considered to be one of the great strengths of the Rust ecosystem, because it does
-a lot of work for us. Otherwise we would have had to download these libraries from Github,
-build as static library crates, and link them against the program. It's painful to do this for
-C++ projects, and would be nearly as painful for Rust projects if Cargo did not exist.
-C++ is somewhat unique in its painfullness here, so we should compare this with
-other languages' package managers. npm (for JavaScript) and pip (for Python) manage dependencies
-and downloads for you, but the distribution story is harder, since the user of your program
-needs NodeJS or Python installed.
-But Rust programs are statically linked against their dependencies, so again they can be handed
-out to your buddies without external dependencies.
+Cargo, Rust ekosisteminin ağır toplarından birisidir çünkü bizim için çok fazla işi halleder. Eğer o olmasaydı Github'dan tek tek kütüphaneleri indirmek, statik kütüphaneler olarak inşa etmek ve programa ilişkilendirmemiz gerekirdi. Bunu C++ projelerinde yapmak çiledir ve aynı çile Cargo olmasaydı Rust projelerinde de olacaktır. C++'ın çektirdiği çilenin eşi benzeri de yoktur bu arada, o yüzden diğer dillerin paket yöneticileriyle kıyaslamamız daha doğru olacaktır. (JavaScript için) npm, (Python için) pip sizin için bağımlılıkları kontrol eder ve indirir ancak programı dağıtmak zordur çünkü kullanıcının da sizin yerine NodeJS ve Python kurmuş olması gerekir. Ancak Rust programın bağımlılıkları statik linklenmiştir, ek bir bağımlılık gerekmeksizin istediğiniz kişiye yollayabilirsiniz.
 
-## More Gems
+# Vali Kebabı
+Basit bir yazının dışında herhangi bir veriyi işleme alacaksanız düzenli ifadeler (**reg**ular **ex**pressions) hayatınızı kolaylaştıracaktır. Bunlar pek çok dilde vardır ve sizin temel regex kalıplarına aşina olduğunuzu varsayıyorum. [regex](https://github.com/rust-lang/regex) sandığını kullanmak için Cargo.toml dosyasına "[dependencies]" altına 'regex = "0.2.1"' ifadesini koymanız yererlidir.
 
-When processing anything except simple text, regular expressions make your life much easier.
-These are commonly available for most languages and I'll here assume a basic familiarity with
-regex notation.  To use the [regex](https://github.com/rust-lang/regex) crate, put 'regex = "0.2.1"'
-after "[dependencies]" in your Cargo.toml.
-
-We'll use 'raw strings' again so that the backslashes don't have to be escaped. In English, this
-regular expression is "match exactly two digits, the character ':', and then any number of digits.
-Capture both sets of digits":
+Terk eğik çizgilerin özel anlamlar yaratmaması için "çiğ/raw karakter dizilerini" kullanacağım. İnsanın anlayacağı şekilde anlatırsak aşağıdaki düzenli ifade " ':' karakterinden önce iki rakam, sonrasında da herhangi uzunluktaki bir rakamı alın" anlamına gelmektedir:
 
 ```rust
 extern crate regex;
@@ -554,15 +487,9 @@ println!("{:?}", re.captures("10:x23"));
 // None
 ```
 
-The successful output actually has three _captures_ - the whole match, and the two sets of digits.
-These regular expressions are not _anchored_ by default, so __regex__ will hunt for the first
-occurring match, skipping anything that doesn't match.  (If you left out the '()' it would just
-give us the whole match.)
+Başarılı bir çıktı üç parçadan oluşur - bütün eşleşme ile iki parça olarak sayılar. Düzenli ifadeler genel varsayılan olarak *mıhlanmamıştır (anchored)*, yani **regex** ifademiz ilk eşleşmeyi arayacak ve gerisine bakmayacaktır. (Eğer sadece "()" olarak bir düzenli ifade yazarsanız her şeyle eşleşecektir.)
 
-It's possible to _name_ those captures, and spread the regular expression over several lines,
-even including comments!  Compiling the regex might fail (the first _expect_) or the match
-might fail (the second _expect_). Here we can use the result as an associative array and look
-up captures by name.
+Bu eşleşmeleri *isimlendirebiliriz* ve düzenli ifadeleri birden fazla satır hâlinde yazabiliriz, satırları da içine alacak şekilde. Mesela burada sonucu ilişkisel bir dizi olarak kullanabiliriz ve eşleşmeleri isme göre arayabiliriz. 
 
 ```rust
 let re = Regex::new(r"(?x)
@@ -579,12 +506,9 @@ assert_eq!("03", &caps["month"]);
 assert_eq!("14", &caps["day"]);
 ```
 
-Regular expressions can break up strings that match a pattern, but won't check whether they make sense.
-That is, you can specify and match the _syntax_ of ISO-style dates, but _semantically_ they may be nonsense,
-like "2014-24-52".
+Düzenli ifadeler karakter dizilerini örüntü eşleştirmelere göre bölebilir ancak ne anlama geldiğini anlayamaz. Mesela ISO-tarzı bir sözdizimini belirtip eşleşeyebilirsiniz, ancak *anlamsal* olarak saçma sapan şeylere işaret edebilirler. Mesela ki "2014-24-52".
 
-For this, you need dedicated date-time processing, which is provided by [chrono](https://github.com/lifthrasiir/rust-chrono).
-You need to decide on a time zone when doing dates:
+Bu koşulda ayrıca tarih-zaman işlemeye ihtiyacınız olabilir, bu bize [chrono](https://github.com/lifthrasiir/rust-chrono) tarafından sunulur. Tarihleri üretirken zaman dilimini belirtmeniz de gerekebilir:
 
 ```rust
 extern crate chrono;
@@ -597,8 +521,7 @@ fn main() {
 // date was 2010-03-14+02:00
 ```
 
-However, this isn't recommended because feeding it bad dates will cause a panic! (try a bogus date
-to see this.) The method you need here is `ymd_opt` which returns `LocalResult<Date>`
+Ancak bu tarz kullanımda kötü tarihler şuna sebep olabilir: panik! (Mesela sahte bir tarih kullanmayı deneyebilirsiniz.) Esas ihtiyacınız olan metot `ymd_opt`'dir ki size `LocalResult<Date>` döner.
 
 ```rust
     let date = Local.ymd_opt(2010,3,14);
@@ -609,16 +532,6 @@ to see this.) The method you need here is `ymd_opt` which returns `LocalResult<D
     println!("date was {:?}", date);
     // date was None
 ```
+Doğrudan tarihi ve zamanı tarayabilirsiniz, standart UTC biçiminde ya da farklı  [biçimler](https://lifthrasiir.github.io/rust-chrono/chrono/format/strftime/index.html#specifiers)'da olabilir. Bu hemen hemen aynı formatlar istediğiniz tarzda biçimlendirmenize yardımcı olur.
 
-You can also directly parse date-times, either in standard UTC format or using custom [formats](https://lifthrasiir.github.io/rust-chrono/chrono/format/strftime/index.html#specifiers).
-These self-same formats allow you to print out dates in exactly the format you want.
-
-I specifically highlighted these two useful crates because they would be part of the standard
-library in most other languages. And, in fact, the embryonic form of these crates was
-once part of the Rust stdlib, but were cut loose. This was a deliberate decision: the Rust team takes
-stdlib stability very seriously so features only arrive in stable once they have gone through
-incubation in unstable nightly versions, and only then beta and stable.  For libraries that need
-experimentation and refinement, it's much better that they remain independent and get tracked
-with Cargo. For all practical purposes, these two crates _are_ standard - they are not going away and
-may be folded back into the stdlib at some point.
-
+Bu iki sandıktan özellikle bahsettiğm çünkü normalde bunlar diğer dillerde standart kütüphanenin birer parçasıdır. Ve üstelik bu kütüphanelerin çok çok ilkel bir tipi aslında Rust'ın standart kütüphanesinin parçasıydı, ancak ayrıştırıldı. Bu bilinçli bir karardı, Rust takımı standart kütüphanenin kararlılığını oldukça ciddiye alıyor ve ekleyecekleri yeni özellikleri önce kararsız "nightly" yayınında sonra yarı kararlı "beta" yayınında test ederler ve en sonunda "stable" yayınına alırlar. Pek çok deneyim ve iyileştirme gereken kütüphaneleri bağımsız olarak geliştirmek ve Cargo ile erişilir kılmak çok daha iyidir. Sonuca bakarsak, bu iki sandık standart*tır* - tekrardan standart kütüphaneye alınmayacaktır ve ortadan kaybolmayacaklardır.
