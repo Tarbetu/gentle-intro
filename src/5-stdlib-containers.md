@@ -1,57 +1,30 @@
-# Standard Library Containers
+# Standart Kütüphane Konteynırları
 
-## Reading the Documentation
+# Belgeleri Anlamak
+Bu kısımda kabaca size Rust'ın standart kütüphanesinin bilindik bazı kısımlarını tanıtacağım. Belgelendirme gayet iyi ancak bağlamı tanıtmak ve biraz örneğin kimseye zararı olmaz.
 
-In this section I'll briefly introduce some common parts of the Rust standard
-library. The documentation is excellent but a little context and a few examples is
-always useful.
+Hepsinden önce Rust belgelerini okumak biraz yorucu gelebilir, bundan dolayı bir örneği inceleyeceğiz ki bu örnek `Vec` olacak. Kullanışlı bir tavsiye verelim, "[-]" belgeleri açıp kapamaya yarar. (Eğer `rustup component add rust-src` ile belgeleri indirmişseniz yanında bir de "[src]" bağlantısını göreceksiniz. Metotların bir krokisine buradan ulaşabilirsiniz. 
 
-Initially, reading the Rust documentation can be challenging, so I'll go through `Vec` as an
-example.  A useful tip is to tick the '[-]' box to collapse the docs. (If you download the
-standard library source using `rustup component add rust-src` a '[src]' link will appear next to this.)
-This gives you a bird's eye view of all the available methods.
+Dikkat etmeniz gereken ilk detay, bütün ilişkili metotların `Vec`'in kendisinde tanımlanmadığıdır. Bunlar (çoğunlukla) `push` gibi vektörü değiştiren metotlardır. Bazı metotlar ise sadece vektörlerin içinde tuttuğu tiplere göre değişkenlik gösterir. Mesela, `dedup`'ı (kopyaları kaldır) sadece eşitliği denetlenebilir tipler üzerinde çalışır. `Vec` tipinde kullanılan birden fazla `impl` bloğu vardır ki bunlar içinde bulunduğu tiplerin çeşitliliğine göre şekillenmiştir.
 
-The first point to notice is that _not all possible methods_ are defined on `Vec` itself. They are (mostly)
-mutable methods that change the vector, e.g. `push`. Some methods are only implemented for vectors where
-the type matches some constraint. For example, you can only call `dedup` (remove duplicates) if the
-type is indeed something that can be compared for equality.  There are multiple `impl` blocks that
-define `Vec` for different type constraints.
+`Vec<T>` ile `&[T]` arasında da özel bir ilişki olduğunu biliyoruz. Dilimler üzerinde çlışan her bir metot vektörler üzerinde doğrudan çalışacaktır, fazladan `as_slice` gibi metotlar kullanmanıza hiç gerek yoktur. Bu ilişki `Deref<Target=[T]>` ile gösterilir. Ayrıca bir vektörü referans olarak göstermek onu bir dilime çevirir - tip dönüşümlerinin nadiren gerçekleştiği nadir yerlerden birisidir. İlk öğeyi geri dönen `first` gibi dilim metotları, ya da bunun tersini yapan `last`, vektörler için de kullanılabilir. Metotların pek ciddi bir kısmı karakter dizilerini çağrıştırabilir, mesela `split_at` dilimi belirli bir indekse göre ayırır, `starts_with` bir vektörün belirli bir veri silsilesi ile başlayıp başlamadığını belirtir, `contains` bir vektörün belirli bir veriyi içerip içermediğini belirtir.
 
-Then there's the very special relationship between `Vec<T>` and `&[T]`.  Any method that works on
-slices will also directly work on vectors, without explicitly having to use the `as_slice` method.
-This relationship is expressed by `Deref<Target=[T]>`. This also kicks in when you pass a vector by
-reference to something that expects a slice - this is one of the few places where
-a conversion between types happens automatically. So slice methods like `first`, which maybe-returns
-a reference to the first element, or `last`, work for vectors as well. Many of the methods are similar
-to the corresponding string methods, so there's `split_at` for getting a pair of slices split at an index,
-`starts_with` to check whether a vector starts with sequence of values, and `contains` to check whether
-a vector contains a particular value.
-
-There's no `search` method for finding the index of a particular value, but here's a rule of thumb:
-if you can't find a method on the container, look for a method on the iterator:
+Belirli bir verinin indeksini bulmak Rust'ta `search` metotu yoktur. Şimdi size size esas olayı anlatayım; eğer konteynırda metotu bulamazsanız, döngüleyici metotlarına bakın:
 
 ```rust
     let v = vec![10,20,30,40,50];
     assert_eq!(v.iter().position(|&i| i == 30).unwrap(), 2);
 ```
 
-(The `&` is because this is an iterator over _references_ - alternatively you could say `*i == 30` for
-the comparison.)
+( `&` kullanmamızın sebebi döngüleyicinin referanslar üzerinde çalışmasıdır - alternatif olarak kıyaslamak için `*i == 30` kullanabilirsiniz.)
 
-Likewise, there's no `map` method on vectors, because `iter().map(...).collect()` will do the job
-just as well. Rust does not like to allocate unnecessarily - often you don't need the result of that `map`
-as an actual allocated vector.
+Benzer şekilde vektörler üzerinde `map` metotu yoktur çünkü `iter().map(...).collect` ile aynı pekâlâ işi yapabilirsiniz. Rust, gerekmedikçe bellek tahsis etmeyi sevmez - çoğu zaman hâlihazırda bellekte yer tutan `map`'ın bütün sonuçlarına ihtiyacınız olmaz. 
 
-So I'd suggest you become familiar with all the iterator methods, because they are crucial to writing
-good Rust code without having to write loops out all the time. As always, write little programs to explore
-iterator methods, rather than wrestling with them in the context of a more complicated program.
+Döngüleyici (`iterator`) metotlarına aşina olmanızı tavsiye ederim çünkü iç içe girmiş döngülerle boğuşmadığınız iyi bir Rust kodu yazmak için elzemdirler. Her zaman olduğu gibi, büyük bir program yazarken bir anda onlarla güreşmek yerine döngüleyici metotlarını keşfetmek için minik programlar yazın.
 
-The `Vec<T>` and `&[T]` methods are followed by the common traits: vectors know how to do a debug display of themselves
-(but only if the elements implement `Debug`). Likewise, they are clonable if their elements are clonable.
-They implement `Drop`, which happens when vectors get to finally die; memory is released,
-and all the elements are dropped as well.
+`Vec<T>` ve `&[T]` metotları birbirleriyle ortak özellikleri (trait) paylaşırlar: vektörler kendi hata ayıklama bilgilerinin nasıl gösteirlebilirler. (Eğer bütün öğeler `Debug` özelliğine sahipse.) Aynı şekilde, eğer bütün öğeleri klonlanabilirlerse kendileri de klonlanabilirler. `Drop` özelliğine sahiptirler, bir vektör düşürüldüğü zaman bellekteki yerleri boşaltılır ve tek tek bütün öğeleri de düşürülür.
 
-The `Extend` trait means values from iterators can be added to a vector without a loop:
+`Extend` özelliği döngüleyicilerdeki değerlerin bir döngü içerisine herhangi bir döngü kurmadan eklenebileceğini ifade eder.
 
 ```rust
 v.extend([60,70,80].iter());
@@ -59,36 +32,25 @@ let mut strings = vec!["hello".to_string(), "dolly".to_string()];
 strings.extend(["you","are","fine"].iter().map(|s| s.to_string()));
 ```
 
-There's also `FromIterator`, which lets vectors be _constructed_ from iterators. (The iterator `collect`
-method leans on this.)
+Aynı zamanda `FromIterator` özelliği de vektörlerin döngüleyicilerden *inşa edilebileceğini* ifade eder. (Döngülerin `collect` metotu bunu kullanır.)
 
-Any container needs to be iterable as well. Recall that there are [three kinds of iterators](2-structs-enums-lifetimes.html#the-three-kinds-of-iterators)
+Her konteynır döngülenebilir olmalıdır. [Üç tarz-ı döngüleyiciyi](#) hatırlayın.
 
 ```rust
 for x in v {...} // returns T, consumes v
 for x in &v {...} // returns &T
 for x in &mut v {...} // returns &mut T
 ```
-The `for` statement relies on the `IntoIterator` trait, and there's indeed three implementations.
 
-Then there is indexing, controlled by `Index` (reading from a vector) and `IndexMut` (modifying a
-vector.)  There are many possibilities, because there's slice indexing as well, like `v[0..2]`,
-returning these return slices, as well as plain `v[0]` which returns a reference to the first element.
+`for` deyimi `IntoIterator` üzerinde iş yapar ve buna bağlı olarak üç farklı kullanımı vardır.
 
-There's a few implementations of the `From` trait. For instance `Vec::from("hello".to_string())`
-will give you a vector of the underlying bytes of the string `Vec<u8>`.
-Now, there's already a method `into_bytes` on `String`, so why the redundancy?
-It seems confusing to have multiple ways of doing the same thing.
-But it's needed because explicit traits make generic methods possible.
+Bir de `Index` (Bir vektörden okurken çalışan) bir de `IndexMut` (Bir vektörü düzenlerken çalışan) ile kontrol edilen indekslememiz vardır. Pek çok şey yapabiliriz çünkü `v[0..2]` gibi ifadelerle dilimlere indeksleyebilir ve dönebiliriz ya da sadece `v[0]` ile ilk elemana referans alabiliriz.
 
-Sometimes limitations of the Rust type system make things clumsy. An example here is how `PartialEq`
-is _separately_ defined for arrays up to size 32!  (This will get better.) This allows the convenience
-of directly comparing vectors with arrays, but beware the size limit.
+`From` özelliğinin de birtakım kullanımları vardır. Mesela `Vec::from("hello".to_string())` size karakter dizelerinin özündeki `Vec<u8>` tipindeki vektörü verecektir. Ancak şunu düşünebilirsiniz, zaten `String` tipi için `into_bytes` diye bir vektör varken bunun ne özelliği var? Bir işi yapmanın birden çok yolu olması saçma değil mi? Ancak bu, özelliklerin (traits) jenerik metotlar oluşturması için gerekliliktir. 
 
-And there are [Hidden Gems](http://xion.io/post/code/rust-iter-patterns.html) buried
-deep in the documentation. As Karol Kuczmarski says "Because let’s be honest: no one scrolls that far".
-How does one handle errors in an iterator? Say you map over some operation that might
-fail and so returns `Result`, and then want to collect the results:
+Bazen Rust'ın tip sisteminin kısıtlamalarından illallah edebilirsiniz. Mesela `PartialEq` boyutu 32'den az olan diziler için *ayrıca* tanımlanmıştır. (Bunu iyileştirecekler.) Bu vektörlerle dizileri doğrudan rahatça kıyaslamanızı sağlar ancak boyut sınırına dikkat etmelisiniz. 
+
+Belgelendirmenin diplerinde bazı [gizli hazinelerle](https://www.youtube.com/watch?v=j6K5IblbBzE) karşılaşabilirsiniz. Tıpkı Karol Kuczmarski'nin dediği gibi; "Kimse bu kadar arayıp taramaz.". Bir döngüleyicideki hataları nasıl yönetmelisiniz? Mesela bir döngüleyici üzerinde `map` kullandığınızda bazı öğeler sorun çıkarabilir ve size `Result` dönebilirler, böyle bir döngüleyici ile çalışacağınızı düşünün:
 
 ```rust
 fn main() {
@@ -100,41 +62,26 @@ fn main() {
 //[Ok(5), Ok(52), Ok(65)]
 ```
 
-Fair enough, but now you have to unwrap these errors - carefully!.
-But Rust already knows how to do the Right Thing,
-if you ask for the vector to be _contained_ in a `Result` - that is,
-either is a vector or an error:
+Yeterince iyi, ama tek tek bütün hataları kontrol etmeniz gerekiyor - dikkatlice! Ancak Rust bu işin doğrusunu yapar, eğer vektörün `Result` içerisinde barındırılmasını isterseniz - hepsi bu, eğer bir hata varsa bütün vektörü hatalı kabul edebiliriz.
 
 ```rust
     let converted: Result<Vec<_>,_> = iter.collect();
 //Ok([5, 52, 65])
 ```
 
-And if there was a bad conversion? Then you would just get `Err` with the first
-error encountered. It's a good example of how extremely flexible `collect` is.
-(The notation here can be intimidating - `Vec<_>` means "this is a vector, work
-out the actual type for me` and `Result<Vec<_>,_>` is furthermore asking
-Rust to work out the error type as well.)
+Ya dönüşüm başarısız olursa? İlk hatada işi fazla uzatmadan hemen `Err` döner. `collect`'in nasıl da esnek olduğuna dair iyi bir örnek olduğunu düşünebiliriz. (Tip bildirimini tuhaf bulabilirsiniz. `Vec<_>` kabaca bu bir vektör, `Result<Vec<_>,_>` herhangi bir vektörün `Result` tipi demektir. Siz ne istediğini belirttikten sonra Rust sizin yerinize işi çözer.)
 
-So there's a _lot_ of detail in the documentation.
-But it's certainly clearer than what the C++ docs say about `std::vector`
+Belgelendirmede *epeyce* detay var ancak ne olursa olsun C++'ın `std::vector` hakkındaki bilgilendirmesinden çok daha anlaşılır ve net.
 
-> The requirements that are imposed on the elements depend on the actual operations performed
-> on the container. Generally, it is required that element type is a complete type and meets
-> the requirements of Erasable, but many member functions impose stricter requirements.
+> Öğelerin gerektiği gereksinimler konteynırın üzerinde yapılan işlemlere dayanır. Çoğunlukla elemanın tipinin karşılanması ve düşürülebilir olması (drop) yeterlidir ancak bazı fonksiyonların katı gereksinimleri vardır.
 
-With C++, you're on your own. The explicitness of Rust is daunting at first, but as you learn to
-read the constraints you will know exactly what any particular method of `Vec` requires.
+C++'da kendi başınızın çaresine bakmanız gerekir. Rust'ın ilk başta her şeyi aleni olarak beklemesi sizi ürkütebilir ancak kısıtlamaları anlarken herhangi bir `Vec` metotunun gereksinimlerini de anlayacaksınız. 
 
-I would suggest that you get the source using `rustup component add rust-src`, since the
-standard library source is very readable and the method implementations are usually less scary than the
-method declarations.
+Kaynak kodlarını `rustup component add rust-src` ile okumanızı tavsiye ederim, standart kütüphanenin kodları oldukça okunaklıdır ve metotların içeriği tanımlarından çok daha anlaşılırdır.
 
-## Maps
+# Sözlükler (Maps)
 
-_Maps_  (sometimes called _associative arrays_ or _dicts_) let you look up values
-associated with a _key_.  It's not really a fancy concept, and can be done with
-an array of tuples:
+*Sözlükler (HashMap)* dilediğiniz veriye bir *anahtar* ile ulaşabilmenizi sağlar. Aman aman bir fikir değil ve dilerseniz aynı şeyi demet dizisi ile yapabilirsiniz:
 
 ```rust
     let entries = [("one","eins"),("two","zwei"),("three","drei")];
@@ -144,11 +91,9 @@ an array of tuples:
     }
 ```
 
-This is fine for small maps and just requires equality to be defined for the keys,
-but the search takes linear time - proportional to the size of the map.
+Küçük sözlükler ve sadece anahtar denkliği gerektiren durumlar için üstteki örnek iş görür, ancak içerisinde bir şey aramanın süresi doğru orantıya tabidir - sözlüğün büyüklüğü ile doğru orantılı. 
 
-A `HashMap` does much better when there are a _lot_ of key/value pairs to be
-searched:
+Pek çok *anahtar/veri çifti* gerektiği zaman bir `HashMap` ile çalışmak çok çok daha verimlidir.
 
 ```rust
 use std::collections::HashMap;
@@ -162,12 +107,9 @@ assert_eq! (map.contains_key("two"), true);
 assert_eq! (map.get("two"), Some(&"zwei"));
 ```
 
-`&"zwei"`? This is because `get` returns a _reference_ to the value, not the value
-itself. Here the value type is `&str`, so we get a `&&str`. In general it _has_ to be
-a reference, because we can't just _move_ a value out of its owning type.
+`&"zwei"` mı? `get` ile verinin kendisini değil de *referansını* döndüğü için böyle bir şey görüyoruz. Eğer verinin tipi `&str` ise pekâlâ `&&str` alabiliriz. Alacağımız verinin *referans* olması gerekir çünkü çoğu zaman sahipli tiplerin değerlerini *taşımak* istemeyiz.
 
-`get_mut` is like `get` but returns a possible mutable reference. Here we have
-a map from strings to integers, and wish to update the value for the key 'two':
+`get_mut` tıpkı `get` gibi çalışır ancak değişebilir bir referans döner. Şimdi karakter dizilerini sayılara çeviren bir sözlüğü inceleyelim ve "two" değerini güncellemeye çalışalım.
 
 ```rust
 let mut map = HashMap::new();
@@ -187,22 +129,11 @@ println!("after {}", map.get("two").unwrap());
 // after 20
 ```
 
-Note that getting that writable reference takes place in its own block - otherwise,
-we would have a mutable borrow lasting until the end, and then Rust won't allow
-you to borrow from `map` again with `map.get("two")`; it cannot allow any readable
-references while there's already a writable reference in scope. (If it did, it could
-not guarantee that those readable references would remain valid.)
-So the solution is to make
-sure that mutable borrow doesn't last very long.
+Referansı farklı bir bloğa aldığımıza dikkat edin - aksi taktirde sonuna kadar değişebilir bir referansımız olurdu ve Rust `map`, `map.get("two")` ile hiçbir şeyi ödünç almamıza izin vermezdi; değişebilir bir referans varken değişmez referanslara izin verilmez. (Eğer izin verilseydi, değişmez referansların geçerliliği şaibeli olurdu.) Bundan dolayı değişebilir referansı erkenden aradan çıkararak işi çözmüş oluyoruz.
 
-It is not the most elegant API possible, but we can't throw away any possible
-errors. Python would bail out with an exception, and C++ would just create
-a default value. (This is convenient but sneaky; easy to forget that the price
-of `a_map["two"]` always returning an integer is that we can't tell the difference
-between zero and 'not found', _plus_ an extra entry is created!)
+Elbette bunun çok zarif bir API olduğunu söyleyemeyiz ama hatalara karşı daha dikkatli davranırız. Python olsa ters bir durumda hemen ekrana hata mesajları dizer ve C++ ise bize varsayılan veri dönerdi. (Aslında güzel bir çözüm ancak bazı sorunları var. Mesela `a_map["two"]` 0 döndüğü zaman "bulunamadı" mesajı ile gerçek sıfırın arasındaki farkı anlayamayız. *Üstüne de* fazladan bir girdi atanmış olur.)
 
-And no-one just calls `unwrap`, except in examples. However, most Rust code you see consists
-of little standalone examples!  Much more likely for a match to take place:
+Kimse `unwrap` kullanmaz, örneklerde öyle değil tabii. Gördüğünüz çoğu Rust kodu da bağımsız örneklerden oluştuğu için yaygın olarak kullanıldığı kanısına kapılabilirsiniz. Ancak çoğu zaman bir eşleşmenin kullanılması daha olasıdır:
 
 ```rust
 if let Some(v) = map.get("two") {
@@ -216,7 +147,7 @@ match map.get_mut("two") {
 }
 ```
 
-We can iterate over the key/value pairs, but not in any particular order.
+Dilenirse anahtar/veri ikilileri üzerinde döngü kurabilirsiniz ancak belli bir sırası yoktur.
 
 ```rust
 for (k,v) in map.iter() {
@@ -227,19 +158,12 @@ for (k,v) in map.iter() {
 // key two value zwei
 ```
 
-There are also `keys` and `values` methods returning iterators over the keys and
-values respectively, which makes creating vectors of values easy.
+Ek olarak `keys` ve `values`'un döngüleyici dönen metotları vardır ki bu değerlerden vektör kullanmayı epeyce kolaylaştırır.
 
-## Example: Counting Words
+# Örnek: Kelimeleri saymak
+Metinleri anlamak için yapabileceğiniz keyifli işlerden birisi bir metinde kaç farklı kelime olduğunu sayabilmektir. Bir metni kelimelere bölmek `split_whitespace`  ile oldukça kolaydır ancak noktalama işaretlerine özen göstermemiz gerekir. Bundan dolayı kelimeler sadece alfabetik karakterden oluşacak şekilde bölünmelidir. Üstelik kelimeler işleme tamamen küçük harfli olarak alınmalıdır.
 
-An entertaining thing to do with text is count word frequency. It is straightforward
-to break text into words with `split_whitespace`, but really we must respect punctuation.
-So the words should be defined as consisting only of alphabetic characters.
-And the words need to be compared as lower-case as well.
-
-Doing a mutable lookup on a map is straightforward, but also handling the case where the
-lookup fails is a little awkward.  Fortunately there's an elegant
-way to update the values of a map:
+Bir sözlükte içeriği değiştirecek tarzdan bir şey aramak kolaydır ancak arama başarısız olduğu zaman ne yapacağını belirtmek biraz tuhaf kaçabilir. Neyse ki hata koşulunu kontrol etmek için gayet zarif bir çözümümüz var:
 
 ```rust
 let mut map = HashMap::new();
@@ -251,33 +175,26 @@ for s in text.split(|c: char| ! c.is_alphabetic()) {
 }
 ```
 
-If there's no existing count corresponding to a word, then let's create a new entry
-containing zero for that word and _insert_ it into the map. Its exactly what a C++
-map does, except it's done explicitly and not sneakily.
+Eğer aradığımız kelime sözlükte yoksa sözlüğe sıfır içeren yeni bir girdi yaratıyoruz ve onu sözlüğe sokuyoruz (*insert*). C++'daki sözlükler de aynen böyle çalışır tek fark burada varsayılan veri kendiliğinden gelmez ve net bir şekilde belirtilir. 
 
-There is exactly one explicit type in this snippet, and that's the `char` needed
-because of a quirk of the string `Pattern` trait used by `split`.
-But we can deduce that the key type is `String` and the value type is `i32`.
 
-Using [The Adventures of Sherlock Holmes](http://www.gutenberg.org/cache/epub/1661/pg1661.txt)
-from Project Gutenberg, we can test this out
-more thoroughly.  The total number of unique words (`map.len()`) is 8071.
+Bu kapamada (*closure*) net bir tip belirttik ve tip de `char` oluyor. Bunun nedeni `split` tarafından kullanılan karakter dizilerinin `Pattern` özelliğinin tuhaflığıdır. Ancak Rust burada sözlüğün anahtar tipinin `String`, sözlüğün veri tipinin de `i32` olduğunu çıkarabilir. 
 
-How to find the twenty most common words? First, convert the map into a vector
-of (key,value) tuples. (This consumes the map, since we used `into_iter`.)
+Gutenberg projesinden [Sherlock Holmes'un maceraları'nı (The Adventures of Sherlock Holmes)](http://www.gutenberg.org/cache/epub/1661/pg1661.txt) kullanarak bunu güzelce test edebiliriz. (`map.len()` ile) Öğreniyoruz ki birbirinden farklı toplam 8071 kelime kullanılmış. 
+
+Peki ya en çok kullanılan yirmi kelimeyi nasıl öğrenebiliriz? Öncelikle sözlüğümüzü bir (anahtar, veri) formatında demetlerle dolu bir vektöre çevirebiliriz. (Bu `map`ı yok edecektir, çünkü `into_iter` kullandık)
 
 ```rust
 let mut entries: Vec<_> = map.into_iter().collect();
 ```
-Next we can sort in descending order. `sort_by` expects the result of the `cmp`
-method that comes from the `Ord` trait, which is implemented by the
-integer value type:
+
+Sonra bunları azalacak şekilde dizelim. `sort_by`, `cmp` metotunun sonuçlarını  bekleyecektir ki bu metot sayı tiplerinde bulunur. 
 
 ```rust
     entries.sort_by(|a,b| b.1.cmp(&a.1));
 ```
 
- And finally print out the first twenty entries:
+Ve bu sayıları ilk yirmi çıktıyı ekrana yazdıralım:
 
 ```rust
     for e in entries.iter().take(20) {
@@ -285,9 +202,7 @@ integer value type:
     }
 ```
 
-(Well, you _could_ just loop over `0..20` and index the vector here - it isn't wrong,
-just a little un-idiomatic - and potentially more expensive for big iterations.)
-
+(Sadece `0..20` üzerinde bir döngü *kurabilirdiniz* - bu kabul edilebilir ancak Rust'ın kendisine özgü tarzının dışına çıkmış olurduk - üstelik büyük döngüler için daha maliyetli olurdu.)
 
 ```
  38765
@@ -312,17 +227,15 @@ as 863
 had 830
 ```
 
-A little surprise - what's that empty word? It is because `split` works on single-character
-delimiters, so any punctuation or extra spaces causes a new split.
+Listenin başında bir tuhaflık sezdiniz mi? O aslında boş bir kelime. `split` metotu tek karaktere göre parçaladığı için iki noktalama işaretinin arasındaki boşlukklar da kelimeden sayılmış oldu.
 
-## Sets
+# Kümeler (Sets/HashSets)
 
-Sets are maps where you care only about the keys, not any associated values.
-So `insert` only takes one value, and you use `contains` for testing whether a value
-is in a set.
+Kümeleri sadece anahtarlarını umursadığınız sözlükler olarak düşünebilirsiniz, anahtarların karşılığı yoktur. Bundan dolayı `insert` sadece tek bir veri alır ve dilerseniz `contains` kullabilirsiniz. 
 
-Like all containers, you can create a `HashSet` from an iterator. And this
-is exactly what `collect` does, once you have given it the necessary type hint.
+Ç.N: Teknik olarak doğru olsa da buradaki tanımı karmaşık buldum. Kümeleri basitçe her verisi özgün olan, aynı veriyi ikinci kez almayan sırasız bir vektör gibi düşünebilirsiniz.
+
+Diğer konteynırlar gibi bir döngüleyiciden `HashSet` oluşturabilirsiniz. `collect` ile bu işi yapabilirsiniz, tipi bildirdiğiniz sürece.
 
 ```rust
 // set1.rs
@@ -339,10 +252,10 @@ fn main() {
 }
 // {"orange", "pear", "apple"}
 ```
-Note (as expected) that repeated insertions of the same key have no effect, and the order
-of values in a set are not important.
 
-They would not be sets without the usual operations:
+Aynı anahtarın tekrar girmiş olmanız (beklenildiği gibi) hiçbir etki oluşturmaz ve bir verideki sıralaması önemli değildir. 
+
+Matematikteki setlerle yaptığınız işlemleri pekâlâ Rust ile de yapabilirsiniz:
 
 ```rust
 let fruit = make_set("apple orange pear");
@@ -353,9 +266,10 @@ for c in fruit.intersection(&colours) {
 }
 // "orange"
 ```
-They all create iterators, and you can use `collect` to make these into sets.
 
-Here's a shortcut, just as we defined for vectors:
+Bütün işlemler döngüleyici döner ve `collect` kullanarak onları tekrardan sete çevirebilirsiniz.
+
+İşte bir kısayol, vektörleri nasıl kullanıyorsak aynı şekilde kullanabiliriz.
 
 ```rust
 use std::hash::Hash;
@@ -376,20 +290,12 @@ where T: Eq + Hash, I: Iterator<Item=T> {
 
 let intersect = fruit.intersection(&colours).to_set();
 ```
-As with all Rust generics, you do need to constrain types - this can only be
-implemented for types that understand equality (`Eq`) and for which a 'hash function'
-exists (`Hash`). Remember that there is no _type_ called `Iterator`, so `I` represents
-any type that _implements_ `Iterator`.
 
-This technique for implementing our own methods on standard library types may appear
-to be a little too powerful, but again, there are Rules. We can only do this for our
-own traits. If both the struct and the trait came from the same crate (particularly,
-the stdlib) then such implemention would not be allowed. In this way, you are
-saved from creating confusion.
+Bütün Rust jeneriklerinde olduğu gibi burada da tipleri özelliklerle kısıtlamanız gereklidir - yukarıdaki kod sadece eşitliği (`Eq`) ve "hash fonksiyonu" (`Hash`) bulunan tipler için çalışır. `Iterator` diye bir tip bulunmadığını ve `I`'nın `Iterator` özelliğine sahip bir tip olması gerektiğini belirtiyoruz.
 
-Before congratulating ourselves on such a clever, convenient shortcut, you should be
-aware of the consequences. If `make_set` was written so, so that these are sets
-of owned strings, then the actual type of `intersect` could come as a surprise:
+Standart kütüphane tiplerinine kendi metotlarımızı eklemek gözünüze biraz abartılı görünebilir ancak unutmayın ki kurallar var. Bunu sadece kendi özelliklerimize (*trait*) uygulayabiliriz. Eğer özelliğin ve yapının (*struct*) ikisi de aynı sandıktan geliyorsa (Mesela ki standart kütüphaneyi sunan "stdlib") bu tarz bir kullanıma izin verilmeyecektir. Bu şekilde bir dikkat dağınıklığından kurtulabiliyoruz.
+
+Kendimizi bu zekice ve uygun kısayolu bulduğumuz için övmeye başlamadan önce yaratabileceği sonuçlara dikkat etmelisiniz. Eğer `make_set` aşağıdaki gibi kullanılırsa, ki burada sahipli bir tip olan `String`'in kümesi vardır, `intersect`'in tipi sizi epeyce bir şaşırtabilir:
 
 ```rust
 fn make_set(words: &str) -> HashSet<String> {
@@ -399,30 +305,23 @@ fn make_set(words: &str) -> HashSet<String> {
 // intersect is HashSet<&String>!
 let intersect = fruit.intersection(&colours).to_set();
 ```
-And it cannot be otherwise, since Rust will not suddenly start making copies of owned
-strings. `intersect` contains a single `&String` borrowed from `fruit`. I can promise
-you that this will cause you trouble later, when you start patching up lifetimes!
-A better solution is to use the iterator's `cloned` method to make owned string copies
-of the intersection.
+
+Rust sahipli karakter dizilerinin kopyalarını oluşturmadığı için aksi olamaz. `intersect`'in içerisinde `fruit`ten ödünç alınmış tek bir `&String` bulunmakta. Bunun daha sonra size zorluk çıkaracağına yemin edebilirim, mesela ki yaşam sürelerini belirtmeye başalrken. Daha iyi bir çözüm, döngüleyicinin `cloned` metotunu kullanarak kesişim için kendi sahipli tiplerinizi üretmenizdir. 
 
 ```rust
 // intersect is HashSet<String> - much better
 let intersect = fruit.intersection(&colours).cloned().to_set();
 ```
-A more robust definition of `to_set` might be `self.cloned().collect()`,
-which I invite you to try out.
 
-## Example: Interactive command processing
+`to_set`'in daha iyi bir tanımı, `self.cloned().collect()` ile hazırlanabilir ki bir de bunu böyle denemenizi tavsiye ediyorum.
 
-It's often useful to have an interactive session with a program. Each line is read in and
-split into words; the command is looked up on the first word, and the rest of the words
-are passed as an argument to that command.
+# Örnek: İnteraktif Olarak Komut İşleme
 
-A natural implementation is a map from command names to closures. But how do we store
-closures, given that they will all have different sizes? Boxing them will copy them
-onto the heap:
+Bir programın interaktif bir oturumu olması oldukça kullanışlı olabilir. Her bir satır kendi başına işleme alınır ve içindeki kelimelere bölünür; komut ilk bölümde yer alır ve geri kalan kelimeler ise komutun argümanları olur.
 
-Here's a first try:
+Bunun en akla yatan çözümlerinden birisi komut isimlerinden kapamalara (closure) ulaşılabilen bir sözlük inşa etmek olur. Peki ya nasıl kapamaları bir yerde barındıracağız? Hepsinin farklı boyutları olduğunu düşününce kulağa daha zor geliyor. En uygun çözüm, onların kopyalarını `heap`'a kutulamaktır (box):
+
+Hadi deneyelim:
 
 ```rust
     let mut v = Vec::new();
@@ -435,7 +334,7 @@ Here's a first try:
     }
 ```
 
-We get a very definite error on the second push:
+İkinci `push` kullanımında çok net bir hata alacağız:
 
 ```
   = note: expected type `[closure@closure4.rs:4:21: 4:28]`
@@ -443,24 +342,21 @@ We get a very definite error on the second push:
 note: no two closures, even if identical, have the same type
 ```
 
-`rustc` has deduced a type which is too specific, so it's necessary to force that
-vector to have the _boxed trait type_ before things just work:
+Ç.N: Aynı görünseler bile iki kapama asla aynı tipte olmayacaktır. 
+
+`rustc` gereğinden fazla spesifik bir tip çıkarımında bulundu, bundan dolayı vektörün içindeki tipi kendimiz *kutulanmış özellik tipi (boxed trait type)* olarak belirtmeliyiz:
 
 ```rust
     let mut v: Vec<Box<Fn(f64)->f64>> = Vec::new();
 ```
-We can now use the same trick and keep these boxed closures in a `HashMap`. We still
-have to watch out for lifetimes, since closures can borrow from their environment.
 
- It's tempting as first to make them `FnMut` - that is, they can modify any captured variables. But we will
-have more than one command, each with its own closure, and you cannot then mutably borrow
-the same variables.
+Şimdi kutulanmış kapamaları `HashMap` (sözlük) tipi için de kullanabiliriz. Kapamalar bulundukları ortamlardan veri çekebildikleri için yaşam sürelerini takip etmeliyiz.
 
-So the closures are passed a _mutable reference_ as an argument, plus
-a slice of string slices (`&[&str]`) representing the command arguments.
-They will return some `Result` - We'll use `String` errors at first.
+`FnMut`u kullanmayı düşünebilirsiniz - çünkü yakaladıkları her türlü değişkenleri düzenleyebilirler. Ancak bir kapamaya tekabül eden birden fazla komutumuz bulunacağı için tekrar tekrar değişebilir referanslar alamazsınız.
 
-`D` is the data type, which can be anything with a size.
+Böylece kapamalar argümanlara *değişebilir referanslar* olarak erişir, karakter dizilerinin dilimleri de (`&[&str]`) satırdaki argümanları alır. Tasarladığımız yapıda geri dönüşü `Result` ile paketleyeceğiz - hata olarak en önce `String` kullanacağız.
+
+`D` boyutu belli olan herhangi bir tipi gösterir.
 
 ```rust
 type CliResult = Result<String,String>;
@@ -481,14 +377,9 @@ impl <'a,D: Sized> Cli<'a,D> {
     }
 ```
 
-`cmd` is passed a name and any closure that matches our signature, which is boxed
-and entered into the map.  `Fn` means that our closures borrow their environment
-but can't modify it. It's one of those generic methods where the declaration is scarier than
-the actual implementation!  Forgetting the explicit lifetime is a common error
-here - Rust won't let us forget that these closures have a lifetime limited to
-their environment!
+`cmd` imzaya göre bir isim ve bir kapama alır, kapama kutulanmış ve sözlüğe girmiş olmalıdır. `Fn` ise çevreden verileri ödünç alabilir ancak düzenleyemez demektir. Bu tarz jenerik metotları en kötüsüdür, imzasına bakarken kafanız karışık ancak içeriği pirüpak anlaşılırdır! Yaşam ömrünü belirtmeyi unutmak burada en sık yapılan hatalardandır - Rust, çevresine kısıtlanmış kapamaların yaşam ömürlerini unutmanızı hoş görmeyecektir!
 
-Now for reading and running commands:
+Şimdi komutları inceleyelim ve çalıştıralım:
 
 ```rust
     fn process(&mut self,line: &str) -> CliResult {
@@ -514,17 +405,14 @@ Now for reading and running commands:
             buff.clear();
         }
     }
-
 ```
-This is all reasonably straightforward - split the line into words as a vector,
-look up the first word in the map and call the closure with our stored mutable
-data and the rest of the words. An empty line is ignored and not considered an error.
 
-Next, let's define some helper functions to make it easier for our closures to
-return correct and incorrect results. There's a _little_ bit of cleverness going on;
-they are generic functions that work for any type that can be converted to a `String`.
+Gayet anlaşılır - satırları kelimelere ayırıp bir vektörde topluyoruz, ardından sözlükte ilk kelimeyi aratıyoruz ve sözlüğün döndüğü kapamayı değişebilir verilerimizle ve kelimenin geri kalanlarıyla çağırıyoruz. Boş satırlar görmezden gelinir ve hata olarak değerlendirilmez.
 
-```rust
+Şimdi kapamalarımızın olumlu ve olumsuz sonuçlar dönmesini kolaylaştırmak için yardımcı fonksiyonlar tanımlayalım. Burada zekice *ufak* bir detay var; 
+tanımladığımız jenerik fonksiyonların çalıştığı tipleri "`String`"e çevirebilir. 
+
+ ```rust
 fn ok<T: ToString>(s: T) -> CliResult {
     Ok(s.to_string())
 }
@@ -533,8 +421,8 @@ fn err<T: ToString>(s: T) -> CliResult {
     Err(s.to_string())
 }
 ```
-So finally, the Main Program. Look at how `ok(answer)` works - because
-integers know how to convert themselves to strings!
+
+İşte karşımızda ana programımız var. "`ok(answer)`"ın nasıl çalıştığına dikkat edin - çünkü sayılar kendilerini nasıl karakter dizilerine çevrileceğini iyi bilirler!
 
 ```rust
 use std::error::Error;
@@ -565,13 +453,10 @@ fn main() {
     cli.go();
 }
 ```
-The error handling is a bit clunky here, and we'll later see how to use the question
-mark operator in cases like this.
-Basically, the particular error `std::num::ParseIntError` implements
-the trait `std::error::Error`, which we must bring into scope to use the `description`
-method - Rust doesn't let traits operate unless they're visible.
 
-And in action:
+Hataları biraz uydurup bir yoldan ele aldık ve bu tarz durumlarda soru işareti operatörünün nasıl çalıştığının inceleyeceğiz. Basitçe `std::num::ParseIntError` hatası `std::errror::Errır` özelliğini (*trait*) içeriyor ki bu bulunduğumuz bloğa `description` metotunu getiriyor - Rust özellikler erişilebilir olmadan üzerinde işlem yapmamıza izin vermez.
+
+Ve çalıştıralım:
 
 ```
 Welcome to the Interactive Prompt!
@@ -589,9 +474,4 @@ go boo!
 Err("invalid digit found in string")
 ```
 
-Here are some obvious improvements for you to try. First, if we give `cmd` three
-arguments with the second being a help line, then we can store these help lines
-and automatically implement a 'help' command. Second, having some command editing and
-history is _very_ convenient, so use the [rustyline](https://crates.io/crates/rustyline) crate
-from Cargo.
-
+Denemek isteyeceğiniz pek çok iyileştirme olabilir. Mesela `cmd` komutuna yardım satırını içeren üçüncü bir argüman ekleyebilir, `help` komutuna bu üçüncü argümanla cevap verebilirdik. Ya da Cargo ile [rustyline](https://crates.io/crates/rustyline) sandığını kullanarak komut düzenleme ve geçmişe dönmek konularını daha akılcı bir yoldan halledebiliriz.

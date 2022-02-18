@@ -1382,7 +1382,7 @@ Kapamaların esas kullanımı döngüleyici metotlarıdır. Noktalı sayılar i�
     // forty
 ```
 
-# Üç Tarz-ı Döngüleyici
+# Üç Tarz- döngüleyici
 Üç farklı çeşit (yine) üç basit argüman tipine denk düşüyor. Bir `String` vektörümüz olduğunu düşünelim. Bunlar bizim döngüleyici tiplerimiz, ilk üçü aleni bir şekilde sonraki üçü de gizil bir şekilde belirtilmiştir. 
 
 ```rust
