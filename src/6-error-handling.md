@@ -1,14 +1,10 @@
-# Error Handling
+# Hataları Yönetmek
 
-## Basic Error Handling
+# Hataları Yönetmenin Temelleri
 
-Error handling in Rust can be clumsy if you can't use the question-mark operator.
-To achieve happiness, we need to return a `Result` which can accept any error.
-All errors implement the trait `std::error::Error`, and
-so _any_ error can convert into a `Box<Error>`.
+Eğer soru işareti operatörünü kullanmazsanız Rust'ta hata yönetimi epey sıkıcı olabilir. Ancak bunu yapabilmek için bazen herhangi bir hatayı barındırabilecek bir `Result` tipi oluşturabilmemiz gerekir. Bütün hatalar `std::error::Error` dönebildiğine göre herhangi bir hatayı `Box<Error>` ile gösterebiliriz. 
 
-Say we needed to handle _both_ i/o errors and errors from converting
-strings into numbers:
+Düşünün ki hem girdi/çıktı işlemlerinden gelen hatayı hem de karakter dizisini sayıya çevirmekten gelen hatayı aynı fonksiyon içinde dönmek istiyoruz:
 
 ```rust
 // box-error.rs
@@ -23,25 +19,23 @@ fn run(file: &str) -> Result<i32,Box<Error>> {
     Ok(contents.trim().parse()?)
 }
 ```
-So that's two question-marks for the i/o errors (can't open file, or can't read as string)
-and one question-mark for the conversion error. Finally, we wrap the result in `Ok`.
-Rust can work out from the return type that `parse` should convert to `i32`.
 
-It's easy to create a shortcut for this `Result` type:
+Burada girdi/çıktı işlemleri için iki farklı soru işareti operatörü kullanılıyor (Ya dosya açılamazsa? Ya `String`e çevrilemezse?) ve bir de çeviri için ayrıca bir soru işareti operatörü kullanıyoruz. En sonunda da sonucu `Ok` ile dönüyoruz. Rust, `parse` üzerinden dönen `i32` tipi ile çalışabilir. 
+
+`Result` tipi için bir kısayolu oluşturmak da oldukça olaydır:
 
 ```rust
 type BoxResult<T> = Result<T,Box<Error>>;
 ```
 
-However, our programs will have application-specific error conditions, and so
-we need to create our own error type. The basic requirements
-are straightforward:
 
-  - May implement `Debug`
-  - Must implement `Display`
-  - Must implement `Error`
+Ancak bizim programımızın kendisine özgü hata tipleri olacağı için kendi hata tiplerimizi hazırlamamız gerekecek. Bunun için gereken malzemeler:
 
-Otherwise, your error can do pretty much what it likes.
+-   Tercihen `Debug`
+-   Bir tutam `Display`
+-   Ve son olarak, olmazsa olmazımız `Error`
+
+Eğer bunlar olmazsa hata tipiniz kafası nasıl eserse öyle çalışabilir.
 
 ```rust
 // error1.rs
@@ -78,26 +72,17 @@ fn raises_my_error(yes: bool) -> Result<(),MyError> {
     } else {
         Ok(())
     }
-}
 ```
 
-Typing `Result<T,MyError>` gets tedious and many Rust modules define their own
-`Result` - e.g. `io::Result<T>` is short for `Result<T,io::Error>`.
+Sürekli sürekli `Result<T, MyError>` yazmak biraz yorucu olduğu için çeşitli Rust modüllerinin kendi `Result tipleri vardır`. Mesela `Result<T,io::Error>` yazmak yerine `io::Result<T>` yazabilirsiniz.
 
-In this next example we need to handle the specific error when a string can't be parsed
-as a floating-point number.
+Sonraki örneğimizde çevrilemeyecek bir karakter dizisini ondalıklı sayıya çevirirken karşımıza çıkan hatayı kontrol etmemiz gerekecek.
 
-Now the way that `?` works
-is to look for a conversion from the error of the _expression_ to the error that must
-be _returned_.  And this conversion is expressed by the `From` trait. `Box<Error>`
-works as it does because it implements `From` for all types implementing `Error`.
+Şimdiye kadar `?` ile elimizdeki ifadenin bir hata dönüp dönemeyeceğine bakarak çalıştı. Bunu belirleyen özellik (trait), `From` özelliğidir. `Box<Error>` ise `From`'a sahip bütün `Error` tiplerini kabul eder. 
 
-At this point you can continue to use the convenient alias `BoxResult` and catch everything
-as before; there will be a conversion from our error into `Box<Error>`.
-This is a good option for smaller applications. But I want to show other errors can
-be explicitly made to cooperate with our error type.
+Devam etmeden önce kendi yarattığınız `BoxResult` isimlendirmesini kullanabilir ve her şeyi tek elde toplayabilirsiniz, bu kendi yarattığımız hata tipini `Box<Error>`'a döndürecektir. Ufak uygulamalar için pekâlâ iyi bir tercih olabilir. Ancak ben size diğer hata türlerini kendi hata türümüze dâhil edebileceğiniz daha iyi bir örnek göstereceğim.
 
-`ParseFloatError` implements `Error` so `description()` is defined.
+`ParseFloatError`, `Error`'u içerdiğinden dolayı kendi içinde `description()`'un da tanımlanmış olması gerek.
 
 ```rust
 use std::num::ParseFloatError;
@@ -116,10 +101,9 @@ fn parse_f64(s: &str, yes: bool) -> Result<f64,MyError> {
 }
 ```
 
-The first `?` is fine (a type always converts to itself with `From`) and the
-second `?` will convert the `ParseFloatError` to `MyError`.
+İlk `?`'nde pek bir olay yok. (`From` ile her tip kendisine dönüştürülür.) İkinci `?` ise `ParseFloatError` hatasını `MyError`'a çevirir.
 
-And the results:
+Ve sonuç:
 
 ```rust
 fn main() {
@@ -132,86 +116,40 @@ fn main() {
 //  Err(MyError { details: "invalid float literal" })
 ```
 
-Not too complicated, although a little long-winded. The tedious bit is having to
-write `From` conversions for all the other error types that need to play nice
-with `MyError` - or you simply lean on `Box<Error>`. Newcomers get confused
-by the multitude of ways to do the same thing in Rust; there is always another
-way to peel the avocado (or skin the cat, if you're feeling bloodthirsty). The price
-of flexibility is having many options. Error-handling for a 200 line program can afford
-to be simpler than for a large application. And if you ever want to package your precious
-droppings as a Cargo crate, then error handling becomes crucial.
+Birazcık işi yokuşa sürse de hiç de karmaşık değil. İşin tadını kaçıran kısım yazdığımız `From` dönüşümleri yazdığımız hataların bizim `MyError` ile iyi anlaşması gerektiği - ya da bunları hiç düşünmeyin `Box<Error>` kullanın olsun bitsin. Yeni başlayanlar tek bir şeyi birden fazla yapabilmenin yolunu görünce kafaları karışır. Bir avakadoyu soymanın (ya da yeterince manyaksanız bir kediyi yüzmenin) her zaman başka bir yolu vardır. Bu esnekliğin bedeli birden çok seçeneğe sahip olmaktır. Hata kontrolü 200 satırlık bir program için büyük bir programdan daha basit olabilir. Ve eğer bu kıymetli kod atıklarınızı bir Cargo paketine dönüştürmek isterseniz hata işleme çok daha kıymetli bir hâle gelir.
 
-Currently, the question-mark operator only works for `Result`, not `Option`, and this is
-a feature, not a limitation.  `Option` has a `ok_or_else` which converts itself into a `Result`.
-For example, say we had a `HashMap` and must fail if a key isn't defined:
+Şu an için soru işareti operatörü yalnızca `Result` için çalışmakta, `Option` için değil, ve bu bir özelliktir, bir kısıtlama değil. `Option` tipinin `ok_or_else` isminde kendisini `Result`'a dönüştüren bir metotu vardır. Mesela, düşünün ki bir `HashMap`'ta aradığımız anahtar bulunmuyor:
 
 ```rust
-    let val = map.get("my_key").ok_or_else(|| MyError::new("my_key not defined"))?;
+let val = map.get("my_key").ok_or_else(|| MyError::new("my_key not defined"))?;
 ```
 
-Now here the error returned is completely clear! (This form uses a closure, so the error value
-is only created if the lookup fails.)
+Şimdi hatamız gayet anlaşılır bir şekilde dönmüş oldu! (Bu form içerisinde bir kapama kullanılıyor, böylece buradaki hata ancak gerekirse yaratılırsa olacak.) 
 
-## simple-error for Simple Errors
+**Çeviri Notu:** Yazarın dediğine karşın, daha sonra soru işareti operatörü `Option` tipine dönüşebilir bir şekilde güncellendi. Yani artık şu kullanım geçerlidir:
 
-The [simple-error](https://docs.rs/simple-error/0.1.9/simple_error/) crate provides you with
-a basic error type based on a string, as we have defined it here, and a few convenient macros.
-Like any error, it works fine with `Box<Error>`:
-
-```rust
-#[macro_use]
-extern crate simple_error;
-
-use std::error::Error;
-
-type BoxResult<T> = Result<T,Box<Error>>;
-
-fn run(s: &str) -> BoxResult<i32> {
-    if s.len() == 0 {
-        bail!("empty string");
-    }
-    Ok(s.trim().parse()?)
-}
-
-fn main() {
-    println!("{:?}", run("23"));
-    println!("{:?}", run("2x"));
-    println!("{:?}", run(""));
-}
-// Ok(23)
-// Err(ParseIntError { kind: InvalidDigit })
-// Err(StringError("empty string"))
-
+```Rust
+let val = map.get("my_key")?
 ```
 
-`bail!(s)` expands to `return SimpleError::new(s).into();` - return early with a conversion _into_
-the receiving type.
+`get` metotundan dönen `None` değerini olduğu gibi ya da bir hata dönmek size kalmış. İki durumunda kendince artıları ve eksileri var. Yazarın bahsettiği gibi, Rust'ta bir şeyi yapmanın birden fazla yolu var. Daha fazla bilgi için Rust'ın [referans kitabını](https://doc.rust-lang.org/reference/expressions/operator-expr.html#the-question-mark-operator) ya da [kutsal kitabı](https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html) inceleyebilirsiniz.
 
-You need to use `BoxResult` for mixing the `SimpleError` type with other errors, since
-we can't implement `From` for it, since both the trait and the type come from other crates.
+# error-chain ve hatalarla baş etme sanatı
+**Çeviri notu**: Acı bir şekilde bahsetmeliyim ki, error-chain isimli sandık [2019 gibi](https://users.rust-lang.org/t/error-chain-is-no-longer-maintained/27561/2) tedavülden kaldırıldı. Bunun yerine `failure` isminde alternatif bir sandığa kişiler yönlendirilmiş ancak o da [2020 yılı gibi](https://github.com/rust-lang-deprecated/failure/pull/347) tedavülden kaldırılmış. Benzer konseptleri sağlayan iki sandık var:
+- [Anyhow](https://github.com/dtolnay/anyhow): Kabaca hataların tipi ne olursa olsun yönlendirebileceğiniz bir tip sunuyor.
+- [thiserror](https://github.com/dtolnay/thiserror): Bir yapıyı `derive(Error)` gibi basit bir şekilde hata tipine dönüştürmeye yarar.
 
-## error-chain for Serious Errors
+Yazının gerisini hem orijinal metni korumak hem belli başlı konseptleri tanıtmak hem de hata yönetiminin geçmişini göstermek için çeviriyorum.
 
-For non-trivial applications have a look
-at the [error_chain](http://brson.github.io/2016/11/30/starting-with-error-chain) crate.
-A little macro magic can go a long way in Rust...
+Önemsiz olmayan uygulamalar için [`error_chain`](http://brson.github.io/2016/11/30/starting-with-error-chain) sandığına göz atmalısınız. Minik bir makronun bu kadar faydalı olabilir.
 
-Create a binary crate with `cargo new --bin test-error-chain` and
-change to this directory. Edit `Cargo.toml` and add `error-chain="0.8.1"` to the end.
+`cargo new test-error-chain` komutuyla çalıştırılabilir bir sandık oluşturun ve oluşturulan dizinin içine girin. `Cargo.toml`'un sonuna `error-chain="0.8.1"`'i ekleyin.
 
-What __error-chain__ does for you is create all the definitions we needed for manually implementing
-an error type; creating a struct, and implementing the necessary traits: `Display`, `Debug` and `Error`.
-It also by default implements `From` so strings can be converted into errors.
+`error-chain`'in olayı elle tek tek yazmanız gereken hata tiplerinin tanımlarını sizin yerinize yazmaktır; yapılar oluşturmak ve `Display`, `Debug`, `Error` gibi bir hata tipi yaratmak için kullanılan özellikleri eklemek. Aynı zamanda öntanımlı olarak `From` özelliği de dâhil edilir ki normal karakter dizileri de hatalara dönüştürülebilirler.
 
-Our first `src/main.rs` file looks like this. All the main program does is call `run`, print out any
-errors, and end the program with a non-zero exit code.  The macro `error_chain` generates all the
-definitions needed, within an `error` module - in a larger program you would put this in its own file.
-We need to bring everything in `error` back into global scope because our code will need to see
-the generated traits. By default, there will be an `Error` struct and a `Result` defined with that
-error.
+İlk `src/main.rs` dosyamız alttakine benzeyecektir. `Main` içerisinden `run` fonksiyonu çağrılıyor, hataları satır satır yazıyor ve programı sıfır olmayan bir çıkış kodu ile program sonlandırılıyor. Hepsi bu. `error_chain` makrosu ile bütün gerekli tanımlar üretilmiş olacaktır, `errors` modülünü gerekirse daha büyük programlarda kendi dosyasına yerleştirebilirsiniz. `errors` modülünü global kapsama dağıtmamız gerekti çünkü kodumuzun üretilmiş özellikleri (trait) görebilmesi gerekliydi. Varsayılan olarak, bir adet `Error` yapısı ve bu hatayla birlikte `Result` tanımlanacaktır.
 
-Here we also ask for `From` to be implemented so that `std::io::Error` will convert into
-our error type using `foreign_links`:
+Burada `foreign_links` kullanarak `std::io::Error`'ün `From` kullanarak bizim istediğimiz hata tipine dönüşmesini sağlıyoruz
 
 ```rust
 #[macro_use]
@@ -245,15 +183,9 @@ fn main() {
 // error: No such file or directory (os error 2)
 ```
 
-The 'foreign_links' has made our life easier, since the question mark operator now knows how to
-convert `std::io::Error` into our `error::Error`.  (Under the hood, the macro is creating a
-`From<std::io::Error>` conversion, exactly as spelt out earlier.)
+`foreign_links` hayatımızı oldukça kolaylaştırdı zira soru işareti operatörü artık `std::io::Error`'u nasıl `error::Error`'a dönüştüreceğini biliyor. (Kaputun altında tam da gerektiği gibi makromuz `Form<std::io::Error>` dönüşümü tanımlıyor.)
 
-All the action happens in `run`; let's make it print out the first 10 lines of a file given as the
-first program argument.  There may or may not be such an argument, which isn't necessarily an
-error. Here we want to convert an `Option<String>` into a `Result<String>`. There are two `Option`
-methods for doing this conversion, and I've picked the simplest one.  Our `Error` type implements
-`From` for `&str`, so it's straightforward to make an error with a simple text message.
+Bütün olay `run` içerisinde dönüyor; şimdi programa ilk argüman olarak verilen dosyanın ilk on satırını yazdırmayı deneyelim. Ortada verilmiş herhangi bir argüman olmayabilir, bunu bilemeyiz. Tek gereken şey `Option<String>`'i bir `Result<String>`'e dönüştürebilmek. Bunu yapabilmek için iki `Option` metotumuz var ve ben en basit olanını seçtim. `Error` tipimiz `&str` için `From`'u içerdiğinden basitçe bir karakter dizisiyle yeni bir hata oluşturabiliriz.
 
 ```rust
 fn run() -> Result<()> {
@@ -280,21 +212,18 @@ fn run() -> Result<()> {
 }
 ```
 
-There is (again) a useful little macro `bail!` for 'throwing' errors.
-An alternative to the `ok_or` method here could be:
+`bail!` isminde hata "fırlatmak" için kullanılan küçük ama etkili makromuzu da görelim. Bunun yerine `ok_or` kullanabilirdiniz:
 
-```rust
+ ```rust
     let file = match args().skip(1).next() {
         Some(s) => s,
         None => bail!("provide a file")
     };
 ```
 
-Like `?` it does an _early return_.
+Tıpkı `?` gibi _fonksiyondan erken döner. (early return)_
 
-The returned error contains an enum `ErrorKind`, which allows us to distinguish between various
-kinds of errors. There's always a variant `Msg` (when you say `Error::from(str)`) and the `foreign_links`
-has declared `Io` which wraps I/O errors:
+Dönen hata içeriğinde `ErrorKind` isimli bir enum barındırır, bu bizi farklı türlü hataları seçebilmemizi sağlar. (`Error::from(str)` şeklinde oluşturduğunuz) her hata `Msg` isimli varyantla eşleşir. `Foreign_links` ile tanımladığımız `Io` ise Girdi/Çıktı hatalarıyla eşleşir:
 
 ```rust
 fn main() {
@@ -312,7 +241,7 @@ fn main() {
 // io No such file or directory (os error 2)
 ```
 
-It's straightforward to add new kinds of errors. Add an `errors` section to the `error_chain!` macro:
+Yeni tür hatalar eklemek de oldukça basittir. `error_chain` içerisine `errors` isimli bir kısım ekleyin:
 
 ```rust
     error_chain!{
@@ -329,16 +258,14 @@ It's straightforward to add new kinds of errors. Add an `errors` section to the 
     }
 ```
 
-This defines how `Display` works for this new kind of error. And now we can handle
-'no argument' errors more specifically, feeding `ErrorKind::NoArgument` a `String` value:
+Bu oluşturduğumuz yeni tür hata için `Display`'ın nasıl çalışacağını tanımlar. Ve şimdi "argüman yok" tarzı hataları daha spesifik bir şekilde tanımlamış olduk, `ErrorKind::NoArgument`'e bir `String` değeri verebiliriz:
 
 ```rust
     let file = args().skip(1).next()
         .ok_or(ErrorKind::NoArgument("filename needed".to_string()))?;
-
 ```
 
-There's now an extra `ErrorKind` variant that you must match:
+Şimdi eşleştirmeniz gereken yeni bir `ErrorKind` daha var:
 
 ```rust
 fn main() {
@@ -357,25 +284,16 @@ fn main() {
 // no argument "filename needed"
 ```
 
-Generally, it's useful to make errors as specific as possible, _particularly_ if this is a library
-function! This match-on-kind technique is pretty much the equivalent of traditional exception handling,
-where you match on exception types in a `catch` or `except` block.
+Genellikle mümkün olduğunca hataları spesifikleştirmek daha kullanışlıdır, _bilhassa_ bu bir kütüphane fonksiyonuysa! Bu türe göre eşleştirme tekniği geleneksel hata yönetimine oldukça benzer, sadece burada `except` ya da `catch` blokları yerine eşleştirme yöntemlerini kullanıyoruz.
 
-In summary, __error-chain__ creates a type `Error` for you, and defines `Result<T>` to be `std::result::Result<T,Error>`.
-`Error` contains an enum `ErrorKind` and by default there is one variant `Msg` for errors created from
-strings. You define external errors with `foreign_links` which does two things. First, it creates a new
-`ErrorKind` variant. Second, it defines `From` on these external errors so they can be converted to our
-error.  New error variants can be easily added.  A lot of irritating boilerplate code is eliminated.
+Sonuç olarak, **error-chain** sizin yerinize bir `Error` tipi oluşturur ve `Result<T>`'i `std::result::Result<T, Error>` olarak tanımlar. `Error` ise içeriğinde `ErrorKind` isimli bir enum barındırır ve varsayılan olarak karakter dizilerinden oluşan hatalarla eşleşen `Msg`'i barındırır. Harici hataları da iki farklı iş yapan `foregin_links` ile tanımlayabilirsiniz. Birincisi, yeni bir `ErrorKind` varyantı oluşturabilirsiniz. İkincisi dış hataları kendi hatamıza çeviren `From` tanımlarını hazırlar. Böylece kolaylıkla çeşitli hata türleri eklenebilir hâle gelir. Böylece artık kalıplaşmış olan pek çok koddan kurtulmuş oluyoruz.
 
-## Chaining Errors
+# Hataları Zincirlemek
+Bu sandığın esas güzelliği *hataları zincirlemek*.
 
-But the really cool thing that this crate provides is _error chaining_.
+Bir *kütüphane kullanıcısı* olarak sadece gelişigüzel bir girdi/çıktı almak biraz can sıkar. Tamam, bir dosyayı açamadık. Ama hangi dosya? En basitinden, benim için önemli olan nokta nedir?
 
-As a _library user_, it's irritating when a method simply just 'throws' a generic I/O error. OK, it
-could not open a file, fine, but what file? Basically, what use is this information to me?
-
-`error_chain` does _error chaining_ which helps solve this problem of over-generic errors. When we
-try to open the file, we can lazily lean on the conversion to `io::Error` using `?`, or _chain_ the error.
+`error_chain` (Tr: Hata zinciri) bu tarz aşırı genelleme sorununa karşı *hata zincirleme* çözümünü sunar. Dosyayı açmak istediğimiz zaman tembelce `?` kullanma alışkanlığımıza devam edebilir ve `io::Error`'a dönüştürebiliriz, ya da hatayı *zincirleyebiliriz.*
 
 ```rust
 // non-specific error
@@ -385,7 +303,7 @@ let f = File::open(&file)?;
 let f = File::open(&file).chain_err(|| "unable to read the damn file")?;
 ```
 
-Here's a new version of the program, with _no_ imported 'foreign' errors, just the defaults:
+Şimdi programımızın `foreign_links` kullanmadan yazılan yeni bir versiyonuna bakalım.
 
 ```rust
 #[macro_use]
@@ -441,16 +359,12 @@ fn main() {
 // caused by: No such file or directory (os error 2)
 ```
 
-So the `chain_err` method takes the original error, and creates a new error which contains the
-original error - this can be continued indefinitely.  The closure is expected to return any
-value which can be _converted_ into an error.
+Görmüş olduğunuz üzere `chain_err` metotu orijinal hatayı alıyor ve orijinal hatayı barındıran yeni bir hata yaratıyor - bu böyle sonsuza kadar gider. İlgili kapamalar hataya *dönüştürülebilen* herhangi bir veri dönebilir.
 
-Rust macros can clearly save you a lot of typing.  `error-chain` even provides a shortcut that
-replaces the whole main program:
+Rust makroları sizi pek çok şey yazmaktan kurtarabilir. `error-chain`'in `main` yerine geçebilecek ayrı bir makrosu bile vardır:
 
 ```rust
 quick_main!(run);
 ```
 
-(`run` is where all the action takes place, anyway.)
-
+(Zaten `run`  bütün olayın gerçekleştiği yerdir.)
