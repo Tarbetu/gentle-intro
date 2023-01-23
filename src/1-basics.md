@@ -329,7 +329,7 @@ let bigint: i64 = 0;
 ```
 
 
-# Yolumuz Yordamımızı Bilmek
+# Yolumuzu Yordamımızı Bilmek
 Şimdi belgelendirmeye bakmanın tam zamanı. Belgeler makinenize yüklenmiş olmalı ve onu `rustup doc --std` komutu ile tarayıcınızda açabilir olmalısınız.
 
 Arama kutucuğunun en üstte olduğuna dikkat edin, zira bu sizin en yakın dostunuz olacak; çalışmak için İnternet'e gerek duymaz.
@@ -345,7 +345,7 @@ let cosine = x.cos();
 Sonuç sıfıra epey yakın çıkacaktır, belli ki tahmini değere değil gerçek PI sayısına ihtiyacımız var.
 
 (Sahi, neden `f64` diye belirtmemize gerek var ki? Aslına bakarsanız o olmadan değerimiz `f32` veya `f64` olabilir ki bunlar epey farklı şeyler.)
-(Ç.N: Noktalı sayı tutan )
+(Ç.N: Noktalı sayı tutan)
 
 `Cos` için verilen örneğe bakalım, bunu çalışabilir bir programa çevirdik. (`assert!` de `assert_eq!`'in amcaoğlu oluyor, verilen ifade kesinlikle doğru olmalıdır.)
 
@@ -412,11 +412,11 @@ Yeni bir dil öğrenmek aynı zamanda diğer dillerden edindiğiniz alışkanlı
 
 Diziler Rust'ta o kadar çok kullanılmaz, çünkü her dizi tipi uzunluğunun bilgisini de taşır. Mesela `[i32; 4]` dizi tipine bakabilirsiniz; aynı zamanda `[10, 20]` olan bir dizinin tipi de `[i32; 2]` olacaktır vs, hepsinin farklı tipi vardır. Yani bunlar aslında fonksiyon argümanı olmaktan başka şeye yaramayan başıboş serserilerdir.
 
-Esas sık kullanılan*lar* *dilimlerdir*. Bunları bir dizinin *parçalanmış hâli\** olarak düşünebilirsiniz. Tıpkı dizilerin davrandığı gibi davranırlar ve *uzunluklarını bilirler*, C'deki *gösterici (pointer)* denen korkunç yaratıkların tam tersi olarak.
+Esas sık kullanılan*lar* *dilimlerdir*. Bunları bir dizinin *parçalanmış hâli[^slice]* olarak düşünebilirsiniz. Tıpkı dizilerin davrandığı gibi davranırlar ve *uzunluklarını bilirler*, C'deki *gösterici (pointer)* denen korkunç yaratıkların tam tersi olarak.
 
 İki önemli noktaya dikkat edin - bir dilimin tipi nasıl yazıldığına ve fonksiyona ne zaman `&` eklemeniz gerektiğine.
 
-\* Ç.N: Esas çeviride "parçalanmış hâl" yerine "görünüm (view)" kelimesi kullanılıyor. İngilizce için cümle gayet geçerli, ancak Türkçe'de tuhaf duruyor.
+[^slice]: Ç.N: Esas çeviride "parçalanmış hâl" yerine "görünüm (view)" kelimesi kullanılıyor. İngilizce için cümle gayet geçerli, ancak Türkçe'de tuhaf duruyor.
 
 ```rust
 // array2.rs
@@ -469,7 +469,7 @@ strings ["hello", "world"]
 ints_ints [[1, 2], [10, 20]]
 ```
 
-Bu arada, dizilerin dizileri sorun değildir ancak dizide sadece bir tipten değerler bulunmalıdır. Dizideki değerler verimlilikten dolayı bellekte yanyana bulunurlar ki bu erişim için oldukça faydalıdır.
+Bu arada, dizilerin dizileri de olabilir ancak dizide sadece bir tipten değerler bulunmalıdır. Dizideki değerler verimlilikten dolayı bellekte yanyana bulunurlar ki bu erişim için oldukça faydalıdır.
 
 Eğer bir değişkenin gerçek tipini merak ediyorsanız, size bir hile gösterebilirim. Bir değişkeni, geçersiz olduğunu bildiğiniz bir tiple bildirin:
 
@@ -593,7 +593,7 @@ fn main() {
 // maybe_first is Some(10)
 ```
 
-Yeni başlayan başına sıklıkla gelen şey `mut` eklemeyi unutmalarıdır; bunu yaparsanız dostça uyarılırsınız.
+Yeni başlayanların başına sıklıkla gelen şey `mut` eklemeyi unutmalarıdır; bunu yaparsanız dostça uyarılırsınız.
 
 ```
 3 |     let v = Vec::new();
@@ -625,24 +625,24 @@ fn main() {
 
 Ufak ama önemli ödünç alma operatörümüz `&`, vektörü dilime çevirmeye *zorluyor. (coercing)*. Ve bu pek mantıksız değil çünkü vektörler bellekte *dinamik* bir yer tutarlar ve dizi gibi çalışırlar.
 
-Eğer dinamik tipli bir dilden geliyorsanız, sizinle bazı şeyleri konuşmanın vakti geldi. Sistem programlama dillerinde iki farklı bellek yönetim tarzı vardır:  Yığıt (Stack) ve Öbek (Heap).\* Stack bellek üzerinde oldukça hızlı bir şekilde alan tahsis ederler ancak yapıları ancak bir kaç megabaytla çıkabilecek kadar sınırlıdır. Heap ise gigabaytlara kadar çıkabilir ancak alan tahsis etme süreci biraz meşakkatlidir ve bu bellek alanının sonradan temizlemesi gereklidir. Bazı sözüm ona "yönetilen (managed)" dillerde (Bunlar Java olur, Go olur, bazı sözde betik dilleri olur) bu tarz detaylar sizden gizlenir ve belediyemizin *çöp toplayıcıları (garbage collector)* tarafından bu pis işler halledilir. Sistem, bir verinin başka bir veriye referans gösterilmediğine emin olunca kullanılabilir bellek alanına geri döner.
+Eğer dinamik tipli bir dilden geliyorsanız, sizinle bazı şeyleri konuşmanın vakti geldi. Sistem programlama dillerinde iki farklı bellek yönetim tarzı vardır:  Yığıt (Stack) ve Öbek (Heap).[^heapstack] Stack bellek üzerinde oldukça hızlı bir şekilde alan tahsis ederler ancak yapıları ancak bir kaç megabaytla çıkabilecek kadar sınırlıdır. Heap ise gigabaytlara kadar çıkabilir ancak alan tahsis etme süreci biraz meşakkatlidir ve bu bellek alanının sonradan temizlemesi gereklidir. Bazı sözüm ona "yönetilen (managed)" dillerde (Bunlar Java olur, Go olur, bazı sözde betik dilleri olur) bu tarz detaylar sizden gizlenir ve belediyemizin *çöp toplayıcıları (garbage collector)* tarafından bu pis işler halledilir. Sistem, bir verinin başka bir veriye referans gösterilmediğine emin olunca kullanılabilir bellek alanına geri döner.
 
-\* Yığıt ve Öbek, benim çeviri standartlarıma göre bile aşırı yapay kalıyor. Bundan ötürü kafa karışıklığını ortadan kaldırmak için Heap ve Stack kelimelerinden devam ettim. 
+[^heapstack]: Yığıt ve Öbek, benim çeviri standartlarıma göre bile aşırı yapay kalıyor. Bundan ötürü kafa karışıklığını ortadan kaldırmak için Heap ve Stack kelimelerinden devam ettim. 
 
 İşin özü bu durumun faydaları olsa da bazı sorunları da vardır. Stack ile oynamanın bazı tehlikeleri var ve içinde bulunduğunuz fonksiyonun dönüş adresini bozabilirsiniz, sonra da iğrenç bir şekilde can verirsiniz. Ya da daha da kötüsü, Hacker Okan'ın elini öpmek zorunda kalabilirsiniz.
 
-Yazdığım ilk C programını (DOS'ta yazmıştım) tüm bilgisayarı çökertmişti. Unix sistemleri bu tarz şeylere karşı daha iyi tavır alırdı, ve *segfault* ile kontrolden çıkan süreçleri öldürürler. Peki, bu neden Rust'ın (ya da Go'nun) paniklemesinden daha kötüdür? Çünkü panik sorunun olduğu yerde meydana gelir, bütün program birbirine girdiğinde ve ev ödevlerine dadandığında değil. Panikler *bellek için güvenlidir (memory safe)* çünkü belleğin canına okunmadan hemen önce gerçekleşirler. Bu, C'deki güvenlik sorunlarının yaygın bir nedenidir çünkü bütün bellek erişimleri güvensizddir ve işi bilen bir saldırgan bu güvensizlikten faydalanabilir.
+İlk C programım (DOS'ta yazmıştım) tüm bilgisayarı çökertmişti. Unix sistemleri bu tarz şeylere karşı daha iyi tavır alırdı ve *segfault* mekanizması ile kontrolden çıkan süreçler "öldürülür". Peki, bu neden Rust'ın (ya da Go'nun) paniklemesinden daha kötüdür? Çünkü panik sorunun olduğu yerde meydana gelir, bütün program birbirine girdiğinde ve ev ödevlerine dadandığında değil. Panikler *bellek için emniyetlidir (memory safe)* çünkü belleğin canına okunmadan hemen önce gerçekleşirler. Bu, C'deki güvenlik sorunlarının yaygın bir nedenidir çünkü bütün bellek erişimleri emniyetsizdir ve işi bilen bir saldırgan bu güvensizlikten faydalanabilir.
 
 Panikler kulağınıza korkunç ve plansız gelebilir ama Rust'ın panikleri bile yapılandırılmıştır - stack tek tek serbest bırakılır. Bellekte tahsis edilmiş alanı olan bütün veriler boşatılır ve geriye dönük bir rapor oluşturulur.
 
-Peki çöp toplayıcıların dezavantajları nedir? Birincisi belleği çok hoyratça bullanıyorlar, sizin için önemli olmayabilir ama gömülü mikroçiplerde bu çok fena bir sorun oluşturur. İkincisi, en olur olmaz zamanlarda belleği temizlemeye başlamasıdır. (Odanızda uzanmış telefonda sevgilinizle hassas bir konuşma yaparken birden odanızı temizlemeye kalkışan annenizi düşünün.) Gömülü sistemlerin olaylara *gerçekleştiği anda* yanıt vermesi gerekir ve planlanmamış bir temizleye hiç tahammütleri yoktur. Roberto Lerusalimsch, Lua gibi çok zarif bir dinamik dilin baş tasarımcısı, çöp toplayıcılı bir yazılımın kullanıldığı uçakta asla uçmak isteyemeyeceğini söylemiştir.
+Peki çöp toplayıcıların (garbage collector) dezavantajları nedir? Birincisi belleği çok hoyratça kullanıyorlar, sizin için önemli olmayabilir ama gömülü mikroçiplerde bu çok fena bir sorun oluşturur. İkincisi, en olur olmaz zamanlarda belleği temizlemeye başlamasıdır. (Odanızda uzanmış telefonda sevgilinizle hassas bir konuşma yaparken birden odanızı temizlemeye kalkışan annenizi düşünün.) Gömülü sistemlerin olaylara *gerçekleştiği anda* yanıt vermesi gerekir ve planlanmamış bir temizliğe hiç tahammütleri yoktur. Roberto Lerusalimsch, Lua gibi çok zarif bir dinamik dilin baş tasarımcısı, çöp toplayıcılı bir yazılımın kullanıldığı uçakta asla uçmak isteyemeyeceğini söylemiştir.
 
-Vektörlere geri dönelim, bir vektör yaratıldığı ya da düzenlendiğinde heap içerisinden alan tahsis eder ve bu tahsis edilen alanın sahibi olur. Vektör öldüğünde ya da belelkten temizlendiğinde, bellek de serbst bırakılır.
+Vektörlere geri dönelim, bir vektör yaratıldığı ya da düzenlendiğinde heap içerisinden alan tahsis eder ve bu tahsis edilen alanın sahibi olur. Vektör öldüğünde ya da bellekten temizlendiğinde, bellek de serbest bırakılır.
 
 # Döngüleyiciler (Iterators)
 Rust bilinmezinin en temel noktasından henüz bahsetmedik - döngüleyiciler. Bir aralık (range) üzerinde kullanılan for döngüsü bir döngüleyici (iterator) kullanır. (`0..n` Python3'teki `range` fonksiyonuna benzer.)
 
-Bir döngüleyiciyi fark etmek oldukça kolaydır. `Option` dönen `next` metotuna sahip bir "objedir". `None` dönene kadar, `next` kullanabiliriz.
+Bir döngüleyiciyi fark etmek oldukça kolaydır. `Option` değerini bize dönen `next` metotuna sahip bir "objeye" döngüleyici deriz. `None` dönene kadar, `next` kullanabiliriz.
 
 ```rust
 // iter1.rs
@@ -701,7 +701,7 @@ fn main() {
 
 Aslında, dizi üzerinde `for i in 0..slice.len() {}` gibi bir kullanımdansa bu yöntem çok daha verimlidir çünkü Rust'ı obsesifçe her indeks operasyonunda bir ton şeyi kontrol etmeye yönlendirmemiş oluyoruz.
 
-Bir de bir aralığın hepsini hızlıca toplamanın bir başka örneğine bakalım. Daha önce bir döngü ve `mut` değişkenini kullanıyordum. Burada ise toplamayı "*idiomatic*" ve profesyonelce bir yolu var:
+Bir de bir aralığın hepsini hızlıca toplamanın bir başka örneğine bakalım. Daha önce bir döngü ve `mut` değişkenini kullanıyordum. Burada ise toplamanın "*idiomatic*" ve profesyonelce bir yolu var:
 
 ```rust
 // sum1.rs
@@ -785,9 +785,9 @@ fn main() {
 ```
 
 # Karakter Dizileri (String)
-Rust'taki karakter dizileri diğer dillerden biraz daha gelişkindir. `String` tipi, `Vec` gibi, belleği dinamik olarak tahsis eder ve yeniden boyutlandırılabilir. (C++'ın `std::string` tipine çok benzer ancak Java'nın ve Python'nun değişemez karakter dizileri gibi değildir.) Ancak bir program, pek çok `string` kalıbı *(string literal)* de barındırabilir ("selam" gibi) ve bir sistem programlama dili bunları çıktı dosyasının içinde barındırabilmelidir. Gömülü mikroçiplerde bunun anlamı, bunları pahalı RAM'a yerine ucuz ROM'a yerleştirmektir. (Düşük seviyeli cihazlar için, RAM'ın pahalılığı aynı zamanda enerji üretimi pahalılığıdır.) Bir sistem programlama dilinde iki tür karakter dizisi bulunmalıdır, statik ya da bellekte yeri tahsis edilmiş.
+Rust'taki karakter dizileri diğer dillerden biraz daha gelişkindir. `String` tipi, `Vec` gibi, belleği dinamik olarak tahsis eder ve yeniden boyutlandırılabilir. (C++'ın `std::string` tipine çok benzer ancak Java'nın ve Python'nun değişemez karakter dizileri gibi değildir.) Ancak bir program, pek çok `string` kalıbı *(string literal)* de barındırabilir ("merhaba" gibi) ve bir sistem programlama dili bunları çıktı dosyasının içinde barındırabilmelidir. Gömülü mikroçiplerde bunun anlamı, bunları pahalı RAM yerine ucuz ROM'a yerleştirmektir. (Düşük seviyeli cihazlar için, RAM'ın pahalılığı aynı zamanda enerji üretimi pahalılığıdır.) Bir sistem programlama dilinde iki tür karakter dizisi bulunmalıdır, statik ya da bellekte yeri tahsis edilmiş.
 
-Yani "selam" bir `String` değildir. Onun tipi `&str`'dir. ("Karakter dizisi dilimi *String Slice* olarak okunur.") Bu ayrım, C++'daki `const char*` ve `std::string` arasındaki fark gibidir ancak `&str` biraz daha kullanışlıdır. Doğrusu, `&str` ve `String` ilişki `&[T]` ile `Vec<T>` arasındaki ilişkiye çok benzer.
+Yani "merhaba" bir `String` değildir. Onun tipi `&str`'dir. ("Karakter dizisi dilimi *String Slice* olarak okunur.") Bu ayrım, C++'daki `const char*` ve `std::string` arasındaki fark gibidir ancak `&str` biraz daha kullanışlıdır. Doğrusu, `&str` ve `String` ilişki `&[T]` ile `Vec<T>` arasındaki ilişkiye çok benzer.
 
 ```rust
 // string1.rs
@@ -804,9 +804,9 @@ fn main() {
 }
 ```
 
-Tekrar edelim, ödünç alma operatörü tıpkı `Vec<T>`'yi `&[T]`'ye çevirmesi gibi `Strin g`'i de `&str`'ye çevirir.
+Tekrar edelim, ödünç alma operatörü tıpkı `Vec<T>`'yi `&[T]`'ye çevirmesi gibi `String`'i de `&str`'ye çevirir.
 
-Aslında içten içe, `String` aslında bir `Vec<u8>`'dir ve `&str` de bir `&[u8]`'dir, ancak bu baytlar UTF-8 yazısını *kesinlikle* göstermelidir.
+Aslında içten içe, `String` aslında bir `Vec<u8>`'dir ve `&str` de bir `&[u8]`'dir, ancak bu baytlar UTF-8'e *kesinlikle* uygun olmalıdır.
 
 Vektör gibi, bir karakteri `push`layabilirsiniz veyahut sonundaki karakteri `pop`layabilirsiniz.
 
@@ -985,7 +985,7 @@ Bir karakter dizisini bir sayıya çevirmenin yolu gayet bariz, ancak dönüşt�
 
 # Örüntü Eşleştirme (Matching)
 
-`string3.rs` dosyasındaki Rusça selamlamayı kullandığımız kodda aslında bu tarz durumları o şekilde çözmeyiz. `Match` ekleyin.
+`string3.rs` dosyasındaki Rusça selamlamayı kullandığımız kodda aslında bu tarz durumları o şekilde çözmeyiz. `Match` ile deneyelim:
 
 ```rust
     match multilingual.find('п') {
@@ -1066,11 +1066,11 @@ thread 'main' panicked at 'can't read the file: Error { repr: Custom(Custom { ki
 note: Run with `RUST_BACKTRACE=1` for a backtrace.
 ```
 
-Dosyanın var olmadığı veyahut okunmasına izin olmadığı durumlarda `open` hata dönebilir, `read_to_string` ise dosya içeriğinin UTF-8 olmaması durumunda hata döner. (Tabii, bu koşulda yerine `read_to_end` kullanıp içeriği bayt vektörlerine koymak olabilir.) Çok da büyük olmayan dosyaları tek hamlede okumak daha faydalı ve basittir.
+Dosyanın var olmadığı veyahut okunmasına izin olmadığı durumlarda `open` hata dönebilir, `read_to_string` ise dosya içeriğinin UTF-8 olmaması durumunda hata döner. (Tabii, bu koşulda yerine `read_to_end` kullanıp içeriği bayt vektörlerine koymak da bir seçenek.) Çok da büyük olmayan dosyaları tek hamlede okumak daha faydalı ve basittir.
 
 Eğer diğer dillerde dosya işleme nasıl olur bir fikriniz varsa dosyanın ne zaman kapatılması gerektiğini düşünüyor olabilirsiniz. Eğer dosyaya bir şeyler yazdırsaydık kapatmamak veri kaybına sebebiyet verebilirdi ancak burada dosya kendiliğinden kapatılıyor ve fonksiyon sona erdiği zaman da `file` değişkeni *düşürülüyor.*
 
-Bu "hata hortlatma işi"ne biraz fazla alıştık galiba. Bütün programı böyle dandik şeylere çökertebilen bir programı kendi fonksiyonlarınıza yerleştirmek istemezsiniz. O zaman `File::open`'ın ne döndüğüne bakalım. Eğer `Option` bir şeyin varlığını ya da yokluğunu  işaret ediyorsa `Result` da bir şeyin olup olmadığını gösterir. İkisi de `unwrap`'i bilir (ve amcaoğlu `expect`i de) ancak biraz farklıdırlar. `Result`, `Ok` ve `Err` için iki farklı tür parametre içerir. `Result` "paketi" iki farklı kompartmana sahiptir, birisi `Ok` ve diğeri de `Err`.
+Bu "hata hortlatma işi"ne biraz fazla alıştık galiba. Bütün programı böyle çökertebilen bir kodu kendi fonksiyonlarınıza yerleştirmek istemezsiniz. O zaman `File::open`'ın ne döndüğüne bakalım. Eğer `Option` bir şeyin varlığını ya da yokluğunu işaret ediyorsa `Result` da bir şeyin olup olmadığını gösterir. İkisi de `unwrap`'i bilir (ve amcaoğlu `expect`i de) ancak biraz farklıdırlar. `Result`, `Ok` ve `Err` için iki farklı tür parametre içerir. `Result` "paketi" iki farklı kompartmana sahiptir, birisi `Ok` ve diğeri de `Err`.
 
 ```rust
 fn good_or_bad(good: bool) -> Result<i32,String> {
@@ -1132,7 +1132,7 @@ Birinci eşleşme `Ok` içindeki veriyi güvenli bir şekilde dışarı çıkart
 
 İkinci eşleşme ise `Ok` içerisine paketlenmiş bir karakter dizesi döner ya da hatayı tekrar eder. `Ok` içindeki esas veriye ihtiyacımız yok ondan dolayı `_` ile yok sayıyoruz.
 
-Bu biraz sıkıcı, fonksiyonun çoğu hatayı işlemek olunca "işin ruhunu" kaybediyoruz. Mesela Go'da bunu hissedersiniz, düzinesiyle erken dönen hataları kontrol etmeniz gerekir ya da sadece *görmezden gelirsiniz*. (Rust evreninde bu tuvalette ekmek çiğnemek kadar kötü bir şeydir.)
+Bu biraz sıkıcı, yazdığımız kodu büyük kısmı hatayı işlemekten ibaret olunca "işin ruhunu" kaybediyoruz. Mesela Go'da bunu hissedersiniz, düzinesiyle erken dönen hataları kontrol etmeniz gerekir ya da sadece *görmezden gelirsiniz*. (Rust evreninde bu tuvalette ekmek çiğnemek kadar kötü bir şeydir.)
 
 Neyse ki, bir kısayolumuz var.
 
