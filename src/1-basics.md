@@ -12,7 +12,7 @@ $ rustc hello.rs
 $ ./hello
 Hello, World!
 ```
-Rust'ta süslü ayraçlar ve noktalı virgül vardır, C++ tarzı yorum satırları bulunur ve bir de `main` fonksiyonu bulunur. Şimdiye kadar bu kısmı tanıyorsunuz. Ünlem işareti, bunun bir *makro* çağrısı olduğunu gösterir. C++ programcıları için bu biraz caydırıcı olabilir, çünkü onların tek bildiği saçma sapan C makrolarıdır - ama bu makroların çok daha yetenekli ve kabul edilebilir olduğunu rahatlıkla söyleyebilirim.
+Rust'ta süslü ayraçlar ve noktalı virgül vardır, C++ tarzı yorum satırları bulunur ve bir de `main` fonksiyonu bulunur. Şimdiye kadar bu kısmı tanıyorsunuz. Ünlem işareti, bunun bir *makro* çağrısı olduğunu gösterir. C++ programcıları için bu biraz caydırıcı olabilir, çünkü onların tek bildiği makrolar o abuk subuk C makrolarıdır - ama bu makroların çok daha yetenekli ve kabul edilebilir olduğunu rahatlıkla söyleyebilirim.
 
 "Güzel de bu ünlem işaretini nereye sıkıştıracağımı nereden bileyim" diye aklından geçirenler olmuştur. Ancak derleyici beklemediğiniz kadar yardımsever; eğer ünlem işaretini unutursanız şunu görürsünüz:
 ```rust
@@ -23,7 +23,7 @@ error[E0425]: unresolved name `println`
   |     ^^^^^^^ did you mean the macro `println!`?
 ```
 
-Bir dili öğrenmek o dilin hatalarıyla barışık olmak demektir. Derleyiciyi sizi *azarlayan* bir bilgisayar olarak görmek yerine katı ama dostane davranan bir yardımcı olarak görmeye çalışın, çünkü başlangıçta epeyce kırmızı yazılar göreceksiniz. Derleyicinin sizin hatalarınızı yüzünüze vurması, insanların önünde patlamasından kat kat daha iyidir.
+Bir dili öğrenmek o dilin hatalarıyla barışık olmak demektir. Derleyiciyi sizi *azarlayan* bir bilgisayar olarak görmek yerine katı ama dostane davranan bir yardımcı olarak görmeye çalışın, çünkü başlangıçta epeyce kırmızı yazılar göreceksiniz. Derleyicinin sizin hatalarınızı yüzünüze vurması, insanların sizin yüzünüze vurmasından kat kat daha iyidir.
 
 Bir sonraki aşama *değişken* atamaktır.
 
@@ -35,7 +35,7 @@ fn main() {
 }
 ```
 
-Yazım hataları *derleme* hatalarıdır, Python ya da JavaScript gibi çalışma zamanı hataları değildir. Bu, sizi daha sonra pek çok stresten kurtarır! Eğer "answer" yerine "answr" yazarsam, derleyici bu konuda epey kibar davranır:
+Yazım hataları *derleme* zamanında anlaşılır, Python ya da JavaScript gibi çalışma zamanını beklemenize gerek yoktur. Bu, sizi daha sonra pek çok stresten kurtaracak! Eğer "answer" yerine "answr" yazarsam, derleyici bu konuda epey kibar davranır:
 
 ```rust
 4 |     println!("Hello {}", answr);
@@ -44,7 +44,7 @@ Yazım hataları *derleme* hatalarıdır, Python ya da JavaScript gibi çalışm
 
 `println!` makrosu bir [format karakter dizesi](https://doc.rust-lang.org/std/fmt/index.html) alır; Python3'te kullanılan formatlama stiline epey benzerdir.
 
-Bir başka kullanışlı makro ise `assert_eq!`. Bu Rust'ta test yazmanın esas gücüdür, iki şeyin birbirine eşit olduğu *varsayarsınız. (assert = varsaymak)* Eğer eşit değillerse, *panik*.
+Bir başka kullanışlı makro ise `assert_eq!`. Bu Rust testlerinin direğidir, iki şeyin birbirine eşit olduğu *varsayarsınız. (assert = varsaymak)* Eğer eşit değillerse, *panik*.
 
 ```rust
 // let2.rs
@@ -63,7 +63,7 @@ let2.rs:4
 note: Run with `RUST_BACKTRACE=1` for a backtrace.
 ```
 
-Ve bu bizim Rust'taki ilk *çalışma zamanı hatamız*.
+Ve bu bizim Rust'taki karşımıza çıkan ilk *çalışma zamanı hatası*.
 
 # Döngüler ve Koşullamalar
 Enteresan olan her şey tekrar tekrar yapılabilir:
@@ -114,7 +114,7 @@ fn main() {
 }
 ```
 
-Klasik olarak, programlama dillerinde *deyimler (statement)* (`If` gibi) ve *ifadeler (expression)* (`1+i` gibi) bulunur. Rust'ta, her şeyin değeri olabilir ve bunlar bir ifade olabilir. C'nin cidden çirkin "ternary/üçlü operatörüne" burada ihtiyacımız yok.
+Klasik olarak, programlama dillerinde *deyimler (statement)* (`If` gibi) ve *ifadeler (expression)* (`1+i` gibi) bulunur. Rust'ta, her şeyin değeri olabilir ve bunlar bir ifade olabilir. C'nin o garabet "ternary/üçlü operatörüne" burada ihtiyacımız yok.
 
 Aynı zamanda bloklarda noktalı virgül olmadığına da dikkat edin!
 
@@ -161,13 +161,13 @@ fn main() {
 
 Değişkenlerin varsayılan olarak yeniden yazılabilir olduğu dillerden geçerken bu biraz kafa karıştırıcı olabilir. Bir şeyi *değişken* yapan şey onun değerinin çalışma zamanında atanmasıdır, sabitlerin (constant) aksine. Bu kavramlar matematikte de kullanılır, mesela "let n be the largest number in set S (N'i S kümesi içerisindeki en büyük değer yap)" derken.
 
-Değişkenlerin varsayılan olarak *salt okunur* olmasının ardında bir neden vardır. Büyük bir programda, değerlerin nerede atandığını bulmak oldukça güçleşebilir. Bundan dolayı Rust, değişimlerin bildirilmesini ister. Dilde zekice epey şey var ancak dil hiçbir şeyin gizli kalmamasına ayrıca özen gösteriyor.
+Değişkenlerin varsayılan olarak *salt okunur* olmasının ardında bir neden vardır. Büyük bir programda, değerlerin nerede atandığını bulmak oldukça güçleşebilir. Bundan dolayı Rust, değişimlerin bildirilmesini ister. Dilde zekice epey şey var ancak dil hiçbir şeyin örtük kalmamasına ayrıca özen gösteriyor.
 
 Rust hem statik hem de güçlü tiplenen bir dildir - bu kavramlar genelde karıştırılır, ama C (statik ama zayıf tiplenen) ve Python'u (dinamik ama güçlü tiplenen) göz önüne getirin. Statik tiplemede tip derleme zamanında bilinir, dinamik tiplemede ise çalışma zamanında.
 
 Tam da bu anda, Rust'ın sizden tipleri gizlediğini sezebilirsiniz. Mesela `i`'nin tam değeri nedir? Derleyici için bu sorun değildir, 0'dan başlarken, tip çıkarımı ile (*type referance*) bu sayılar `i32` (Dört bitlik işaretli tam sayı) oluverir.
 
-Hadi net bir değişim yapalım, 0'ı 0.0 ile değiştirelim ve hataları görelim:
+Hadi net bir değişim yapalım, 0'ı 0.0 ile değiştirip hataları görelim:
 ```shell
 error[E0277]: the trait bound `{float}: std::ops::AddAssign<{integer}>` is not satisfied
  --> add3.rs:5:9
@@ -178,9 +178,9 @@ error[E0277]: the trait bound `{float}: std::ops::AddAssign<{integer}>` is not s
 
 ```
 
-Pekâlâ, şimdi güldük eğlendik ama bu da nesi? Bütün operatörler (Mesela `+=`) bir özelliğe (trait) denk gelir ki özellik (trait) somut tiplere uygulanan eklenen soyut arabirimlerdir. Özelliklerle daha sonra ilgileneceğiz, ama burada bilmeniz gereken bütün şey `AddAssign`, `+=` operatörünü sağlayan özelliğin adı olduğudur ve hata mesajının demek istediği şey bu özelliğin noktalı sayılara bu operatör tam sayılarla işlem yapmak için uygulanmadığıdır. (Operatör özelliklerinin tam listesi [burada](https://doc.rust-lang.org/std/ops/index.html).)
+Pekâlâ, şimdi güldük eğlendik ama bu da nesi? Bütün operatörler (Mesela `+=`) bir özelliğe (trait) denk gelir ki özellik (trait) somut tiplere yeni özellikler ekleyen soyut arabirimlerdir. Özelliklerle daha sonra ilgileneceğiz, ama burada bilmeniz gereken bütün şey `AddAssign`, `+=` operatörünü sağlayan özelliğin adı olduğudur ve hata mesajının demek istediği şey bu özelliğin noktalı sayılara bu operatör tam sayılarla işlem yapmak için uygulanmadığıdır. (Operatör özelliklerinin tam listesi [burada](https://doc.rust-lang.org/std/ops/index.html).)
 
-Rust içi dışı bir olmayı sever - sizin gönlünüz olsun diye tam sayıyı noktalı sayıya çevirmeyecektir.
+Rust'ta her şey bellidir - sırf sizin gönlünüz olsun diye tam sayıyı noktalı sayıya gizlice çevirmeyecektir.
 
 ```rust
 // add3.rs
@@ -193,10 +193,10 @@ fn main() {
 }
 ```
 
-# Fonksiyon Tipleri de Alenidir. 
-Fonksiyonlar da derleyicinin sizin için tipleri çıkarmayacağı yerlerden birisidir. Aslında bu üzerinde düşünülerek alınmış bir karardır çünkü Haskell gibi güçlü tip çıkarımlarına sahip dillerde tip isimleri nadiren yazılır. Aslında Haskell için tipleri açıkça yazmak iyi yaklaşımdır. Rust ise her zaman bunu mecbur tutar.
+# Fonksiyonların Tipleri de Apaçık Ortadadır 
+Fonksiyonlar da derleyicinin sizin için tipleri tahmin etmekle uğraşmayacağı yerlerden birisidir. Aslında bu üzerinde düşünülerek alınmış bir karardır çünkü Haskell gibi güçlü tip çıkarımlarına sahip dillerde tip isimleri nadiren yazılır. Aslında Haskell için tipleri açıkça yazmak iyi yaklaşımdır. Rust ise her zaman bunu mecbur tutar.
 
-İşte kullanıcı tanımlı basit bir fonksiyon:
+İşte tanımladığımız basit bir fonksiyon:
 
 ```rust
 // fun1.rs
@@ -220,7 +220,7 @@ Hatırlatalım, tam sayı noktalı sayıya dönüşmez - eğer `2.0`'ı `2` ile 
   |
 ```
 
-Rust'da fonksiyonlarda çok az `return` deyiminin kullanıldığının görürsünüz. Daha çok, şune benzer şeyler görürsünüz:
+Rust'da fonksiyonlarda çok az `return` deyiminin kullanıldığının görürsünüz. Daha çok, şuna benzer ifadeler vardır:
 
 ```rust
 fn sqr(x: f64) -> f64 {
@@ -230,7 +230,7 @@ fn sqr(x: f64) -> f64 {
 
 Fonksiyonun gövdesi (`{ }` içi) tıpkı "ifade olarak kullanılan if"teki gibi son ifadenin değerini alır.
 
-Noktalı virgüller, refleks olarak elle eklendiğinden, kazara ekleyebilirsiniz ve şöyle bir hata alırsınız:
+Noktalı virgülleri refleks olarak kazara ekleyebilirsiniz ve o zaman şöyle bir hata alırsınız:
 
 ```rust
   |
@@ -247,7 +247,7 @@ help: consider removing this semicolon:
 
 ```
 
-`()` tipi boş tiptir, yokluktur, `void`dir, "nothing"dir, tasavvuftaki fakrdır. Rust'ta her şeyin değeri vardır, ama bazen sadece yoktur. Derleyici bunun sıkça karşılaşılan bir durum olduğunu bilir, ve size aslında *yardım* eder. (C++ derleyicileriyle vakit harcamış zavallı ruhlar bunun ne kadar faydalı olduğunu bilir.)
+`()` tipi boş tiptir, yokluktur, `void`dir, "nothing"dir, tasavvuftaki fakrdır. Rust'ta her şeyin değeri vardır, ama bazen sadece yoktur. Derleyici bunun sıkça karşılaşılan bir durum olduğunu bilir, ve size aslında *yardım* eder. (C++ derleyicileriyle vakit harcamış zavallı ruhlar bunun ne kadar faydalı olduğunun farkındadır.)
 
 `Return` kullanılmayan ifadelere biraz daha örnek verelim: 
 ```rust
@@ -302,7 +302,7 @@ fn main() {
 // 11 42
 ```
 
-Bir fonksiyonun argümanlarını düzenleyebilmesini mi istiyorsunuz? *Değişebilir referans (Mutable referance)* kullanın:
+Bir fonksiyonun argümanlarını değiştirebilmesini mi istiyorsunuz? *Değişebilir referans (Mutable referance)* kullanın:
 
 ```rust
 // fun4.rs
@@ -318,7 +318,7 @@ fn main() {
 }
 ```
 
-Bu C++'dan çok C'ye benzedi. Aleni olarak referansı (`&` ile) belirtmelisiniz ve onları aleni olarak `*` ile deferans etmelisiniz. Sonra da `mut`'u ekleyin çünkü varsayılan olarak gelmiyor. (Bana hep C++ referansları C'ye göre gözden kaçırılmaya daha müsaitmiş gibi gelir.)
+Bu C++'dan çok C'ye benzedi. Açıkça referansı (`&` ile) belirtmelisiniz ve aynı şekilde `*` ile deferans etmelisiniz. Sonra da `mut`'u ekleyin çünkü varsayılan değişebilir değiller. (Bana hep C++ referansları C'ye göre gözden kaçırılmaya daha müsaitmiş gibi gelir.)
 
 Temel olarak, Rust burada biraz bizi *yoruyor* ve fonksiyonlardan değer döndürmeye zorluyor.  Neyse ki, Rust'ın "işlem başarılı, bu da sonucu" gibi güçlü ifadeleri olduğundan `&mut`'u sıklıkla kullanmayız. Referans kullanmak, büyük bir nesnemiz olduğunda ve onu kopyalamak istemediğimizde dikkate değerdir. 
 
@@ -329,8 +329,8 @@ let bigint: i64 = 0;
 ```
 
 
-# Erdavatları Bulacağımız Yeri Öğrenmek
-Şimdi belgelendirmeye bakmanın tam zamanı. Bu, makinenize yüklenecek ve onu `rustup doc --std` komutu ile tarayıcınızda açacaksınız. 
+# Yolumuz Yordamımızı Bilmek
+Şimdi belgelendirmeye bakmanın tam zamanı. Belgeler makinenize yüklenmiş olmalı ve onu `rustup doc --std` komutu ile tarayıcınızda açabilir olmalısınız.
 
 Arama kutucuğunun en üstte olduğuna dikkat edin, zira bu sizin en yakın dostunuz olacak; çalışmak için İnternet'e gerek duymaz.
 
@@ -375,7 +375,7 @@ fn main() {
 }
 ```
 
-Tamam da buna neden şimdiye dek ihtiyaç duymadık? Çünkü Rust *prelude* aracılığıyla, `use` deyimini kullanmaya gerek bırakmadan pek çok temel işlevi görünür kılar.
+Tamam da buna neden şimdiye dek ihtiyaç duymadık? Çünkü Rust *prelude* aracılığıyla, `use` deyimini kullanmaya gerek bırakmadan pek çok temel işlevi görünür kılar (ama siz kullanana kadar yüklemez).
 
 
 # Diziler ve Dilimler

@@ -5,52 +5,52 @@
 >Karikatürün çevirisi:
   Rust: Bu gece şöförlük yapacağım.
 >Dış ses: Biliyoruz.
->Rust: Konuşurken yemek yeme çünkü boğazına takılıp ölebilirsin. Haha
+>Rust: Konuşurken yemek yeme çünkü boğazına takılırsa ölürsün. Haha.
 
-Bu rehberin amacı [kutsal kitabımız gibi](https://doc.rust-lang.org/stable/book/) İnternet'te bulabileceğiniz çeşitli kaynakları anlayacak kadar Rust okuryazarlığı aşılamaktır. Rehberi dilin gücünü tonla şeyin arasına girmeden gücünü anlamak ve denemek için köprüden önceki son çıkış olarak düşünebilirsiniz.
+Bu rehberin amacı [kutsal kitabımız gibi](https://doc.rust-lang.org/stable/book/) İnternet'te bulabileceğiniz çeşitli kaynakları anlayacak kadar Rust okuryazarlığı aşılamaktır. Rehberi, bu programlama dilinin gücünü tonla şeyin arasına girmeden gücünü anlamak ve denemek için bir fırsat olarak düşünebilirsiniz.
 
-Einstein'in dediği gibi, "Her şeyi olabildiğince yumuşak yapın, ama yumuş yumuş olmasın." (Ç.N: Einstein'in "Her şeyi daha sade yapın, ama basit değil" sözüne gönderme.) Burada öğrenecek epey şey var ve iyice kafanızı iyice allak bullak edebilir. Burada kastedilen "yumuşaklık", çeşitli zorluklara karşın Rust'ın çözümlerini uygulamalı olarak sunulmasıdır. Sorunları anlamak, hemen çözümleri görmekten daha faydalıdır. Bunu kayaçların süreçlerini anlatmak için birkaç coğrafya dersinden sonra hemen dağ bayır gezintiye çıkmak gibi düşünebilirsiniz. Elbette biraz zoruklar olacak ama neticesi oldukça hoş olacak. Katılanlar oldukça memnun olacak ve birbirlerine yardımcı olmaktan çekinmeyecekler. (Buna benzer olarak) [Rust kullanıcıları forumu (İngilizce)](https://users.rust-lang.org/) ve oldukça aktif bir [subreddit (Bu da İngilizce)](https://www.reddit.com/r/rust/) var. Aynı zamanda bazı sorularınız varsa [sıkça sorular sorular (Herhâlde İngilizce)](https://www.rust-lang.org/en-US/faq.html)'a da bakabilirsiniz.
+Einstein'in dediği gibi, "Her şeyi olabildiğince yumuşak yapın, ama yumuş yumuş olmasın." (Ç.N: Einstein'in "Her şeyi daha sade yapın, ama basit değil" sözüne gönderme.) Rust'a dair öğrenecek epey şey var ve pek çok şey iyice kafanızı iyice bulandırabilir. Burada kastedilen "yumuşaklık", zorluğuna karşın Rust'ın çözümlerinin uygulamalı olarak sunulmasıdır. Sorunları anlamak, hemen çözümleri görmekten çok daha faydalıdır. Bunu kayaçların süreçlerini anlamak için coğrafya dersinden sonra hemen dağ bayır gezintiye çıkmak gibi düşünebilirsiniz. Bunun elbette zorluğu olacak ama neticesi oldukça hoş olacak. Katılanlar oldukça memnun olacak ve birbirlerine yardımcı olmaktan çekinmeyecekler. (Buna benzer olarak) [Rust kullanıcıları forumu (İngilizce)](https://users.rust-lang.org/) ve oldukça aktif bir [subreddit (Bu da İngilizce)](https://www.reddit.com/r/rust/) var. Aynı zamanda bazı sorularınız varsa [sıkça sorular sorular (Herhâlde İngilizce)](https://www.rust-lang.org/en-US/faq.html)'a da bakabilirsiniz.
 
-Ama hepsinden önce, neden durup dururken yeni bir dil öğrenelim ki? Bu öyle ya da böyle epey vakit ve enerji alan, durup duruken yapılmayacak bir iş. Bu iş size çok süper, über bir iş buldurmayacak olsa bile beyin kaslarınızı çalıştıracak ve sizi daha iyi bir programcı yapacaktır. Bu pekâlâ çok iyi bir yatırım gibi görünmeyebilir ama *gerçek anlamda* bir şey öğrenmezseniz zaman içerisinde durgunlaşacak ve on yılı aşkın aynı şeyleri yapan birisi olacaksınız. 
+Ama hepsinden önce, neden durup dururken yeni bir dil öğrenelim ki? Bu öyle ya da böyle epey vakit ve enerji alan, durup dururken yapılmayacak bir iş. Bu iş size çok süper, über bir iş buldurmayacak olsa bile beyin kaslarınızı çalıştıracak ve sizi daha iyi bir programcı yapacaktır. İyi bir yatırım mı? Tartışılır. Yine de *gerçek anlamda* bir şey öğrenmezseniz zaman içerisinde durgunlaşacak ve on yılı aşkın aynı şeylere bakan birisi olacaksınız. 
 
 # Rust'ın Parladığı Nokta
-Rust statik ve güçlü tiplenen bir sistem programlama dilidir. *Statik* bütün tiplerin derleme zamanında bilinmesi anlamına gelir, *güçlü* ise bütün tiplerin yanlış bir program yazmayı zorlaştırmasıdır. Başarılı bir derleme aynı zamanda C gibi maceracı bir dile göre çok daha fazla şeyi garanti ettiğiniz anlamına gelir. *Sistem (Programlama)*'dan kasıt makine için en uygun kodun tam bir bellek kontrolü ile oluşturulmasıdır. Kullanım alanları biraz zorlayıcı olabilir: işletim sistemleri, donanım sürücüleri ve bir işletim sistemi bile olmayan gömülü sistemler. Ancak Rust normal uygulamaları programlamak için de gayet uygundur. 
+Rust statik ve güçlü tiplenen bir sistem programlama dilidir. *Statik* bütün tiplerin derleme zamanında bilinmesi anlamına gelir, *güçlü* ise programın çalışma mantığının tip mantığının dışına çıkmaması demektir. Başarılı bir derleme aynı zamanda C gibi tekinsiz bir dile göre çok daha fazla şeyi garanti ettiğiniz anlamına gelir. *Sistem (Programlama)*'dan kasıt makine için en uygun kodun sıkı bir bellek denetimi ile oluşturulmasıdır. Kullanım alanları biraz ilginç: işletim sistemleri, donanım sürücüleri ve bir işletim sistemi bile olmayan gömülü sistemler. Ancak Rust normal uygulamaları programlamak için de gayet uygundur. 
 
-C ve C++ ile Rust arasındaki en büyük fark *doğal olarak güvenli olmasıdır.* Bütün bellek erişimleri kontrol edilir, kazara belleği darmaduman etmeniz mümkün değildir.
+C ve C++ ile Rust arasındaki en büyük fark *doğal olarak emniyetli olmasıdır.* Bütün bellek erişimleri denetlendiğinden kazara belleği darmaduman etmeniz mümkün değildir.
 
-Rust'ın arkasındaki prensipler şunlardır:
-- Verinin *güvenli olarak ödünç alınmasını* zorlamak
+Rust'ın ana prensipleri şunlardır:
+- Verinin *emniyetli olarak ödünç alınmasını* zorlamak
 - Fonksiyon, metot ve kapamalar (closure) ile veriye müdahale etmek
 - Verileri çokuzlu (tuple), yapılar (struct) ve numaralandırmalar (enum) ile bir araya toplamak
 - Verileri örüntü eşleştirme (pattern matching) ile seçmek ve parçalarına ayırmak
-- Verilerin işlevini özellikler (trait) aracılığı ile sağlamak
+- Verilerin *görevini* özellikler (trait) aracılığı ile tanımlamak 
 
-Cargo vasıtasıyla oldukça hızlı büyüyen bir ekosistem olsa da biz çoğunlukla dilin temel özelliklerini anlamaya ve standart kütüphaneyi kullanmaya eğileceğiz. Tavsiyem, *çok sayıda ufak programlar* yazmanızdır, bundan dolayı `rustc` kullanabilmek en temel gerekliliktir. Bu rehberde bulacağınız pek çok örneği çalıştırmak derlemeyi yapıp çalıştıran `rrun` diye minik bir betik hazırladım:
+Cargo sayesinde oldukça hızlı büyüyen bir ekosistem olsa da biz çoğunlukla dilin temel özelliklerini anlamaya ve standart kütüphaneyi kullanmaya eğileceğiz. Tavsiyem *çok sayıda ufak programlar* yazmanızdır, bundan dolayı `rustc` kullanmayı öğrenmek en önemli beceri olacaktır hâliyle. Bu rehberde bulacağınız pek çok örneği çalıştırmak için derlemeyi programı yürüten `rrun` diye minik bir betik hazırladım:
 ```
 rustc $1.rs && ./$1
 ```
 
 # Kurulum
-Bu rehber makinenize Rust'ı kurduğunuzu varsayar. Neyse ki bunu yapmak [çok basit](https://www.rust-lang.org/en-US/downloads.html).
+Bu rehber makinenize Rust'ı kurmayı gerektirir. Neyse ki bunu yapmak [çok basit](https://www.rust-lang.org/en-US/downloads.html).
 ```
 $ curl https://sh.rustup.rs -sSf | sh
 $ rustup component add rust-docs
 ```
 Kararlı sürümü kullanmanızı tavsiye ediyorum; sonradan kararsız sürümü kurup aralarında geçiş yapmak da kolaydır.
 
-Bu komut derleyiciy, Cargo paket yöneticisini, API belgelendirmesini ve Rust kitabını indirir. Çok uzun yolculukların hepsi bir adımla başlar ve bu adımı atmak zahmetsizdir.
+Bu komut derleyiciyi Cargo paket yöneticisini, API belgelendirmesini ve Rust kitabını indirir. Uzun yolculukların hepsi bir adımla başlar ve bu adımı atmak zahmetsizdir.
 
-`rustup` komutu Rust kurulumunuzu kontrol eden komuttur. Yeni bir kararlı sürüm yayınlandığında yalnızca  `rustup` yazarak güncelleyebilirsiniz. `rustup doc` ise belgelendirmeyi çevrimdışı olarak tarayıcınızda açar.
+`rustup` komutu Rust kurulumunuzu kontrol eden komuttur. Yeni bir kararlı sürüm yayınlandığında yalnızca  `rustup` yazarak güncelleyebilirsiniz. `rustup doc` ise resmi Rust belgelerini çevrimdışı olarak tarayıcınızda açar.
 
-Muhtemelen beğendiğiniz bir editor vardır ve [temel Rust desteği](https://areweideyet.com/) yeterlidir. Öncelikle temel sözdizimi renklendirmesi ile başlamanızı öneririm, programlarınız büyüdükçe daha ötesine geçersiniz.
+Muhtemelen beğendiğiniz bir editor vardır ve bu editörün [temel Rust desteği](https://areweideyet.com/) varsa o editörü istediğiniz gibi kullanabilirsiniz. Öncelikle sözdiziminin renklendirilmesi ile yetinmenizi öneririm, programlarınız büyüdükçe daha ötesine geçersiniz.
 
-Şahsen varsayılan olarak Rust desteği ile gelen nadir editörlerden birisi olan [Geany'i](https://www.geany.org/download/releases/) beğeniyorum; paket yöneticisiyle kurulabildiği için Linux üzerinde çalıştırmak gayet kolaydır, diğer platformlarda da pekâlâ kullanılabilir.
+Şahsen varsayılan olarak Rust desteği ile gelen nadir editörlerden birisi olan [Geany'i](https://www.geany.org/download/releases/) beğeniyorum; paket yöneticisiyle kurulabildiği için Linux üzerinde kullanmak gayet kolaydır, diğer platformlarda da pekâlâ kullanılabilir.
 
 Esas nokta Rust programlarını düzenleyebilmek, derleyebilmek ve çalıştırabilmektir. Programlamayı *parmaklarınızla* anlayın, kodu kendiniz yazın ve editörün kodu nasıl düzelteceğini öğrenin.
 
-Zed Shaw'ın programlamayı Python ile öğrenme [tavsiyesi](https://learnpythonthehardway.org/book/intro.html) hâlen daha kabul edilebilir, dil fark etmeksizin. O, programlamayı öğrenmenin bir müzik enstürmanı öğrenmek gibidir diyor -  esas sır pratik ve sırdır. Taiciçüen gibi yumuşak dövüş sanatlarının ve Yoga'nın bir güzel öğüdü vardır; gerilimi hissedin, ama aşırı gerilmeyin. Burada gerzekçe bir şekilde kas yapmaya çalışmıyoruz. 
+Zed Shaw'ın programlamayı Python ile öğrenme [tavsiyesi](https://learnpythonthehardway.org/book/intro.html) geçen yıllara rağmen dil fark etmeksizin dikkate değerdir. Ona göre programlamayı öğrenmenin bir müzik enstürmanı öğrenmek gibidir - esas sır pratik ve sabırdır. Taiciçüen gibi yumuşak dövüş sanatlarının ve Yoga'nın bir güzel öğüdü vardır; gerilimi hissedin, ama aşırı gerilmeyin. Karanlık bir spor salonunda sert bir disiplini sadakatle zayıflamaya çalışmıyorsunuz; rahatlayın.
 
-Kötü İngilizcemi veya yetersiz Rust bilgimi yakalayarak beni uyaran destekçilere teşekkürler etmek isterim, aynı zamanda David Marino'ya Rust'ı parlayan zırhı içerisinde sempatik ama sağlam bir yersiz şovalye olarak çizdiği için de teşekkürlerimi sunarım.
+Kötü İngilizcemi veya yetersiz Rust bilgimi yakalayarak beni uyaran destekçilere teşekkürler etmek isterim, aynı zamanda David Marino'ya Rust'ı parlayan zırhı içerisinde sempatik fakat mantığına sıkı sıkıya bağlı bir şovalye olarak çizdiği için de teşekkürlerimi sunarım.
 
 Steve Donovan © 2017-2018 MIT Lisans Versiyonu 0.4.0
 
