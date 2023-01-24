@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "src/1-basics.md",
+                "file": "src/6-error-handling.md",
                 "mode": "source",
                 "source": false
               }
@@ -86,7 +86,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "src/1-basics.md",
+                "file": "src/6-error-handling.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,7 +103,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "src/1-basics.md",
+                "file": "src/6-error-handling.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -126,7 +126,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "src/1-basics.md"
+                "file": "src/6-error-handling.md"
               }
             }
           }
@@ -149,7 +149,11 @@
   },
   "active": "b9a21273c74a5cc4",
   "lastOpenFiles": [
-    "src/readme.md",
-    "src/1-basics.md"
+    "src/5-stdlib-containers.md",
+    "src/4-modules.md",
+    "src/3-filesystem.md",
+    "src/2-structs-enums-lifetimes.md",
+    "src/1-basics.md",
+    "src/readme.md"
   ]
 }

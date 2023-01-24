@@ -3,13 +3,13 @@
 # Belgeleri Anlamak
 Bu kısımda kabaca size Rust'ın standart kütüphanesinin bilindik bazı kısımlarını tanıtacağım. Belgelendirme gayet iyi ancak bağlamı tanıtmak ve biraz örneğin kimseye zararı olmaz.
 
-Hepsinden önce Rust belgelerini okumak biraz yorucu gelebilir, bundan dolayı bir örneği inceleyeceğiz ki bu örnek `Vec` olacak. Kullanışlı bir tavsiye verelim, "[-]" belgeleri açıp kapamaya yarar. (Eğer `rustup component add rust-src` ile belgeleri indirmişseniz yanında bir de "[src]" bağlantısını göreceksiniz. Metotların bir krokisine buradan ulaşabilirsiniz. 
+Hepsinden önce Rust belgelerini okumak biraz yorucu gelebilir, bundan dolayı bir örneği inceleyeceğiz ki bu örnek `Vec` olacak. Kullanışlı bir tavsiye verelim, "\[-\]" belgeleri açıp kapamaya yarar. (Eğer `rustup component add rust-src` ile belgeleri indirmişseniz yanında bir de "\[src\]" bağlantısını göreceksiniz. Metotların bir krokisine buradan ulaşabilirsiniz. 
 
 Dikkat etmeniz gereken ilk detay, bütün ilişkili metotların `Vec`'in kendisinde tanımlanmadığıdır. Bunlar (çoğunlukla) `push` gibi vektörü değiştiren metotlardır. Bazı metotlar ise sadece vektörlerin içinde tuttuğu tiplere göre değişkenlik gösterir. Mesela, `dedup`'ı (kopyaları kaldır) sadece eşitliği denetlenebilir tipler üzerinde çalışır. `Vec` tipinde kullanılan birden fazla `impl` bloğu vardır ki bunlar içinde bulunduğu tiplerin çeşitliliğine göre şekillenmiştir.
 
 `Vec<T>` ile `&[T]` arasında da özel bir ilişki olduğunu biliyoruz. Dilimler üzerinde çlışan her bir metot vektörler üzerinde doğrudan çalışacaktır, fazladan `as_slice` gibi metotlar kullanmanıza hiç gerek yoktur. Bu ilişki `Deref<Target=[T]>` ile gösterilir. Ayrıca bir vektörü referans olarak göstermek onu bir dilime çevirir - tip dönüşümlerinin nadiren gerçekleştiği nadir yerlerden birisidir. İlk öğeyi geri dönen `first` gibi dilim metotları, ya da bunun tersini yapan `last`, vektörler için de kullanılabilir. Metotların pek ciddi bir kısmı karakter dizilerini çağrıştırabilir, mesela `split_at` dilimi belirli bir indekse göre ayırır, `starts_with` bir vektörün belirli bir veri silsilesi ile başlayıp başlamadığını belirtir, `contains` bir vektörün belirli bir veriyi içerip içermediğini belirtir.
 
-Belirli bir verinin indeksini bulmak Rust'ta `search` metotu yoktur. Şimdi size size esas olayı anlatayım; eğer konteynırda metotu bulamazsanız, döngüleyici metotlarına bakın:
+Belirli bir verinin indeksini bulmak için Rust'ta `search` metotu yoktur. Şimdi size size esas olayı anlatayım; eğer konteynırda metotu bulamazsanız, döngüleyici metotlarına bakın:
 
 ```rust
     let v = vec![10,20,30,40,50];
@@ -46,7 +46,7 @@ for x in &mut v {...} // returns &mut T
 
 Bir de `Index` (Bir vektörden okurken çalışan) bir de `IndexMut` (Bir vektörü düzenlerken çalışan) ile kontrol edilen indekslememiz vardır. Pek çok şey yapabiliriz çünkü `v[0..2]` gibi ifadelerle dilimlere indeksleyebilir ve dönebiliriz ya da sadece `v[0]` ile ilk elemana referans alabiliriz.
 
-`From` özelliğinin de birtakım kullanımları vardır. Mesela `Vec::from("hello".to_string())` size karakter dizelerinin özündeki `Vec<u8>` tipindeki vektörü verecektir. Ancak şunu düşünebilirsiniz, zaten `String` tipi için `into_bytes` diye bir vektör varken bunun ne özelliği var? Bir işi yapmanın birden çok yolu olması saçma değil mi? Ancak bu, özelliklerin (traits) jenerik metotlar oluşturması için gerekliliktir. 
+`From` özelliğinin de birtakım kullanımları vardır. Mesela `Vec::from("hello".to_string())` size karakter dizelerinin özündeki `Vec<u8>` tipindeki vektörü verecektir. Ancak şunu düşünebilirsiniz, zaten `String` tipi için `into_bytes` diye bir vektör varken bunun ne özelliği var? Bir işi yapmanın birden çok yolu olması saçma değil mi? Ancak bu, özelliklerin (traits) genellenen metotlar oluşturması için gerekliliktir. 
 
 Bazen Rust'ın tip sisteminin kısıtlamalarından illallah edebilirsiniz. Mesela `PartialEq` boyutu 32'den az olan diziler için *ayrıca* tanımlanmıştır. (Bunu iyileştirecekler.) Bu vektörlerle dizileri doğrudan rahatça kıyaslamanızı sağlar ancak boyut sınırına dikkat etmelisiniz. 
 
@@ -168,7 +168,7 @@ Bir sözlükte içeriği değiştirecek tarzdan bir şey aramak kolaydır ancak 
 ```rust
 let mut map = HashMap::new();
 
-for s in text.split(|c: char| ! c.is_alphabetic()) {
+for s in text.split(|c: char| !c.is_alphabetic()) {
     let word = s.to_lowercase();
     let mut count = map.entry(word).or_insert(0);
     *count += 1;
@@ -188,7 +188,7 @@ Peki ya en çok kullanılan yirmi kelimeyi nasıl öğrenebiliriz? Öncelikle s�
 let mut entries: Vec<_> = map.into_iter().collect();
 ```
 
-Sonra bunları azalacak şekilde dizelim. `sort_by`, `cmp` metotunun sonuçlarını  bekleyecektir ki bu metot sayı tiplerinde bulunur. 
+Sonra bunları azalacak şekilde dizelim. `sort_by`, `cmp` metotunun sonuçlarını bekleyecektir ki bu metot sayı tiplerinde bulunur. 
 
 ```rust
     entries.sort_by(|a,b| b.1.cmp(&a.1));
@@ -366,7 +366,7 @@ struct Cli<'a,D> {
     callbacks: HashMap<String, Box<Fn(&mut D,&[&str])->CliResult + 'a>>
 }
 
-impl <'a,D: Sized> Cli<'a,D> {
+impl<'a,D: Sized> Cli<'a,D> {
     fn new(data: D) -> Cli<'a,D> {
         Cli{data: data, callbacks: HashMap::new()}
     }
@@ -377,7 +377,7 @@ impl <'a,D: Sized> Cli<'a,D> {
     }
 ```
 
-`cmd` imzaya göre bir isim ve bir kapama alır, kapama kutulanmış ve sözlüğe girmiş olmalıdır. `Fn` ise çevreden verileri ödünç alabilir ancak düzenleyemez demektir. Bu tarz jenerik metotları en kötüsüdür, imzasına bakarken kafanız karışık ancak içeriği pirüpak anlaşılırdır! Yaşam ömrünü belirtmeyi unutmak burada en sık yapılan hatalardandır - Rust, çevresine kısıtlanmış kapamaların yaşam ömürlerini unutmanızı hoş görmeyecektir!
+`cmd` imzaya göre bir isim ve bir kapama alır, kapama kutulanmış ve sözlüğe girmiş olmalıdır. `Fn` ise çevreden verileri ödünç alabilir ancak düzenleyemez demektir. Bu tarz genelleme metotları en kötüsüdür, imzasına bakarken kafanız karışık ancak içeriği pirüpak anlaşılırdır! Yaşam ömrünü belirtmeyi unutmak burada en sık yapılan hatalardandır - Rust, çevresine kısıtlanmış kapamaların yaşam ömürlerini unutmanızı hoş görmeyecektir!
 
 Şimdi komutları inceleyelim ve çalıştıralım:
 
@@ -410,7 +410,7 @@ impl <'a,D: Sized> Cli<'a,D> {
 Gayet anlaşılır - satırları kelimelere ayırıp bir vektörde topluyoruz, ardından sözlükte ilk kelimeyi aratıyoruz ve sözlüğün döndüğü kapamayı değişebilir verilerimizle ve kelimenin geri kalanlarıyla çağırıyoruz. Boş satırlar görmezden gelinir ve hata olarak değerlendirilmez.
 
 Şimdi kapamalarımızın olumlu ve olumsuz sonuçlar dönmesini kolaylaştırmak için yardımcı fonksiyonlar tanımlayalım. Burada zekice *ufak* bir detay var; 
-tanımladığımız jenerik fonksiyonların çalıştığı tipleri "`String`"e çevirebilir. 
+tanımladığımız genellenen fonksiyonların çalıştığı tipleri "`String`"e çevirebilir. 
 
  ```rust
 fn ok<T: ToString>(s: T) -> CliResult {
@@ -454,7 +454,7 @@ fn main() {
 }
 ```
 
-Hataları biraz uydurup bir yoldan ele aldık ve bu tarz durumlarda soru işareti operatörünün nasıl çalıştığının inceleyeceğiz. Basitçe `std::num::ParseIntError` hatası `std::errror::Errır` özelliğini (*trait*) içeriyor ki bu bulunduğumuz bloğa `description` metotunu getiriyor - Rust özellikler erişilebilir olmadan üzerinde işlem yapmamıza izin vermez.
+Hataları biraz uyduruk bir yoldan ele aldık ve bu tarz durumlarda soru işareti operatörünün nasıl çalıştığının inceleyeceğiz. Basitçe `std::num::ParseIntError` hatası `std::errror::Errır` özelliğini (*trait*) içeriyor ki bu bulunduğumuz bloğa `description` metotunu getiriyor - Rust özellikler erişilebilir olmadan üzerinde işlem yapmamıza izin vermez.
 
 Ve çalıştıralım:
 

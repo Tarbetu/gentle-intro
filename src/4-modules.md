@@ -8,7 +8,7 @@ C ile başladı ama C ile bitmedi, bir süre sonra kendinizi `primitive_display_
 
 Rust'ta aynı şeyi `primitive::display::set_width` şeklinde isimlendirebiliyorsunuz. Üstelik `use primitive::display` kullandıktan sonra bunu kısaca `display::set_width` olarak çağırabilirsiniz. Hatta `use primitive::display::set_width` dedikten sonra onu doğrudan `set_width` diye çağırabilirsiniz fakat nasıl kullandığınıza dikkat etmelisiniz. `rustc` tarafında sorun olmaz ancak sizin kafanız karışabilir. Ancak, bu sistemin çalışabilmesi için dosya isimlerinin basit bir kaç kurala bakması gereklidir.
 
-Yeni bir anahtar kelimemiz var, `mod`, bir bloğu içine yazılan tip ve fonksiyonlarla beraber topyekûn modül olarak ilan etmeye yarar. 
+Yeni bir anahtar kelimemiz var, `mod`, bir bloğu içine yazılan tip ve fonksiyonlarla beraber topyekûn modül olarak ilan etmeye yarar.
 
 ```rust
 mod foo {
@@ -187,7 +187,7 @@ Lütfen `use`'ın herhangi bir içe aktarma işleminde kullanılmadığını ve 
 Bir başka önemli nokta ise Rust'ta *parçalı derleme* işlemlerinin bulunmamasıdır. Ana program ve onun modül dosyaları sil baştan yeniden derlenir. Büyük programların derlenme süresini kayda değer bir sürede uzatır, `rustc` zaman içerisinde artımlı derlemede iyileşmesine rağmen.
 
 # Sandıklar
-> *Ç.N: Crate kelimesinin yaygınlığından ötürü "sandık" ya da "crate" arasında aklımda uzunca bir süre seçim yaptım. Çünkü bu genel programlamaya ait bir kelime değil, Rust terminolojisinin bir parçası ki bu da onu çevrilmemesi gereken bir özel isim yapar. Ancak "Sandık" kelimesi gerçekten mantığa uygun ve "Sandık" olarak düşünmenin hiçbir zararı yok. "Crate" diyerek geçseydim, İngilizce bilmeyen kişiler için bunu salt ezberlenmesi gereken, anlamsız bir kelimeye dönüştürürdüm.*
+> *Ç.N: Crate kelimesinin yaygınlığından ötürü "sandık" ya da "crate" arasında aklımda uzunca bir süre düşündüm. Çünkü bu genel programlamaya ait bir kelime değil, Rust terminolojisinin bir parçası ki bu da onu çevrilmemesi gereken bir özel isim yapar. Ancak "Sandık" kelimesi gerçekten mantığa uygun ve "Sandık" olarak düşünmenin hiçbir zararı yok. "Crate" diyerek geçseydim, İngilizce bilmeyen kişiler için bunu salt ezberlenmesi gereken, anlamsız bir kelimeye dönüştürürdüm.*
 
 "Her bir derleme parçasına" *sandık (crate)* denir ki bu bir kütüphane veyahut çalıştırılabilir bir dosya olabilir. 
 
@@ -207,7 +207,7 @@ src$ rustc mod4.rs --extern foo=libfoo.rlib
 
 Ana programımızın bu yeni yapıya uyum sağlaması gerekmektedir, `extern` (Dışsal) ile kullandığımız isim ilişkilendirdiğimiz zaman kullandığımız isimle aynı olmalıdır. Yeni kütüphanemiz artık `foo` modülü aracılığıyla görünür olacaktır:
 
-```
+```rust
 // mod4.rs
 extern crate foo;
 
@@ -219,7 +219,7 @@ fn main() {
 
 İnsanlar "Cargo! Cargo!" diye zikre başlamadan önce Rust'ın inşa araçlarını neden bu kadar düşük seviyeden gösterdiğini anlatmam için bana izin verin. Ben "Aletlerin Fıkhı"na dahilim ve bunları bilmek sizin Cargo ile yeni projeler yönetirken daha az "sinir"le karşılaşmanızı sağlar. Modüller basit dil işlevleridir ve Cargo olmadan da kullabilirler.
 
-Şimdi, Rust'ın çalıştırılabilir dosyaları neden bu kadr büyük onu anlayalım:
+Şimdi, Rust'ın çalıştırılabilir dosyaları neden bu kadar büyük onu anlayalım:
 
 ```
 src$ ls -lh mod4
@@ -264,7 +264,7 @@ Foo { s: "hello" }
 # Cargo
 Java veya Python ile kıyaslarsanız Rust'ın standart kütüphanesi o kadar da büyük değildir, tabii yine de çoğu şeyini işletim sistemi kütüphanelerinden alan C ve C++'dan daha fazla şey bulursunuz.
 
-Bu durumu telafi etmek için **Cargo** aracılığı ile [crates.io](https://crates.io)'da yayınlanan topluluk kütüphanelerine ulaşabilirsiniz. Cargo sizin için doğru sürümü arayacak ve kaynağı indirecek ve diğer bağımlılıkların kurulduğunu da kontrol edecektir. 
+Bu durumu telafi etmek için **Cargo** aracılığı ile [crates.io](https://crates.io)'da yayınlanan topluluk kütüphanelerine ulaşabilirsiniz. Cargo sizin için doğru sürümü arayacak, kaynağı indirecek ve diğer bağımlılıkların kurulduğunu da kontrol edecektir. 
 
 JSON okuyan basit bir program yapalım. Bu veri formatı yaygın olarak kullanılır ancak standart kütüphaneye eklenemeyecek kadar da karmaşıktır. Bundan ötürü yeni bir Cargo projesi açıyoruz, "--bin" de ekliyoruz ki çalıştırılabilir bir proje yapalım yoksa kütüphane projesi hazırlar.
 
@@ -365,7 +365,7 @@ Hata ayıklama çıktısı JSON belgesi hakkında bazı iç detayları sundu anc
 
 `features`, `JsonValue` tipine bir referanstır - referans olması gerekir çünkü *veriyi* JSON dökümanı dışına taşımış oluruz. Ayrıca bir tür dizi olduğunu bildiğimiz için `members()` bize `&JsonValue` üzerinde çalışan dolu bir döngüleyici dönecektir. 
 
-Ya eğer "payload"'ın "feratures" diye bir anahtarı olmasaydı? O zaman `features` bir `Null` olurdu, elimizde patlamazdı. Bu yaklaşım biraz serbestlik tanıyor ki bu JSON'un gevşek doğasına da pekâlâ uyuyor. Belgenin yapısını incelemek ve yapı uyuşmazsa hataları idare etmek size kalmış.
+Ya eğer "payload"'ın "features" diye bir anahtarı olmasaydı? O zaman `features` bir `Null` olurdu, elimizde patlamazdı. Bu yaklaşım biraz serbestlik tanıyor ki bu JSON'un gevşek doğasına da pekâlâ uyuyor. Belgenin yapısını incelemek ve yapı uyuşmazsa hataları idare etmek size kalmış.
 
 Bu yapıları düzenleyebilirsiniz. Eğer `let mut doc` diye tanımlasaydık pekâlâ bunu yapabilirdik:
 
@@ -397,7 +397,7 @@ Bunun çalışabilmesi için makroları JSON sandığından açıkça içe aktar
 extern crate json;
 ```
 
-Bu sandığın kötü bir tarafı da var, o da JSON'un dengesiz ve dinamik tipli doğasını Rust'ın statik ve yapılandırmış doğası arasında uyumsuzluktan doğuyor. ("Readme" dosyasında bu sürtüşmeden ("friction") söz eder.) Eğer JSON'u Rust'ın veri yapılarına çevirmek isterseniz en sonunda pek çok düzenleme yapmanız gerekir çünkü elde ettiğiniz veriyi yapılarınıza uyacağınızdan emin olamazsınız! Bunun üstesinden gelebilmek için [serde_json](https://github.com/serde-rs/json) kullanabilirsiniz, bununla Rust veri yapılarınızı JSON'a *serileştirebilir/çevirebilir (serialize)* ya da JSON'dan Rust'a *serisizleştirebilirsiniz/geri çevirebilirsiniz. (deserialize)*
+Bu sandığın kötü bir tarafı da var, o da JSON'un dengesiz ve dinamik tipli doğasını Rust'ın statik ve yapılandırmış doğası arasında uyumsuzluğu dengeleyememiş olması. ("Readme" dosyasında bu sürtüşmeden ("friction") söz eder.) Eğer JSON'u Rust'ın veri yapılarına çevirmek isterseniz en sonunda pek çok düzenleme yapmanız gerekir çünkü elde ettiğiniz veriyi yapılarınıza uyacağınızdan emin olamazsınız! Bunun üstesinden gelebilmek için [serde_json](https://github.com/serde-rs/json) kullanabilirsiniz, bununla Rust veri yapılarınızı JSON'a *serileştirebilir/çevirebilir (serialize)* ya da JSON'dan Rust'a *serisizleştirebilirsiniz/geri çevirebilirsiniz. (deserialize)*
 
 Ç.N: "Muvaffakiyetsizleştiricileştiriveremeyebileceklerimizdenmişsinizcesine" gibi bir karmaşa yarattığımın farkındayım. Bundan dolayı bazı yerlerde *serialize* ve *deserialize* için *çevirmek* karşılığını kullanacağım. 
 
@@ -470,7 +470,7 @@ Serileştirme, Java ve Go'da da benzerleri bulunan önemli bir tekniktir - ancak
 Cargo, Rust ekosisteminin ağır toplarından birisidir çünkü bizim için çok fazla işi halleder. Eğer o olmasaydı Github'dan tek tek kütüphaneleri indirmek, statik kütüphaneler olarak inşa etmek ve programa ilişkilendirmemiz gerekirdi. Bunu C++ projelerinde yapmak çiledir ve aynı çile Cargo olmasaydı Rust projelerinde de olacaktır. C++'ın çektirdiği çilenin eşi benzeri de yoktur bu arada, o yüzden diğer dillerin paket yöneticileriyle kıyaslamamız daha doğru olacaktır. (JavaScript için) npm, (Python için) pip sizin için bağımlılıkları kontrol eder ve indirir ancak programı dağıtmak zordur çünkü kullanıcının da sizin yerine NodeJS ve Python kurmuş olması gerekir. Ancak Rust programın bağımlılıkları statik linklenmiştir, ek bir bağımlılık gerekmeksizin istediğiniz kişiye yollayabilirsiniz.
 
 # Vali Kebabı
-Basit bir yazının dışında herhangi bir veriyi işleme alacaksanız düzenli ifadeler (**reg**ular **ex**pressions) hayatınızı kolaylaştıracaktır. Bunlar pek çok dilde vardır ve sizin temel regex kalıplarına aşina olduğunuzu varsayıyorum. [regex](https://github.com/rust-lang/regex) sandığını kullanmak için Cargo.toml dosyasına "[dependencies]" altına 'regex = "0.2.1"' ifadesini koymanız yererlidir.
+Basit bir yazının dışında herhangi bir veriyi işleme alacaksanız düzenli ifadeler (**reg**ular **ex**pressions) hayatınızı kolaylaştıracaktır. Bunlar pek çok dilde vardır ve sizin temel regex kalıplarına aşina olduğunuzu varsayıyorum. [regex](https://github.com/rust-lang/regex) sandığını kullanmak için Cargo.toml dosyasına "\[dependencies\]" altına 'regex = "0.2.1"' ifadesini koymanız yererlidir.
 
 Terk eğik çizgilerin özel anlamlar yaratmaması için "çiğ/raw karakter dizilerini" kullanacağım. İnsanın anlayacağı şekilde anlatırsak aşağıdaki düzenli ifade " ':' karakterinden önce iki rakam, sonrasında da herhangi uzunluktaki bir rakamı alın" anlamına gelmektedir:
 

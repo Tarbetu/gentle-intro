@@ -29,11 +29,11 @@ fn read_all_lines(filename: &str) -> io::Result<()> {
 }
 ```
 
-`let line = line?` gözünüze biraz tuhaf görünebilir. Döngüleyiciden dönen `line`  aslında `io::Result<String>` tipidir ve `?` ile onu paketinden dışarı çıkartıyoruz. Bunu yapmamızın sebeni döngü esnasında bir şeyleri yanlış gide*bile*ceğidir. - Girdi/çıktı hataları, UTF-8 olmayan bir bayt serisini almak gibi şeyler.
+`let line = line?` gözünüze biraz tuhaf görünebilir. Döngüleyiciden dönen `line`  aslında `io::Result<String>` tipidir ve `?` ile onu paketinden dışarı çıkartıyoruz. Bunu yapmamızın sebebi döngü esnasında bir şeylerin yanlış gide*bile*ceğidir. - Girdi/çıktı hataları, UTF-8 olmayan bir bayt serisini almak gibi şeyler.
 
 Bir döngüleyici olarak `lines`'i `collect` ile bir vektöre kolayca çevirebiliriz ya da `enumerate` döngüleyicisi ile her satırın sırasını öğrenebiliriz.
 
-Yine de bütün satırları okumak için en iyi tercih bu değildir çünkü her satır için yeni bir `String` tahsis edilir. En iyi yöntem `read_line` kullanmaktır, biraz daha acayip görünse de. Satırın bir satır akışı içerdiğine dikkat edin ki bunu `trim_right` ile siliyoruz.
+Yine de bütün satırları okumak için en iyi tercih bu değildir çünkü her satır için yeni bir `String` tahsis edilir. En iyi yöntem `read_line` kullanmaktır, biraz daha acayip görünse de. Satırın bir satır sonu karakteri içerdiğine dikkat edin ki bunu `trim_right` ile siliyoruz.
 
 ```rust
     let mut reader = io::BufReader::new(file);
@@ -95,7 +95,7 @@ impl <R: Read> Lines<R> {
 
 Bu yaşam süresiyle birlikte bu tanım `Iterator` özelliği ile uyumsuz. Ancak uyumlu olsaydı sorunları kolayca görebilirdik, `collect`'in karakter dizileririnden vektör yapmaya çalıştığını düşünün. Bu mümkün değil zira hepsi aynı değişebilir (mutable) karakter dizisini ödünç almış olurdu! (Eğer *bütün* dosyayı bir karakter dizesine çevirmek isteseydiniz karakter dizelerinin `lines` metotu karakter dizeleri dönebilirdi çünkü hepsi esas karakter dizilerinden ödünç alınmıştır.)
 
-Neticedeki döngü çok daha temizdir ve ara belleğe alma işlemi çok kullanıcı tarafından görünmez.
+Neticedeki döngü çok daha temizdir ve ara belleğe alma işlemi pek çok kullanıcı tarafından görünmez.
 
 ```rust
 fn read_all_lines(filename: &str) -> io::Result<()> {
@@ -119,7 +119,7 @@ Hatta eşleştirme karakter dizisi dilimini dışarı çıkartacağından, döng
     }
 ```
 
-Bunu yapmak isteyebilirsiniz ancak muhtemelen hataları halının altına süpürmüş olursunuz; döngü bir hata söz konusu olduğu zaman sessizce duracaktır. Daha da ötesi, Rust'ın `UTF-8`'e çeviremediği ilk yerde duracaktır. Gündelik kodlar için kabul edilebilir ancak kodu yayına aldığınız zaman kötüdür.
+Bunu yapmak isteyebilirsiniz ancak muhtemel hataları halının altına süpürmüş olursunuz; döngü bir hata söz konusu olduğu zaman sessizce duracaktır. Daha da ötesi, Rust'ın `UTF-8`'e çeviremediği ilk yerde duracaktır. Gündelik kodlar için kabul edilebilir ancak kodu yayına aldığınız zaman kötüdür.
 
 # Dosyalara Yazmak
 
@@ -158,7 +158,7 @@ Eğer performansı önemsiyorsanız Rust'ın varsayılan olarak önbelleğe alı
 # Dosyalar, Konumlar ve Dizinler
 Şimdi makinedeki Cargo dizinini bulan bir program yazalım. En basit yöntem `~/.cargo` altına bakmaktır. Ancak bu Unix kabuğu için geçerlidir, çoklu ortam desteği için `env::home_dir` fonksiyonunu kullanacağız. (Başarısız olabilir ancak ev dizini olmayan bir bilgisayar da Rust araçlarını barındırmaz.)
 
-Ç.N: [`env::home_dir`](https://doc.rust-lang.org/std/env/fn.home_dir.html) fonksiyonu beklenildiği gibi çalışmadığı için `1.29.0`'dan itibaren tedavülden kaldırılmıştır. Bu fonksiyonu kullanmayın, Windows ve Unix ortamları için ev dizinlerini kendi yöntemlerinizle bulmanızı veya bir [crates.io](https://crates.io)'yu karıştırmanızı tavsiye ederim. 
+Ç.N: [`env::home_dir`](https://doc.rust-lang.org/std/env/fn.home_dir.html) fonksiyonu beklenildiği gibi çalışmadığı için `1.29.0`'dan itibaren tedavülden kaldırılmıştır. Bu fonksiyonu kullanmayın, Windows ve Unix ortamları için ev dizinlerini kendi yöntemlerinizle bulmanızı veya bir [crates.io](https://crates.io)'yu karıştırmanızı tavsiye ederim.
 
 Sonra bir `PathBuf` yaratalım ve `push` metotunu *parçalardan* tam bir dosya konumu inşa etmek için kullanalım. (Bu `/` gibi bir şeyle ile debelenmekten çok daha kolaydır.)
 
@@ -179,9 +179,9 @@ fn main() {
 }
 ```
 
-`PathBuf`, `Karakter dizisi` gibi çalışır - karakterlerin büyüyebilen bir paketidir ancak konum inşa etmek için kendi araçlarını kullanır. Ancak özelliklerinin çoğunluğu `Path`'ın referans versiyonundan gelir, tıpkı `&str` gibi. Yani, mesela, `is_dir` bir `Path` metotudur.
+`PathBuf`, `String` gibi çalışır - karakterlerin büyüyebilen bir paketidir ancak konum inşa etmek için kendi araçlarını kullanır. Ancak özelliklerinin çoğunluğu `Path`'ın referans versiyonundan gelir, tıpkı `&str` gibi. Yani, mesela, `is_dir` bir `Path` metotudur.
 
-Bu kulağınıza şüphe uyandıran bir miras alma (inheritance) tarzı gibi gelebilir, ancak bu [Deref](https://doc.rust-lang.org/book/deref-coercions.html) özelliğinin maharetidir. Kulağınıza tıpkı `String/&str` gibi gelebilir - bir `PathBuf` referansı bir  `Path` referansına *dönüşür/zorlanır. (coerced)* ("Zorlamak (Coerce)" kelimesi biraz ağır kaçmış olabilir ancak bu Rust sizin için dönüşüm uyguladığı nadir yerlerden birisidir.)
+Bu kulağınıza şüphe uyandıran bir miras alma (inheritance) tarzı gibi gelebilir, ancak bu [Deref](https://doc.rust-lang.org/book/deref-coercions.html) özelliğinin maharetidir. Gözünüze tıpkı `String/&str` gibi görünebilir - bir `PathBuf` referansı bir  `Path` referansına *dönüşür/zorlanır. (coerced)* ("Zorlamak (Coerce)" kelimesi biraz ağır kaçmış olabilir ancak bu Rust sizin için dönüşüm uyguladığı nadir yerlerden birisidir.)
 
 ```rust
 fn foo(p: &Path) {...}
@@ -194,9 +194,9 @@ foo(&path);
 
 Bu tarz karakter dizilerinin UTF-8 olacağını *garanti edilmemiştir!* Gerçek hayatta her şey [karmaşıktır](https://news.ycombinator.com/item?id=10519932), özellikle "Her şey neden bu kadar zor" diye düşünürken. Sadede gelelim. Birincisi antik ASCII kodlamanın ve diğer diller için özel kodlamanın kullanıldığı yıllar oldu. İkincisi kendi aramızda konuştuğumuz dillerin kendisi de epey karmaşıktır. Mesela "noël" kelimesi *beş* Unikod kodu kadar yer tutar.
 
-Modern işletim sistemlerinin dosya adlarının çoğu zaman Unikod olabileceği doğrudur. (Unix tarafı için UT8, Windows UTF-8) Ama olmadığı zamanlar da vardır! Ve Rust bu olasılığı dikkatlice ele almalıdır. Örneğin `Path`, `as_os_str` diye `&OsStr` dönen bir metota sahiptir. Ancak `to_str`, bazen `Option<&str>` döner. Yani her zaman mümkün değildir!
+Modern işletim sistemlerinin dosya adlarının çoğu zaman Unikod olabileceği doğrudur. (Unix tarafı için UTF-8, Windows için UTF-16) Ama olmadığı zamanlar da vardır! Ve Rust bu olasılığı dikkatlice ele almalıdır. Örneğin `Path`, `as_os_str` diye `&OsStr` dönen bir metota sahiptir. Ancak `to_str`, bazen `Option<&str>` döner. Yani her zaman mümkün değildir!
 
-İnsanlar genelde bu konuda can çekişir çünkü "karakter" ve "karakter dizesi"ne fazlasıyla alıştılar. Einstein'ın dediği gibi programlama dilleri sade olmalı, basit değil. Bir sistem programlama dilinin `String/&str` ayrımına ihtiyacı vardır (ödünç alınmışa karşılık sahiplenmiş: kafaya epeyce yatıyor) ve Unikod karakter dizilerini standartlaştırmak için Unikod olmayan stilleri de kapsamalıdırlar - işte `OsString/&OsStr` kardeşlerin doğuşu. Bunların içeriğinde `String` benzeri enteresan metotlar bulunmadığına dikkat edin, çünkü tiplemelerinden tam olarak emin değiliz. 
+İnsanlar genelde bu konuda biraz takılır çünkü "karakter" ve "karakter dizesi"ne fazlasıyla alıştılar. Einstein'ın dediği gibi programlama dilleri sade olmalı, basit değil. Bir sistem programlama dilinin `String/&str` ayrımına ihtiyacı vardır (ödünç alınmışa karşılık sahiplenmiş: kafaya epeyce yatıyor) ve Unikod karakter dizilerini standartlaştırmak için Unikod olmayan stilleri de kapsamalıdırlar - işte `OsString/&OsStr` kardeşlerin doğuşu. Bunların içeriğinde `String` benzeri enteresan metotlar bulunmadığına dikkat edin, çünkü tiplemelerinden tam olarak emin değiliz. 
 
 Ancak, insanlar dosya isimlerini olağan karakter dizileriymiş gibi işlemeye alışkınlardır ki kolayca dosya konumlarını kullanmak ve değiştirmek için Rust'ta `PathBuf` vardır.
 
@@ -223,7 +223,7 @@ fn main() {
 // /
 ```
 
-Bu da daha kullanışlı bir hâli. Bir konfigrasyon dosyasını aramak için bir program yazdık ve bütün altdizinleri bu dosya için arıyoruz. Bunun için `/home/steve/rust/config.txt` diye bir dosya yazdım ve program `/home/steve/rust/gentle-intro/code` içerisinden başlıyor:
+Bu da daha kullanışlı bir hâli. Bir konfigrasyon dosyasını aramak için bir program yazdık ve bütün altdizinleri bu dosya için arıyoruz. Bunun için `/home/steve/rust/config.txt` diye bir dosya yazdık ve program `/home/steve/rust/gentle-intro/code` içerisinden başlıyor:
 
 ```rust
 // file9.rs
@@ -239,7 +239,7 @@ fn main() {
         } else {
             path.pop();
         }
-        if ! path.pop() {
+        if !path.pop() {
             break;
         }
     }
@@ -319,13 +319,13 @@ fn dump_dir(dir: &str) -> io::Result<()> {
 // ./new-sexpr.rs length 7719
 ```
 
-`read_dir`'in başarısız olabileceği aşikar ("bulunamadı" ya da "yetki yok" gibi bir hata olur) ancak aynı zamanda her yeni bir girdiye erişmek de başarısız olabilir. (Okunmuş veriyi arabelleğe alan `lines` döngüleyicini düşünün.) Ek olarak, ilgili girdi için uygun metaveriye ulaşamış ulaşamayabiliriz de. Bir dosyanın uzantısı da pekala olmayabilir, bunu ayrıca kontrol etmemiz gerekir.
+`read_dir`'in başarısız olabileceği aşikar ("bulunamadı" ya da "yetki yok" gibi bir hata çıkarabilir) ancak aynı zamanda her yeni bir girdiye erişmek de başarısız olabilir. (Okunmuş veriyi arabelleğe alan `lines` döngüleyicini düşünün.) Ek olarak, ilgili girdi için uygun metaveriye ulaşamayabiliriz de. Bir dosyanın uzantısı da pekala olmayabilir, bunu ayrıca kontrol etmemiz gerekir.
 
 Neden konumların üzerinde bir döngüleyici kullanmıyoruz? Unix'te `opendir` sistem çağrısı bu şekilde çalışır ancak Windows'ta dosyaların metaverisini almadan üzerinde bir döngü kuramazsınız. Dolayısıyla platformlar arasındaki kodun en verimli çalışmasının en zarif yoludur. 
 
 Bu noktada "hatalarla boğuştuğunuz" için kendinizi bitkin hissedebilirsiniz. Ancak *hatalar her zaman* vardı - Rust sizin için yeni hatalar icat etmedi. Sadece hataları görmezden gelmemeniz için elinden geleni yapıyor. Herhangi bir işletim sistemi çağrısı başarısız olabilir. 
 
-Java ve Python gibi dillerde hata atarsınız (throw exceptions); Go ve Lua gibi diller ise size iki veri döner ve birincisi sonuç ikincisi de hata olur, Rust'ta kitaplık fonksiyonlarının hata oluşturmadı kötü bir davranış olarak kabul edilir. Bu nedenle pek çok hata denetimi vardır ve fonksiyonlar erkenden dönebilir.
+Java ve Python gibi dillerde hata atarsınız (throw exceptions); Go ve Lua gibi diller ise size iki veri döner ve birincisi sonuç ikincisi de hata olur, Rust'ta kitaplık fonksiyonlarının hata oluşturması kötü bir davranış olarak kabul edilir. Bu nedenle pek çok hata denetimi vardır ve fonksiyonlar erkenden dönebilir.
 
 Ya hata alırsınız ya da almazsınız, Rust bu yüzden `Result` kullanır: hem hata hem de sonuç elde edemezsiniz. Ve soru işareti operatörü kontrol oldukça kolaylaştırır.
 
@@ -441,7 +441,7 @@ fn main() {
 }
 ```
 
-Varsayılan olarak alt süreç üst sürecin standart girdisini ve çıktısını "miras alır". Ancak bu örnekte alt sürecin çıktısını "hiçliğe" yönlendirmiş olduk. Unix kabuğunda `> /dev/null 2> /dev/null` demekle aynı şeyi yapmış olduk.
+Varsayılan olarak alt süreç üst sürecin standart girdisini ve çıktısını "miras alır". Ancak bu örnekte alt sürecin çıktısını "hiçliğe" yönlendirmiş olduk. Unix kabuğunda `> /dev/null 2> /dev/null` demekle aynı şey yani.
 
 Rustta yaptığımız bu şeyleri sistem kabuğu (`sh` veya `cmd`) ile de yapabilirdik. Ancak bu yolla tamamen programatik bir şekilde süreç oluşturmayı kontrol etmiş oldunuz.
 

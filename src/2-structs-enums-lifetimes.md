@@ -1,8 +1,6 @@
 # Yapılar, Numaralandırmalar ve Eşleştirme
 
-# Rust Alekta Movik Movik
-> Ç.N: Orijinal başlık - Rust likes to Move It, Move It. "I like to move it" isimli bir şarkıya gönderme. Bu şarkıyı Türk milleti olarak "Alekta Movik Movik" diye biliyoruz :(
-
+# Rust Lekta Movik Movik
 Fazla ileri gitmiyor muyuz? Mesela kaçırdığımız bazı şeyler var:
 
 ```rust
@@ -101,7 +99,7 @@ fn dump(s: &str) {
 
 Ve böylece `dump(&s1)` ve `dump("hello world")` kullanımlarının ikisi de geçerli olacaktır. (Burada Rust'ın `Deref` zorlaması işin içine girer ve `&String`'i `&str` yapar.)
 
-Sonuç olarak, `Copy` olmayan bir değerin değişkene atanması bir konumdan öbürüne taşınmasıdır. Eğer bu olmasaydı Rust *gizlice* kopyalamak zorunda kalırdı ve bellek tahsislerini *aleni* yapma sözünü tutamazdı.
+Sonuç olarak, `Copy` olmayan bir değerin değişkene atanması bir konumdan öbürüne taşınmasıdır. Eğer bu olmasaydı Rust *gizlice* kopyalamak zorunda kalırdı ve bellek tahsislerini *açıkça* yapma sözünü gerçekleştiremezdi.
 
 # Değişkenlerin Kapsamları
 Birinci kural, verileri kopyalamak yerine orijinal veriye referans göstermektir - yani "ödünç almak."
@@ -165,10 +163,10 @@ error: `tmp` does not live long enough
    | - borrowed value needs to live until here
 ```
 
-`Tmp` nerede? Gitti, yok, öldü o artık: *düşürüldü*. Rust sizi burada C'nin "sarkan işaretçiler (dangling pointer)" belasından koruyor - çoktan yitip gitmiş bir veriye işaret eden referanslardan yani.
+`Tmp` nerede? Gitti, yok, öldü o artık: *düşürüldü*. Rust sizi burada C'nin "işaretçiler (dangling pointer)" belasından koruyor - çoktan yitip gitmiş bir veriye işaret eden referanslardan yani.
 
 # Demetler (Tuple)
-Bir fonksiyondan öoklu veriler dönmeyi gerektiren zamanlar gerekecektir. Demetler bunun için gayet uygun bir gözümdür.
+Bir fonksiyondan çoklu veriler dönmeyi gerektiren zamanlar muhakkak gelecek. Demetler bunun için gayet uygun bir gözümdür.
 
 ```rust
 // tuple1.rs
@@ -195,7 +193,7 @@ fn main() {
 // add 12 mul 20
 ```
 
-Demetlerin dizilerden temel farkları, demetler *farklı* tipler barındırabilmesidir.
+Demetlerin dizilerden temel farkları, demetlerin *farklı* tipler barındırabilmesidir.
 
 ```rust
 let tuple = ("hello", 5, 'c');
@@ -226,7 +224,7 @@ Bazen `Iterator` metotlarından karşınıza fırlarlar. `enumerate` tıpkı Pyt
 ```
 
 # Yapılar (Struct)
-Demetler fena şeyler değiller ancak `t.1` gibi anlaşılmaz şeylerle parçalarını incelemek biraz can sıkıcı olabilirler. 
+Demetler fena şeyler değiller ancak `t.1` gibi bir anlam içermeyen parçalarını incelerken biraz kafa karıştırıcı olabilir.
 
 Rust *yapıları* ise isimli *alanlar (field)* barındırır:
 
@@ -249,7 +247,7 @@ fn main() {
 
 Sizin bunu fark etmemenize rağmen yapıların verileri bellekte yanyana dururlar çünkü derleyici belleği verimliliğe göre düzenler, büyüklüğüne göre değil ve arada bazı boşluklar olabilir.
 
-Bu yapıyı ilklemek (initalize) biraz şekilsiz görünebilir, bundan dolayı `Person` yapısını oluşturmayı bir fonksiyon içerisine taşıyorum. Bu fonksiyon bir `impl` bloğunun içerisine taşınarak `Person`'a ait bir *ilişkili fonksiyona (associated function)* dönüştürülebilir.
+Bu yapıyı ilklemek (initalize) biraz garip görünebilir, bundan dolayı `Person` yapısını oluşturmayı bir fonksiyon içerisine taşıyorum. Bu fonksiyon bir `impl` bloğunun içerisine taşınarak `Person`'a ait bir *ilişkili fonksiyona (associated function)* dönüştürülebilir.
 
 ```rust
 // struct2.rs
@@ -278,7 +276,7 @@ fn main() {
 
 `new` ile ilişkili özel bir şey yok. C++ tarzı `::` notasyonu ile bu fonksiyona ulaşabiliyoruz.
 
-Bir de argüman olarak *kendisini referans alan (reference self)* `Person` metotu hazırlayalım.
+Bir de argüman olarak *kendisini referans alan (reference self)* `Person` metotunu hazırlayalım.
 
 ```rust
 impl Person {
@@ -296,7 +294,7 @@ impl Person {
 
 `self`, bir referans olarak açıkça belirtildi. (`&self`'i `self: &Person`'un kısaltması olarak düşünebilirsiniz.)
 
-`Self` kelimesi `struct` tipine atıfta bulunur - kafanızda `Person` yerine `Self` koyabilirsiniz:
+`Self` kelimesi `struct` tipine atıfta bulunur -  `Person` yerine `Self` yazdığınızı düşünebilirsiniz:
 
 ```rust
     fn copy(&self) -> Self {
@@ -328,7 +326,7 @@ Ve sadece `self` kullanıldığında veri *taşınacaktır*:
 - `self` kullanılmazsa: fonksiyonları bu şekilde bağlayabilirsiniz, `new` "oluşturucusu" gibi .
 - `&self` ile: Yapının verilerini kullanabilir ancak değiştiremezsiniz.
 - `&mut self` ile: Yapının verilerini düzenleyebilirsiniz.
-- `self` ile: Veriyi tüketirsiniz, yani taşırsınız.
+- `self` ile: Yapıyı yok edersiniz, yani içindeki verileri taşırsınız.
 
  Eğer `Person`'u veri ayıklama şeklinde ekrana yazdırırsanız, bilgilendirici bir hata alırsınız:
 ```
@@ -349,7 +347,7 @@ Derleyici bazı tavsiyesine uyuyoruz ve `Person`'un tanımı üstüne  `#[derive
 Person { first_name: "John", last_name: "Smith" }
 ```
 
-Bu direktif, derleyicinin faydalı bir özellik olan `Debug`'u eklemesine yarıyor ki bu da sizin kendi yapılarınızla (struct) ekrana yazdırarak pratik yapmanıza yardımcı olur. (Ya da `format!` ile yazdırabilirsiniz). (Bunu sürekli olarak yapmak pek Rust geleneğine yakışmaz doğrusu.)
+Bu direktif, derleyicinin faydalı bir özellik olan `Debug`'u eklemesine yarıyor ki bu da sizin kendi yapılarınızla (struct) ekrana yazdırarak pratik yapmanıza yardımcı olur. (Ya da `format!` ile yazdırabilirsiniz). (Bunu *varsayılan* olarak gerçekleştirmek Rust'ın tarzı değil doğrusu.)
 
 İşte minik programımızın son hâli:
 
@@ -431,7 +429,7 @@ error[E0106]: missing lifetime specifier
 
 Buradaki sorunu anlayabilmek için problemi bir de Rust'ın gözünden görmeniz gerekmekte. Rust, bir referansın ömrünün ne kadar uzun süreceğini hesaplamadan o referansa izin vermeyecektir. Bütün referanslar bir veriyi önüç alır ve her verinin bir yaşam süresi vardır. Referansların yaşam süreleri o verinin yaşam süresinden uzun olamaz. Rust, referansın geçersiz olduğu bir koşulun oluşma ihtimaline izin vermeyecektir. 
 
-Şimdi, karakter dizisi diliminin referansı bir `String` değerini ya da "selam" gibi bir *karakter dizisi kalıbını* ödünç alır. Karakter dizesi kalıpları programın yaşamı boyunca yaşar ki buna "statik (static)" yaşam süresi deriz.
+Şimdi, karakter dizisi diliminin referansı bir `String` değerini ya da "merhaba" gibi bir *karakter dizisi kalıbını* ödünç alır. Karakter dizesi kalıpları programın yaşamı boyunca yaşar ki buna "statik (static)" yaşam süresi deriz.
 
 İşte şimdi tıkır tıkır çalışıyor - Rust'ın bir karakter dizisi kalıbının sürekli olarak var olacağını garanti etmiş olduk. 
 
@@ -451,7 +449,7 @@ fn main() {
 // A { s: "hello dammit" }
 ```
 
-Tabii bu hâli de çok şık görünmüyor ama kesin olmak için bazı bedeller ödmemiz gerekiyor.
+Tabii bu hâli de çok şık görünmüyor ama net olmak için bazı bedeller ödemek gerekir.
 
 Bunu bir fonksiyondan karakter dizisi dilimi döndürmek için de kullanabiliriz.
 
@@ -473,7 +471,7 @@ Buna karşın, biz bir referansın yaşam ömrünü *en az yapının ömrü kada
 // life3.rs
 
 #[derive(Debug)]
-struct A <'a> {
+struct A<'a> {
     s: &'a str
 }
 
@@ -485,7 +483,7 @@ fn main() {
 }
 ```
 
-Yaşam ömürleri geleneksel olarak "a", "b" gibi harflerle belirtilir ancak siz dilerseniz "ben" gibi kelimelerle de ifade edebilirsiniz.
+Yaşam ömürleri geleneksel olarak "a", "b" gibi harflerle belirtilir ancak siz dilerseniz "patlıcan" gibi kelimelerle de ifade edebilirsiniz.
 
 Bu ekleme ile beraber, bizim `A` yapısı ile `s` karakter dizisi birbirine sıkı sıkıya bağlanmıştır: `a`, `s`ten ödünç alır ve o olmadan yaşayamaz.
 
@@ -529,9 +527,9 @@ Bunu güvenli bir şekilde yapmanın bir yolu yok, çünkü fonksiyon sona verdi
 Bazen, bir yapının değer ve o değeri içeren bir referans taşıması iyi bir fikirmiş gibi görünebilir. Ama bu çok basit bir şekilde imkansızdır çünkü yapılar *taşınabilir* olmalıdır, ve her türlü taşınma referansı geçersiz kılacaktır. Üstelik bunu yapmanın bir gereği de yok - mesela yapınızın karakter dizisi alanı varsa ve bunun dilimlerini sunmaya ihtiyacınız varsa, indeks numaralarını tutabilir ve bir metot içerisinde gerçek dilimleri dönebilirsiniz.
 
 # Özellikler (Trait)
-Rust'ta `struct`'ı *sınıf (class)* olarak görmediğine dikkat edin. `class` kelimesinin anlamı diğer dillerde içi öylesine doldurulmuştur ki size nasıl düşüneceğinizi dikte eder hâle gelmiştir.
+Rust'ta `struct`'ın *sınıf (class)* olmadığına dikkat edin. `class` kelimesinin anlamı diğer dillerde içi öylesine doldurulmuştur ki size nasıl düşüneceğinizi dikte eder hâle gelmiştir.
 
-Şimdi şunlara dikkat edin: Rust'ta yapılar birbirini *miras (inherit)* alamaz; hepsi özgün tiplerdir. *Alt-tip* diye bir şey yok, onlar sadece bir saçmalıktan ibaretti.
+Şimdi şunlara dikkat edin: Rust'ta yapılar birbirini *miras (inherit)* alamaz; hepsi özgün tiplerdir. *Alt-tip* diye bir şey yok, o tarz şeyler sadece bir saçmalıktan ibaret.
 
 Peki ya tipler arasındaki ilişkiler nasıl kurulur?
 
@@ -589,7 +587,7 @@ impl fmt::Debug for Person {
     // John Smith
 ```
 
-`write!` da epey kullanışlı bir makrodur - burada `f` `Write` özelliğini uygulamış her şeyi temsil ediyor. (Mesela bu bir `File` olabilir - ya da sadece bir `String`)
+`write!` da epey kullanışlı bir makrodur - burada `f` `Write` özelliğini barındıran her şeyi temsil ediyor. (Mesela bu bir `File` olabilir - ya da sadece bir `String`)
 
 `Display` ise "{}" ile yazdırılabilen verileri kontrol ve tıpkı `Debug` gibi uygulanır. Ve faydalı bir yan etki olarak, `ToString` `Display`'e sahip olan her türlü tipe uygulanır. Mesela `Display`'ı `Person` için uygularsak `p.to_string()` de çalışır hâle gelir.
 
@@ -671,15 +669,15 @@ Ve şöyle biçimsiz bir görüntüyü elde etmiş oluyoruz:
 ```rust
 println!("{:.1} ", x);
 ```
-Ve daha temiz bir çıktımız olmuş oluyor. (Bu [formatlama](https://doc.rust-lang.org/std/fmt/index.html) "noktadan sonra bir nokta" anlamına geliyor.)
+Ve daha temiz bir çıktımız olmuş oluyor. (Bu [formatlama](https://doc.rust-lang.org/std/fmt/index.html) "noktadan sonra bir rakam" anlamına geliyor.)
 
-Şimdi bütün döngüleyici metotlarını kullanabiliriz, hadi bütün verileri bir vektörde toplayalım, `map` kullanalım ve daha da coşalım:
+Şimdi bütün döngüleyici metotlarını kullanabiliriz, hadi bütün verileri bir vektörde toplayalım, daha da coşmak için bunu `map` ile yapalım:
 
 ```rust
     let v: Vec<f64> = range(0.0, 1.0, 0.1).map(|x| x.sin()).collect();
 ```
 
-# Jenerik Fonksiyonlar
+# Genellenen Fonksiyonlar
 Diyelim ki `Debug` özelliiğine sahip herhangi bir tipi argüman olarak alan bir fonksiyon yazacağız. Burada jenerik fonksiyon kullanmamızın bir örneğini görüyorsunuz, herhangi bir verinin referansını argüman olarak alabilir. `T`, tip parametresi oluyor ki fonksiyon ismi yazıldıktan hemen sonra tanımlandı:
 
 ```rust
@@ -713,7 +711,7 @@ dump(&n);
 // value is 42
 ```
 
-Rust'ın jenerik fonksiyonlarının tipe *özellikleri bağlaması (trait bounds)* gerekir - burada "T is any type that implements Debug" kısmını anlatıyoruz. (T, Debug'ı içeren herhangi bir tiptir) `rustc` epey yardımcı oluyor ve hangi tipin tam olarak belirtilmesi gerektiğini bize bildiriyor.
+Rust'ın genellenen fonksiyonlarının tipe *özellikleri sağlaması (trait bounds)* gerekir - burada "T is any type that implements Debug" kısmını anlatıyoruz. (T, Debug'ı içeren herhangi bir tiptir) `rustc` epey yardımcı oluyor ve hangi tipin tam olarak belirtilmesi gerektiğini bize bildiriyor.
 
 Şimdi Rust, `T` için tip bağlarını biliyor, artık derleyiciden mantıklı mesajlar alabiliriz.
 
@@ -729,7 +727,7 @@ dump(&foo)
 
 Buradaki hata ise  "the trait `std::fmt::Debug` is not implemented for `Foo` (`std::fmt::Debug` özelliği `Foo` için uygulanmadı)"
 
-Fonksiyonlar dinamik dillerde aslında jeneriktir çünkü değerler beraberinde türlerini taşırlar ve tür denetimi çalışma zamanı denetlenir - ya da başarısız olur. Karmaşık programlarda daha derleme zamanında tiplerin kontrol edilmesini ciddi anlamda isteriz! Bu dillerdeki bir programcı, derleme hatalarını sakince incelemek yerine programın çalışma anındadaki sürprizleri incelemek zorundadır. Murphy kanununa göre sorunlar en uygunsuz, ters zamanda ortaya çıkmaya meyillidir.
+Fonksiyonlar dinamik dillerde aslında genellenir çünkü değerler beraberinde türlerini taşırlar ve tür denetimi çalışma zamanı denetlenir - ya da başarısız olur. Karmaşık programlarda daha derleme zamanında tiplerin kontrol edilmesini ciddi anlamda isteriz! Bu dillerdeki bir programcı, derleme hatalarını sakince incelemek yerine programın çalışma anındadaki sürprizleri incelemek zorundadır. Murphy kanununa göre sorunlar en uygunsuz, ters zamanda ortaya çıkmaya meyillidir.
 
 Bir sayının karesini almak jeneriktir; tam sayılar, noktalı sayılar ve çarpım operatörünü içeren her türlü şeyin karesini `x*x` ile alabilirsiniz. Peki ya tip bağları?
 
@@ -806,11 +804,11 @@ T sqr(x: T) {
 
 Ama (dürüst olmak gerekirse), C++ laz müteahhit mantığını benimsiyor. C++'ın şablon (template) hataları berbattır çünkü derleyicinin tek bildiği şey bazı metotların ya da operatörlerin tanımlanıp tanımlanmadığıdır. C++ komitesi bu sorunu biliyor ve [konseptler](https://en.wikipedia.org/wiki/Concepts_(C%2B%2B)) üzerinde çalışıyorlar ki bunlar daha çok özelliklerle kısıtlanmış tip parametrelerine çok benziyorlar. 
 
-Jenerik fonksiyonlar başta biraz zorlayıcı gelebilir ancak net olmak, ne tür değerleri güvenle kullanabileceğinizi sadece tanıma bakarak kullanabileceğiniz anlamına geliyor.
+Genellenmiş fonksiyonlar başta biraz zorlayıcı gelebilir ancak net olmak, ne tür değerleri güvenle kullanabileceğinizi sadece tanıma bakarak kullanabileceğiniz anlamına geliyor.
 
-Bu fonksiyonlar *çok biçimli*nin tersi olarak *tek biçimli* olarak bilinir. (ÇN: Tek biçimli - monomorfik, çok bilimli - polimorfik) Fonksiyonun gövdesi her bir tip için ayrı ayrı derleme yapar. Çok biçimli fonksiyonlarda ise makine eşlesen her tip için aynı kodu kullanır, dinamik olarak doğru metota *yönlendirir (dispatch)*.
+Bu fonksiyonlar *çok biçimli*nin tersi olarak *tek biçimli* olarak bilinir. (ÇN: Tek biçimli - monomorfik, çok biçimli - polimorfik) Fonksiyonun gövdesi her bir tip için ayrı ayrı derleme yapar. Çok biçimli fonksiyonlarda ise makine eşlesen her tip için aynı kodu kullanır, dinamik olarak doğru metota *yönlendirir (dispatch)*.
 
-Tek biçimlilik hızlı kod üretir, tipler için özelleştirilmiştir ve *satır içi* çalışabilirler. `sqr(x)` görüldüğü anda hemen `x*x` ile değiştirirlir. Ancak bunun dezavantajı, büyük jenerik fonksiyonların her için çok fazla kod üretmesidir ki buna *kod şişmesi (code bloat)* denir. Her zaman bir takas vardır ve deneyimli bir kişi hangi iş için doğru aracı seçeceğini bilmelidir.
+Tek biçimlilik hızlı kod üretir, tipler için özelleştirilmiştir ve *satır içi* çalışabilirler. `sqr(x)` görüldüğü anda hemen `x*x` ile değiştirirlir. Ancak bunun dezavantajı, büyük genellenmiş fonksiyonların her için çok fazla kod üretmesidir ki buna *kod şişmesi (code bloat)* denir. Her zaman bir takas vardır ve deneyimli bir kişi hangi iş için doğru aracı seçeceğini bilmelidir.
 
 # Basit Numaralandırmalar
 Numaralandırmalar (Enums) birkaç verisi bulunan tiplerdir. Örneğin, bir yön dört farklı şekil alabilir:
@@ -865,7 +863,7 @@ Ancak burada net bir sıralama aramamalısınız - numaralandırmalar tam sayı 
 
 (Ç.N: Numaralandırma olarak çevrilen `enum` sözcüğü gerçekten de C ve C++'da sayılandırma işlemi için kullanılır ancak Rust'ta böyle bir özellik yoktur. C++'daki karşılığı `enum` değil, `enum class`'tır.)
 
-Şimdi her `Direction` değerinin ardılını gösteren bir metot yazdık. *Yıldız jokerini* kullanmak metotun içeriğine bütün numaralandırma değerlerini sıraladığı için epey kullanışlıdır.
+Şimdi her `Direction` değerinin ardılını gösteren bir metot yazdık. `use` içinde *yıldız jokerini* kullanmak metotun içeriğine bütün numaralandırma değerlerini sıraladığı için epey kullanışlıdır.
 
 ```rust
     fn next(&self) -> Direction {
@@ -894,9 +892,9 @@ Ancak burada net bir sıralama aramamalısınız - numaralandırmalar tam sayı 
     // d Down
 ```
 
-Bu şekilde istenen ve belirlenmiş düzende bütün yönleri sonsuza dek sıralamaya izin verir. (Aslında) bu oldukça basit bir *durum makinesidir*.
+Bu şekilde istenen ve belirlenmiş düzende bütün yönleri sonsuza dek sıralamaya izin verir. Aslında bu oldukça basit bir *durum makinesidir*.
 
-Numaralandırma veriler kıyaslanamaz:
+Numaralandırma verileri kıyaslanamaz:
 
 ```
 assert_eq!(start, Direction::Left);
@@ -912,7 +910,7 @@ note: an implementation of `std::cmp::PartialEq` might be missing for `Direction
 ```
 Çözüm, `enum Direction` tanınımının üstüne `#[derive(Debug,PartialEq)]` eklemektir.
 
-Önemli bir nokta, Rust'ın kullanıcı tiplerinin bir eklenti ile birlikte gelmemesidir. Genel özellikleri (trait) tanımlayarak onlara olağan davranışları tanımlarsınız. Bu yapılar için de geçerlidir - eğer bir yapıya `PartialEq` verirseniz akla yatkın bir şey belirleyecektir, tüm alanların `PartialEq`'e sahip olduğunu düşünerek bir kıyas yapacaktır. Eğer alanlar buna sahip değilse, eşitliği tanımlananız gerekmektedir ki bunu açıkça tanımlamanıza izin vardır.
+Önemli bir nokta, Rust'ın kullanıcı tiplerinin bir eklenti ile birlikte gelmemesidir. Genel özellikleri (trait) ekleyerek onlara olağan davranışları verirsiniz. Bu yapılar için de geçerlidir - eğer bir yapıya `PartialEq` verirseniz akla yatkın bir şey belirlenecek, tüm alanların `PartialEq`'e sahip olduğunu düşünerek bir kıyas yapacaktır. Eğer alanlar buna sahip değilse, eşitliği tanımlananız gerekmektedir ki bunu açıkça tanımlamanıza izin vardır.
 
 Rust'ta "C tarzı numaralandırmalar" da kullanılabilir.
 
@@ -944,12 +942,12 @@ enum Difficulty {
 }
 ```
 
-Tabii bunun isim olarak çağırınca havada kaldı, tıpkı her şeye "şey" demek gibi. Esas kullanılması gereken terim *varyanttır* - `Speed`in varyantları `Slow`, `Medium` ve `Fast`tır.
+Tabii isim diyince anlamı tam oturmadı, tıpkı her şeye "şey" demek gibi. Esas kullanılması gereken terim *varyanttır* - `Speed`in varyantları `Slow`, `Medium` ve `Fast`tır.
 
 Numaralandırmalar doğal bir sıralama da alabilir, ancak bunu kibarca istemelisiniz. `enum Speed`'in başına `#[derive(PartialEq,PartialOrd)]` ekledikten sonra `Speed::Fast > Speed::Slow` ve `Speed::Medium != Speed::Slow` gibi ifadeler kullanılabilir olur.
 
 # Numaralandırmalar Tam Teçhizatlıyken
-Rust'ın numaralandırmaları tam anlamıyla kullanıldığı zaman C'deki birliklerin (union) steroidli hâline benzer, tıpkı Ferrari ile Fiat Uno arasındaki ilişki gibi. Çeşitli tiplerden verileri bir araya güvenlice toplamanın zorluğunu düşünün.
+Rust'ın numaralandırmaları tam anlamıyla kullanıldığı zaman C'deki birliklerin (union) steroidli hâline benzer, tıpkı Ferrari ile Fiat Uno gibi. Çeşitli tiplerden verileri bir araya güvenlice toplamanın zorluğunu düşünün.
 
 ```rust
 // enum3.rs
@@ -1020,7 +1018,7 @@ error[E0507]: cannot move out of borrowed content
 
 Ödünç alınmış referanslarla yapamayacağınız bazı şeyler var. Rust, orijinal değerin içerisindeki karakter dizisini *dışarı çıkartmanıza* izin vermeyecektir. `Number` üzerinde sorun yok çünkü `f64`'ün kopyalanmasında bir sakınca yok ama `String` `Copy`'i içermez.
 
-`match`'ın kesin tipler hakkında seçici olduğunu söyledim, şimdi ipucunu takip edelim ve sıkıntı çıkartmayacaktır, şimdi içerideki karakter dizisine bir referans ödünç alıyoruz.
+`match`'ın kesin tipler hakkında seçici olduğunu söyledim, ipucunu takip edelim ve sıkıntı çıkartmayacaktır, şimdi içerideki karakter dizisine bir referans ödünç alıyoruz.
 
 ```rust
 fn dump(v: &Value) {
@@ -1044,9 +1042,9 @@ Sorun, eşleştirmenin kesinliğinden ve ödünç kontrolünün kuralların çi�
 (Bu arada, `v[0]` karakter dizeleri gibi kopyalanamaz verilerde tam olarak bundan dolayı çalışmayacaktır. `&v[0]` ile ödünç almanız ya da `v[0].clone()` kullanmanız gerekmektedir.)
 
 
-`match` kullanırken `Str(s: String) =>` yerine `Str(s)` yazıldığını görebilirsiniz. Yeni bir yerel değişken yaratılır. (bazen *bağlama (binding)* olarak anılır) Çoğu zaman tatmin edilen tip tutar, veriyi alıp onun içinden çıkartırken. Ancak burada `s: &String` yazmaya ihtiyacımız oldu ve `ref` ile sadece `String`'i ödünç almak istediğimizi bildirmiş olduk.
+`match` kullanırken `Str(s: String) =>` yerine `Str(s)` yazıldığını görebilirsiniz. Yeni bir yerel değişken yaratılır. (bazen *bağlama (binding)* olarak anılır) Çoğu zaman tatmin edilen tip uyar, mesela veriyi alıp onun içinden çıkartırken. Ancak burada `s: &String` yazmaya ihtiyacımız oldu ve `ref` ile sadece `String`'i ödünç almak istediğimizi bildirmiş olduk.
 
-Burada da bir karakter dizisini dışarı çıkartıyoruz ve değerin daha sonra ne olacağını umursamıyoruz. `_` her şeyle eşleşecektir.
+Burada da bir karakter dizisini dışarı çıkartıyoruz ve değerin daha sonra ne olacağını umursamıyoruz. `_` geri kalan her şeyle eşleşecektir.
 
 ```rust
 impl Value {
@@ -1195,7 +1193,7 @@ Rust'ın gücünün büyük bir kısmı bu kapamalardan gelir. En basit hâliyle
     // res 100
 ```
 
-Burada açıkça belirtilmiş bir tip yoktur - bir "10" tam sayı kalıbının kullanılmasına kadar her şey birer tahmin edilmiştir. 
+Burada açıkça belirtilmiş bir tip yoktur - bir "10" tam sayı kalıbının kullanılmasına kadar her şey tahmin edilmiştir. 
 
 Ancak `f`'i farklı farklı tipler için kullanırsak hata alırız - Rust `f`'in tam sayılarla çalışması gerektiğine karar vermişti.
 
@@ -1219,7 +1217,7 @@ Ancak `f`'i farklı farklı tipler için kullanırsak hata alırız - Rust `f`'i
     }
 ```
 
-Ancak açıkça tiplerin yazılması gerektiği sorunun dışında fonksiyonlar ve kapamaların bir farkı daha vardır. Doğru fonksiyonunu inceleyelim:
+Ancak açıkça tiplerin yazılmaması dışında fonksiyonlar ve kapamaların bir farkı daha vardır. Doğru fonksiyonunu inceleyelim:
 
 ```rust
     let m = 2.0;
@@ -1327,7 +1325,7 @@ let mut s = "world";
 assert_eq!(s, "world");
 ```
 
-Eğer Lua ve JavaScript gibi dillere aşinaysanız, bu dillerde gayet sade iken Rust'ta kapamaların bu denli karmaşık olduğunu merak ediyor olabilirsiniz. Bu, Rust'ın gizlice bellek tahsis etmemesi için gerekli bir bedeldir. JavaScript'te, `mutate(function() {s = "hello";})` gibi bir ifadenin karşılığı her zaman dinamik bellek tahsis edilmiş kapamadır. 
+Eğer Lua ve JavaScript gibi dillere aşinaysanız, bu dillerde basit olmasına karşın Rust'ta kapamaların bu denli karmaşık olduğunu merak ediyor olabilirsiniz. Bu, Rust'ın gizlice bellek tahsis etmemesi için gerekli bir bedeldir. JavaScript'te, `mutate(function() {s = "hello";})` gibi bir ifadenin karşılığı her zaman dinamik bellek tahsis edilmiş kapamadır. 
 
 Bazen kapamaların verileri ödünç almasını değil direkt taşımasını isteyebilirsiniz.
 
@@ -1344,7 +1342,7 @@ Bazen kapamaların verileri ödünç almasını değil direkt taşımasını ist
     println!("name {}",name);
 ```
 
-Burada alacağımız hata son `println`'dadır: "taşınmış verinin kullanımı: `name` (use of moved value: `name`)". Burada tek bir çözüm var, kapamanın içine verinin klonunu taşımak: 
+Burada alacağımız hata son `println`'dadır: "taşınmış verinin kullanımı: `name` (use of moved value: `name`)". Burada tek bir çözüm var, kapamanın içine veriyi taşımak: 
 
 ```rust
     let cname = name.to_string();
@@ -1367,7 +1365,7 @@ Kapamaların esas kullanımı döngüleyici metotlarıdır. Noktalı sayılar i�
  let sum: f64 = range(0.0,1.0,0.1).map(|x| x.sin()).sum();
 ```
 
-(İşin özü) Tıpkı bir döngü yazmak kadar kadar hızlı. Eğer Rust kapamaları JavaScript kapamaları kadar "acısız" olsaydı bu performansı garanti edemezdik.
+Tıpkı bir döngü yazmak kadar kadar hızlı. Eğer Rust kapamaları JavaScript kapamaları kadar "acısız" olsaydı bu performansı garanti edemezdik.
 
 `filter` da ayrıca bir iterator metotudur - geriye sadece koşullara uyanlar kalır:
 
@@ -1382,7 +1380,7 @@ Kapamaların esas kullanımı döngüleyici metotlarıdır. Noktalı sayılar i�
     // forty
 ```
 
-# Üç Tarz- döngüleyici
+# Üç Tarz-ı Döngüleyici
 Üç farklı çeşit (yine) üç basit argüman tipine denk düşüyor. Bir `String` vektörümüz olduğunu düşünelim. Bunlar bizim döngüleyici tiplerimiz, ilk üçü aleni bir şekilde sonraki üçü de gizil bir şekilde belirtilmiştir. 
 
 ```rust
@@ -1432,7 +1430,7 @@ for s in vec.iter().filter(|&x| x == "one")
 Ve çoğu zaman bu şekilde yazıldığını görürsünüz.
 
 # Dinamik Verili Yapılar
-*Kendisine yönlenen yapı* tekniği en güçlü tekniktir.
+*Kendisine refereans barındıran yapı* tekniği çok güçlü bir tekniktir.
 
 Aşağıda C ile yazılmış bir *ikili ağacın* temel tuğlasını görüyorsunuz. (C... Âdeta Beyoğlu'nun arka sokakları gibi... "Acaba başıma ne gelecek?" demeden dolaştığınız tarihî sokaklarda nefes kesici bir gezi...)
 
@@ -1449,7 +1447,7 @@ Bunu doğrudan `Node` alanlarını içererek yapamazsınız çünkü `Node`'un b
 
 Eğer `left`, `NULL` değilse `Node`'un `left` tarafı bir başka `Node` gösteriyordur ve bu böyle sonsuza kadar gidebilir.
 
-Rust'ta `NULL` yoktur (en azından bu güvensiz hâliyle yok), bu Option'un işidir. Ancak `Node`'u doğrudan `Option` içerisine ekleyemezsiniz çünkü `Node`'un boyutunu bilemezsiniz. (gibi gibi) Bu da `Box`'un işidir, kendisinin sabit bir boyutu vardır ancak bellekte alanı tahsis edilmiş veriyi içerir. 
+Rust'ta `NULL` yoktur (en azından bu güvensiz hâliyle yok), bu `Option`'un işidir. Ancak `Node`'u doğrudan `Option` içerisine ekleyemezsiniz çünkü `Node`'un boyutunu bilemezsiniz. (gibi gibi) Bu da `Box`'un işidir, kendisinin sabit bir boyutu vardır ancak bellekte alanı tahsis edilmiş veriyi işaret eder. 
 
 İşte Rust'taki karşılığına bakalım, `type` ile tipimize bir takma ad verdik:
 
@@ -1520,7 +1518,7 @@ root Node {
 }
 ```
 
-Peki ya `root` düşerse? Bütün alanlar da düşer, ağacın `dalları` düşerse kendi alanlarını da kaybolur ve böyle devam eder. `Box::new`, `new` anahtar kelimesine en çok ulaşacağınız alandır ancak `delete` veyahut `free` gibi bir kelimeye ihtiyacınız yoktur.
+Peki ya `root` düşerse? Bütün alanlar da düşer, ağacın `dalları` düşerse kendi alanlarını da kaybolur ve böyle devam eder. `Box::new`, C++'daki `new` anahtar kelimesine en çok ulaşacağınız alandır ancak `delete` veyahut `free` gibi bir kelimeye ihtiyacınız yoktur.
 
 Bu ağacı kullanmak için bir yol bulmalıyız. Karakter dizilerinin sıralanabildiğine dikkat edin: "hede" < "hödö", "ayı" > "abi"; sözde alfabetik sıralama olarak anılır. (Aslını söylemek gerekirse, insan dillerinin çeşitliliğinden ve tuhaf kurallarına istinaden buna sözlüksel sıralama denir.)
 
@@ -1607,7 +1605,7 @@ Diğerlerinden daha "küçük" olan karakter dizileri sol eklenir, aksi durumda 
 
 Karakter dizilerini bir sıralamaya göre geziyoruz! `ref`'in `if let` için kullanıldığına dikkat edin, `match` ile aynı kurallara sahiptir.
 
-# Jenerik Yapılar
+# Genellenen Yapılar
 Önceki örneğimizde kullandığımız ikili ağaç yapısını düşünün. Bütün `payload` tipleri için yeniden yazmak epey *çıldırtıcı* olurdu doğrusu. `T` tip parametresiyle `Node`'u yeniden jenerik şekilde yazıyoruz.
 
 ```rust
@@ -1667,6 +1665,6 @@ fn main() {
 }
 ```
 
-Tıpkı C++ gibi jenerik yapımız tip parametrelerinin köşeli ayraçlarla gösterilmesine ihtiyaç duyar. Rust genellikle bu tür tip parametresini bağlamdan tahmin edebilecek kadar zekidir - Bunun `Node<T>` olduğunu biliyor ve `T` üzerinde `insert` kullanıyor. İlk `insert` tasarısı sadece `String` ile takılıp kalmıştı. Ancak yeni kullanım uymuyorsa muhtemelen bir şekilde bunu bildirecektir.
+Tıpkı C++ gibi genellenen yapımız tip parametrelerinin köşeli ayraçlarla gösterilmesine ihtiyaç duyar. Rust genellikle bu tür tip parametresini bağlamdan tahmin edebilecek kadar zekidir - Bunun `Node<T>` olduğunu biliyor ve `T` üzerinde `insert` kullanıyor. İlk `insert` tasarısı sadece `String` ile takılıp kalmıştı. Ancak yeni kullanım uymuyorsa muhtemelen bir şekilde bunu bildirecektir.
 
 Ancak, tipi uygun biçimde kısıtlamanız gerektiğine dikkat edin.
