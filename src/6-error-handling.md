@@ -74,7 +74,7 @@ fn raises_my_error(yes: bool) -> Result<(),MyError> {
     }
 ```
 
-Sürekli sürekli `Result<T, MyError>` yazmak biraz yorucu olduğu için çeşitli Rust modüllerinin kendi `Result tipleri vardır`. Mesela `Result<T,io::Error>` yazmak yerine `io::Result<T>` yazabilirsiniz.
+Sürekli sürekli `Result<T, MyError>` yazmak biraz yorucu olduğu için çeşitli Rust modüllerinin kendi `Result` tipleri vardır. Mesela `Result<T,io::Error>` yazmak yerine `io::Result<T>` yazabilirsiniz.
 
 Sonraki örneğimizde çevrilemeyecek bir karakter dizisini ondalıklı sayıya çevirirken karşımıza çıkan hatayı kontrol etmemiz gerekecek.
 
@@ -101,7 +101,7 @@ fn parse_f64(s: &str, yes: bool) -> Result<f64,MyError> {
 }
 ```
 
-İlk `?`'nde pek bir olay yok. (`From` ile her tip kendisine dönüştürülür.) İkinci `?` ise `ParseFloatError` hatasını `MyError`'a çevirir.
+İlk `?` için pek bir olay yok. (`From` ile her tip kendisine dönüştürülür.) İkinci `?` ise `ParseFloatError` hatasını `MyError`'a çevirir.
 
 Ve sonuç:
 
@@ -141,7 +141,7 @@ let val = map.get("my_key")?
 
 Yazının gerisini hem orijinal metni korumak hem belli başlı konseptleri tanıtmak hem de hata yönetiminin geçmişini göstermek için çeviriyorum.
 
-Önemsiz olmayan uygulamalar için [`error_chain`](http://brson.github.io/2016/11/30/starting-with-error-chain) sandığına göz atmalısınız. Minik bir makronun bu kadar faydalı olabilir.
+Önemsiz olmayan uygulamalar için [`error_chain`](http://brson.github.io/2016/11/30/starting-with-error-chain) sandığına göz atmalısınız. Minik bir makro bu kadar faydalı olabilir.
 
 `cargo new test-error-chain` komutuyla çalıştırılabilir bir sandık oluşturun ve oluşturulan dizinin içine girin. `Cargo.toml`'un sonuna `error-chain="0.8.1"`'i ekleyin.
 

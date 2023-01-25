@@ -1,11 +1,10 @@
-# Threads, Networking and Sharing
+# Sistem Süreçleri, Ağlar and Paylaşım
 
-## Changing the Unchangeable
+## Değişemez olanı Değiştirmek
 
-If you're feeling pig-headed (as I get) you wonder if it's _ever_ possible to get
-around the restrictions of the borrow checker.
+Eğer biraz dik kafalıysanız (anladığım kadarıyla) ve ödünç alma kurallarını nasıl es geçebilmenin bir yolu olup olmadığını kara kara düşünüyor olabilirsiniz. 
 
-Consider the following little program, which compiles and runs without problems.
+Bu minik programı bir inceleyin, derlenecek ve hiçbir hata vermeyecektir.
 
 ```rust
 // cell.rs
@@ -21,22 +20,13 @@ fn main() {
     assert_eq!(answer.get(), 77);
 }
 ```
+Evet, `answer` değişkeni değişebilir olarak belirtilmemesine rağmen içeriği değişti! 
 
-The answer was changed - and yet the _variable_ `answer` was not mutable!
+Bu gayet emniyetli, çünkü içeriğindeki `Cell` içindeki veri yalnızca `set` veya `get` ile erişilebilir. Bunun adı *iç değişebilirliktir (interior mutability)*: Eğer bir `v` isminde bir yapı (struct) tanımladıysam `v` isimli yapı değiştirilebilirse `v.a` da değiştirilebilir olur. `Cell`, biraz bu kuralı rahatlatıyor çünkü `set` aracılığıyla içeriğindeki değeri değiştirebiliyoruz.
 
-This is obviously perfectly safe, since the value inside the cell is only accessed
-through `set` and `get`.  This goes by the grand name of _interior mutability_. The
-usual is called _inherited mutability_: if I have a struct value `v`, then I can only
-write to a field `v.a` if `v` itself is writeable. `Cell` values relax this rule, since
-we can change the value contained within them with `set` even if the cell itself is
-not mutable.
+Fakat, `Cell` sadece `Copy` özelliğine sahip tiplerle çalışır. (Mesela kullanıcının tanımadığı `Copy` özelliğine sahip tiplerle veyahut ilkel tiplerle)
 
-However, `Cell` only works with `Copy` types
-(e.g primitive types and user types deriving the `Copy` trait).
-
-For other values, we have to get a reference we can work on, either mutable or immutable.
-This is what `RefCell` provides - you ask it explicitly for a reference to the contained
-value:
+Farklı türden verilerle çalışmak için referansa ihtiyaç duyarız, değişebilir ya da değişemez olması fark etmeksizin. İşte bize `RefCell` bize bu konuda yarımcı olur - içerideki veriye açıkça bir şekilde referanslarla erişirsiniz.  
 
 ```rust
 // refcell.rs
@@ -54,15 +44,11 @@ fn main() {
 }
 ```
 
-Again, `greeting` was not declared as mutable!
+Dikkat edin, `greeting` değişebilir bir değişken olarak bildirilmedi!
 
-The explicit dereference operator `*` can be a bit confusing in Rust, because
-often you don't need it - for instance `greeting.borrow().len()` is fine since method
-calls will dereference implicitly.  But you _do_ need `*` to pull out the underlying
-`&String` from `greeting.borrow()` or the `&mut String` from `greeting.borrow_mut()`.
+Rust'ın dereferans operatörü bir tık kafa karıştırıcı olabilir, çünkü çoğu zaman buna ihtiyaç duymazsınız - mesela `greeting.borrow().len()` diye çağırsaydık metot kendiliğinden dereferans edeceği için sorun olmazdı. Ancak içeriden gelen `greeting.borrow()` üzerinden gelen `&String` veya `greeting.borrow_mut()` üzerinden gelen `&mut String` ile çalışmaya devam edebilmek adına `*` eklemeniz gerekecektir. 
 
-Using a `RefCell` isn't always safe, because any references returned from these
-methods must follow the usual rules.
+`RefCell` kullanmak her zaman emniyetli değildir, hâlen daha geri dönen metotların temel kurallara riayet etmesi gerekmektedir.   
 
 ```rust
     let mut gr = greeting.borrow_mut(); // gr is a mutable borrow
@@ -72,35 +58,16 @@ methods must follow the usual rules.
 ....
 thread 'main' panicked at 'already mutably borrowed: BorrowError'
 ```
+Eğer değişebilir bir referansınız hâlihazırda varsa tekrardan değişebilir referans oluşturamazsınız. Fakat bu sefer bu kural ihlali derleme zamanında değil *çalışma zamanında* anlaşılabilir. Çözüm, her zaman olduğu gibi, değişebilir referansları mümkün olduğunca az sayıda tutmaktır - örneğimizdeki kod için değişebilir referansımız `gr`'ı kod blokları içerisinde tutmayı düşünebilirsiniz böylece referansımız tekrar ödünç almadan önce düşürülmüş olur. 
 
-You cannot borrow immutably if you have already borrowed mutably! Except - and this
-is important - the violation of the rules happens at _runtime_.  The solution (as always)
-is to keep the scope of mutable borrows as limited as possible - in this case, you could
-put a block around the first two lines here so that the mutable reference `gr` gets
-dropped before we borrow again.
+Bu özellik iyi bir sebebiniz olmadan kullanmak isteyeceğiniz bir şey değil çünkü hatalarınızı derleme zamanında al*ma*yacaksınız. Bu tipler, olağan kuralların sizin işinizi engellediği ama doğrusunu ypatığınız durumlarda size `dinamik ödünç alma`  sunmak için vardır.
 
-So, this is not a feature you use without good reason, since you will _not_ get a
-compile-time error.  These types provide _dynamic borrowing_ in cases where the usual
-rules make some things impossible.
+## Paylaşılan Referanslar
+Şimdiye dek, değer ve ödünç alınmış referanslar derleme zamanında açıkça biliniyordu. Veri sahiptir, referanslar ise onsuz var olamaz. Fakat her şey bu düzgün desen tasarımına uygun değildir, mesela düşünelim ki `Rol` ve `Oyuncu` diye iki yapımız (struct) var. `Oyuncu`, `Rol` objelerine referanslar bulunan bir vektör tutuyor. Burada veriler arasında net bir şekilde birebir eşleşme yok ve `rustc`'yi buna ikna etmek işleri epeyce karmaşıklaştıracaktır.
 
-## Shared References
+`Rc` tıpkı `Box` gibi çalışır - heap belleği tahsis edilir ve veri bunun içine taşınır. Eğer bir `Box` klonlarsanız, içindeki klonlanmış veriyi de beraberinde tutan bir bellek alanı tahsis eder. Fakat bir `Rc` klonlamak bilgisayar için daha kolaydır, çünkü her klonlama yapacağınız zaman sadece verinin referans sayısını arttırır. Bu, bellek yönetimi için eski ve bilindik bir yöntemdir; mesela iOS ve MacOSlarda kullanılan Objective C'nin çalışma zamanında kullanılır. (Ç.N: Eğer ilgiliyseniz "Automatic Referance Counting" diye bir araştırma yapabilirsiniz.) Modern C++'da bu özellike `str::shared_ptr` aracılığıyla bulunabilir.
 
-Up to now, the relationship between a value and its borrowed references has been clear
-and known at compile time.  The value is the owner, and the references cannot outlive it.
-But many cases simply don't fit into this neat pattern. For example, say we have
-a `Player` struct and a `Role` struct. A `Player` keeps a vector of references to `Role`
-objects. There isn't a neat one-to-one relationship between these values, and persuading
-`rustc` to cooperate becomes nasty.
-
-`Rc` works like `Box` - heap memory is allocated and the value is moved to it. If you
-clone a `Box`, it allocates a full cloned copy of the value.  But cloning an `Rc` is
-cheap, because each time you clone it just updates a _reference count_ to the _same data_.
-This is an old and very popular strategy for memory management,
-for example it's used in the Objective C runtime on iOS/MacOS.
-(In modern C++, it is implemented with `std::shared_ptr`.)
-
-When a `Rc` is dropped, the reference count is decremented. When that count goes to zero
-the owned value is dropped and the memory freed.
+Bir `Rc`nin içinde bulunduğu kapsam sona erdiği zaman referans sayımı da bir azaltılır. Eğer bu sayı sıfır olursa bellek boşaltılır ve sahiplenilmiş olan veri de düşürülür.
 
 ```rust
 // rc1.rs
@@ -114,50 +81,28 @@ fn main() {
     println!("len {}, {}", rs1.len(), rs2.len());
 } // both rs1 and rs2 drop, string dies.
 ```
-You may make as many references as you like to the original value - it's _dynamic borrowing_
-again. You do not have to carefully track the relationship between the value `T` and
-its references `&T`. There is some runtime cost involved, so it isn't the _first_
-solution you choose, but it makes patterns of sharing possible which would fall foul
-of the borrow checker.  Note that `Rc` gives you immutable shared references, since
-otherwise that would break one of the very basic rules of borrowing.
-A leopard can't change its spots without ceasing to be a leopard.
+Orijinal veriye istediğiniz kadar çok referans alabilirsiniz - bu daha önce bahsettiğimiz `dinamik ödünç alma`dır. `T` verisi ve onun referansları olan `&T`'yi dikkatlice takip etmek zorunda değilsiniz. Bunun karşılığında makine çalışma zamanında biraz daha yorulmuş olur, bu yüzden `ilk` seçiminiz bu olmamalıdır; fakat bu şekilde ödünç alma mekanizmasının sert kurallarına ters düşebilecek paylaşım tasarıları kurgulayabilirsiniz. Dikkat edin ki `Rc` size değiştirilemez referanslar sağlayacaktır, aksi taktirde en basit ödünç alma kuralını ihlal ediyor olurduk. Bilirsiniz, huylu huyundan vazgeçmez.
 
-In the case of a `Player`, it can now keep its roles as a `Vec<Rc<Role>>` and things
-work out fine - we can add or remove roles but not _change_ them after their creation.
+`Oyuncu` örneğinde, rollerimizi `Vec<Rc<Rol>>` olarak tutabiliriz ve böylece rol ekleyip çıkartabiliriz ancak oluşturulduktan sonra rolleri değiştiremeyiz.
 
-However, what if each `Player` needs to keep references to a _team_ as a vector of
-`Player` references? Then everything becomes immutable, because all the `Player` values
-need to be stored as `Rc`!  This is the place where `RefCell` becomes necessary. The team
-may be then defined as `Vec<Rc<RefCell<Player>>>`.  It is now possible to change
-a `Player` value using `borrow_mut`, _provided_ no-one has 'checked out' a reference
-to a `Player` at the same time. For example, say we have a rule that if something special
-happens to a player, then all of their team gets stronger:
+Fakat, ya `Oyuncu` başka bir takıma referanslar bulunduruyorsa ve takım oyuncu referanslarını tek bir vektör içinde tutuyorsa? Her şey değiştirilemez olur çünkü `Oyuncu` verilerinin `Rc` olarak depolanması gerekir! Bu durumda `RefCell` gerekli olur. Bu sefer bütün takım `Vec<Rc<RefCell<Oyuncu>>>` içinde tutulabilir. Oyuncuyu `borrow_mut`, aynı anda birden çok değişebilir referans tutmayacağımızdan emin olarak değiştirebiliriz. Mesela oyuncuya özel bir şeyler olursa bütün takımın güçleneceğine dair güçlü bir kuralımız var:
 
 ```rust
     for p in &self.team {
         p.borrow_mut().make_stronger();
     }
 ```
-So the application code isn't too bad, but the type signatures get a bit scary. You can
-always simplify them with a `type` alias:
-
+Kod fena değil, ancak tipler biraz ürkünç görünebilir. Her zaman `type` ile onlara daha basit isimler atayabiliriz:  
 ```rust
 type PlayerRef = Rc<RefCell<Player>>;
 ```
 
-## Multithreading
+## Çoklu Sistem Süreçleri
+Yaklaşık bir yirmi yıldır, saf işlem hızından çoklu çekirdeklere bir geçiş var. Son teknoloji bilgisayarlarımızdan tamamen verim almak için bütün çekirdekleri kullanmalıyız. Bunun en iyi yolu arkaplanda alt süreçler oluşturmaktır, tıpkı daha önceden gördüğümüz `Command` ancak bu sefer bir senkranizasyon sorunumuz var; bu alt süreçleri beklemeden onların tamamlanıp tamamlanmadığından emin değiliz.
 
-Over the last twenty years, there has been a shift away from raw processing speed
-to CPUs having multiple cores. So the only way to get the most out of a modern computer
-is to keep all of those cores busy. It's certainly possible to spawn child processes
-in the background as we saw with `Command` but there's still a synchronization problem:
-we don't know exactly when those children are finished without waiting on them.
+Ayrı iş süreçlerine ihtiyaç duymamızın tek sebebi bu değil elbette, bütün programı sırf bir girdi almak için bekletemezsiniz, mesela. 
 
-There are other reasons for needing separate _threads of execution_, of course. You cannot
-afford to lock up your whole process just to wait on blocking i/o, for instance.
-
-Spawning threads is straightforward in Rust - you feed `spawn` a closure which is
-executed in the background.
+Alt süreçler üretmek oldukça basit, sadece arkaplanda işletilecek `spawn` için bir kapama hazırlayın. 
 
 ```rust
 // thread1.rs
@@ -177,9 +122,7 @@ fn main() {
 // dolly
 ```
 
-Well obviously just 'wait a little bit' is not a very rigorous solution! It's better
-to call `join` on the returned object - then the main thread waits for the
-spawned thread to finish.
+Kod satırında gördüğünüz "wait a little bit", "az bekle" demektir ve pek de mantıklı bir çözüme benzemiyor. Bize dönen nesnelerin üzerinde `join` çağırmak biraz daha mantıklı, ana süreç bu süreçlerin tamamlanmasını bekleyecektir.
 
 ```rust
 // thread2.rs
@@ -194,7 +137,7 @@ fn main() {
 // hello
 // wait Ok(())
 ```
-Here's an interesting variation: force the new thread to panic.
+İşte başka bir tür acayiplik: Alt süreci paniklemeye zorlayalım:
 
 ```rust
     let t = thread::spawn(|| {
@@ -203,11 +146,7 @@ Here's an interesting variation: force the new thread to panic.
     });
     println!("wait {:?}", t.join());
 ```
-We get a panic as expected, but only the panicking thread dies! We still manage
-to print out the error message from the `join`. So yes, panics are not always fatal,
-but threads are relatively expensive, so this should not be seen as a routine way
-of handling panics.
-
+Beklediğimiz gibi panikledi, ancak sadece panikleyen süreç öldü! Ekrana hata mesajını `join` ile yazabiliyoruz, yani evet her paniğin sonu programın kapatılması değildir; ancak süreçler bilgisayar için yorucu bir işlemdir ve bu süreçleri kontrol etmenin bir yolu olarak görülmelidir.   
 ```
 hello
 thread '<unnamed>' panicked at 'I give up!', thread2.rs:7
@@ -215,7 +154,7 @@ note: Run with `RUST_BACKTRACE=1` for a backtrace.
 wait Err(Any)
 ```
 
-The returned objects can be used to keep track of multiple threads:
+Dönen objeler çeşitli alt süreçlerini takip için etmek için kullanılabilir.
 
 ```rust
 // thread4.rs
@@ -242,18 +181,12 @@ fn main() {
 // hello 1
 
 ```
-Rust insists that we handle the case where the join failed - i.e. that thread panicked.
-(You would typically not bail out of the main program when this happens, just note the
-error, retry etc)
+Rust `join`den dönen sonucu ele almamız için bize ısrar eder, mesela alt süreç panikleyebilir. (Bu gerçekleştiği zaman genelde programın tamamını durdurmazsınız, sadece hataları not edersiniz, yeniden denersiniz vs.)
 
-There is no particular order to thread execution (this program gives different orders
-for different runs), and this is key - they really are _independent threads of execution_.
-Multithreading is easy; what's hard is _concurrency_ - managing and synchronizing multiple
-threads of execution.
+Alt süreçlerin işleyişi için belirli bir sıra yoktur (Program her çalışmada farklı bir sıra verir), ve buna esas noktadır - onlar gerçekten *bağımsız yürütme süreçleridir (independent threads of execution*. Çoklu süreçler kolaydır, esas olay *eşzamanlılıktır* (concurrency) - birden çok sürecin süreci senkronize etmek ve yönetmek. 
 
-## Threads Don't Borrow
-
-It's possible for the thread closure to capture values, but by _moving_,  not by _borrowing_!
+## Süreçler Ödünç Almaz
+Süreç kapamaları dışarıdan veri alabilir, ancak *taşıyarak*, *ödünç alarak* değil!
 
 ```rust
 // thread3.rs
@@ -268,7 +201,7 @@ fn main() {
 }
 ```
 
-And here's the helpful error message:
+Ve işte karşınızda size yardımcı olan hata mesajı: 
 
 ```
 error[E0373]: closure may outlive the current function, but it borrows `name`, which is owned by the current function
@@ -282,12 +215,9 @@ error[E0373]: closure may outlive the current function, but it borrows `name`, w
 help: to force the closure to take ownership of `name` (and any other referenced variables), use the `move` keyword, as shown:
   |     let t = thread::spawn(move || {
 ```
-That's fair enough! Imagine spawning this thread from a function - it will exist
-after the function call has finished and `name` gets dropped.  So adding `move` solves our
-problem.
+Anlaşılabilir! Bir fonksiyon içerisinde üretilen süreci düşünün - fonksiyon çağrısı sona erdikten sonra bile çalışmaya devam eder ve `name` dürüşürülebilir. Kapamamıza `move` eklemek bu sorunu çözecektir.
 
-But this is a _move_, so `name` may only appear in one thread! I'd like to emphasize
-that it _is_ possible to share references, but they need to have `static` lifetime:
+Fakat bu bir *taşımadır*, yani `name` sadece bir süreçte var olabilr! Referansları paylaşmanın mümkün olduğunu vurgulamak istiyorum, ancak `static` ömre sahip olmalıdırlar:
 
 ```rust
 let name = "dolly";
@@ -298,23 +228,13 @@ let t2 = thread::spawn(move || {
     println!("goodbye {}", name);
 });
 ```
-`name` exists for the whole duration of the program (`static`), so
-`rustc` is satisfied that the closure will never outlive `name`. However, most interesting
-references do not have `static` lifetimes!
+`name`, bütün programın çalışma süresince var olacaktır (`static`), bu yüzden `rustc` kapama çalıştığı sürece `name` değerinin de varlığından emin olacaktır. Ancak, havalı referansların `static` ömürleri yoktur!
 
-Threads can't share the same environment - by _design_ in Rust. In particular,
-they cannot share regular references because the closures move their captured variables.
+Alt süreçler ortak bir ortamı paylaşamazlar - bu Rust'ın kendi tarzıdır. Biraz detay girersek, olağan referansları paylaşamazlar çünkü kapamalar yakaladıkları verileri taşırlar.
 
-_shared references_ are fine however, because their lifetime is 'as long as needed' -
-  but you cannot use `Rc` for this. This is because
-`Rc` is not _thread safe_ - it's optimized to be fast for the non-threaded case.
-Fortunately it is a compile error to use `Rc` here; the compiler is watching your
-back as always.
+Yine de *Paylaşılan referanslar* fena değil çünkü yaşam ömürleri "gerektiği kadardır" - ama bunun için `Rc` kullanamazsınız. Çünkü `Rc` *alt süreçler arası emniyete* sahip değildir (*thread safe*) - sadece süreçlerin olmadığı anlar için hızlı olmaya optimize edilmiştir. Neyse ki `Rc` kullanırsanız derleme zamanında bir hata alırsınız, derleyici sizin arkanızı kollar.
 
-For threads, you need `std::sync::Arc` - 'Arc' stands for 'Atomic Reference Counting'.
-That is, it guarantees that the reference count will be modified in one logical operation.
-To make this guarantee, it must ensure that the operation is locked so that only the current
-thread has access. `clone` is still much cheaper than actually making a copy however.
+Alt süreçler için `std::sync::Arc` kullanmalısınız - "Arc"ın açılımı "Atomic Referance Counting" yani "Atomik Referans Sayımıdır". Hepsi bu, bu dost her şeyin tek bir işlemde değiştirileceğini garanti eder. Bu garantiyi sağlamak için de işlem gerçekleştirilirken kilitlenir ve o an sadece bir sürecin erişimine izin verilir. `clone` kullanmak, bir kopya üretmekten bilgisayar için daha zahmetsizdir. (Ç.N: Buradaki `clone`, baştan aşağıya bellekte veri kopyalayan `std::clone` değil, referans klonlayan `std::sync::Arc::clone` metotudur.)
 
 ```rust
 // thread5.rs
@@ -347,27 +267,14 @@ fn main() {
 }
 ```
 
-I"ve deliberately created a wrapper type for `String` here (a 'newtype') since
-our `MyString` does not implement `Clone`. But the _shared reference_ can be cloned!
+Bilinçli olarak `String` barındıran bir tip oluşturdum, ("newtype" ya da yenitür) çünkü `MyString`, `Clone` özelliğini taşımayacak. Fakat paylaşılan referanslar klonlanabilir!
 
-The shared reference `name` is passed to each new thread by making a new reference
-with `clone` and moving it into the closure. It's a little verbose, but this is a safe
-pattern. Safety is important in concurrency precisely because the problems are so
-unpredictable. A program may run fine on your machine, but occasionally crash on the
-server, usually on the weekend. Worse still, the symptoms of such problems are
-not easy to diagnose.
+`name`'e ait paylaşılan referanslar her yeni alt sürece `clone` ile oluşturulan yeni referanslar olarak iletilir ve kapama içerisine taşınır. Biraz fazla kod yazdırıyor, ancak bu emniyetli bir örüntüdür. Emniyet, eşzamanlılık için epey önemlidir çünkü sorunlar pek öngörülebilir değildir. Program sizin bilgisayarınızda düzgünce çalışsa bile bir sunucuda patlayabilir, mesela haftasonu keyif yaparken. Daha da kötüsü, problemi semptomları bir tanı koymanıza yardımcı olmayabilir. 
 
-## Channels
+## Kanallar
+Süreçler arasında veri paylaşmanın çeşitli yolları var. Rust içerisinde, bunlardan birisi *kanalları* kullanmaktır. `std::sync::mpsc::channel()`, *alıcı* kanal ve *verici* kanal olmak üzere bize iki veri tutan bir demet sunar. Her bir alt sürece verici `clone` ile yollanır, ve referans üzerinde `send` çağrılır. Ana süreç ise bu esnada alıcı üzerinde `recv`i çağırır.
 
-There are ways to send data between threads. This
-is done in Rust using _channels_. `std::sync::mpsc::channel()` returns a tuple consisting
-of the _receiver_ channel and the _sender_ channel. Each thread is passed a copy
-of the sender with `clone`, and calls `send`. Meanwhile the main thread calls
-`recv` on the receiver.
-
-'MPSC' stands for 'Multiple Producer Single Consumer'. We create multiple threads
-which attempt to send to the channel, and the main thread 'consumes' the channel.
-
+`MPSC`'nin açılımı "Multiple Producer Single Consumer"dır, yani "Çoklu üretici, tek tüketici". Kanala veri yollamaya teşebbüs eden birden çok altsüreç oluşturacağız, ana sürecimiz de kanalı "tüketecek".
 ```rust
 // thread9.rs
 use std::thread;
@@ -395,21 +302,13 @@ fn main() {
 // got Ok("hello 4")
 // got Ok("hello 2")
 ```
+Bu sefer `join` kullanmaya ihtiyacımız yok çünkü alt süreçler kendilerini sonlandırmasından sonra cevaplarını dönecektir, fakat bu her an gerçekleşebilir. `recv` süreci kilitleyecektir ve eğer yollayıcı kanal devredışı kalacaksa bir hata dönecektir. `recv_timeout` ise belli bir süre boyunca bloklayacaktır ve ek olarak bir de zamanaşımı hatası dönebilecektir.
 
-There's no need to join here since the threads send their response just before they
-end execution, but obviously this can happen at any time. `recv` will block, and will
-return an error if the sender channel is disconnected. `recv_timeout` will only block
-for a given time period, and may return a timeout error as well.
+`send` ise süreci kilitlemeyecektir, bu faydalıdır çünkü süreçler mesajın alınmasını beklemeye gerek duymaksızın bir veriyi kanala atıp devam edecektir. Ek olarak, kanalın bir belleği vardır, böylece birden çok `send` metodu çalışabilir ve alıcıya sırasıyla mesaj iletilecektir. 
 
-`send` never blocks, which is useful because threads can push out data without waiting
-for the receiver to process. In addition, the channel is buffered so multiple
-send operations can take place, which will be received in order.
+Fakat, sürecin engellenmemesi aynı zamanda `Ok` değerinin mesajın başarıyla iletildiği anlamına gelmediğini de işaret eder.
 
-However, not blocking means that `Ok` does not automatically mean 'successfully delivered message'!
-
-A `sync_channel` _does_ block on send. With an argument of zero, the send blocks until the
-recv happens. The threads must meet up or _rendezvous_ (on the sound principle that most things
-sound better in French.)
+`sync_channel` ise kanala veri yollarken süreci kilitler. Argüman sıfır olursa, alıcı mesajı `recv` ile alana kadar süreç kilitlenir. Süreçler ya buluşmalıdır ya da randevulaşmalıdır. (Her zaman yabancı kökenli kelimeler kulağa bir tık daha teknik ve doğru gelir.)
 
 ```rust
     let (tx, rx) = mpsc::sync_channel(0);
@@ -426,27 +325,17 @@ sound better in French.)
     }
     t1.join().unwrap();
 ```
+Burada `send` kullanılmamışken `recv` kullanarak bir hataya kolayca sebep olabilir, mesela döngüyü `for i in 0..5` ile kurmak yerine `for i in 0..4` kullanarak. Süreç sona erer, `tx` düşer ve `recv` başarısız olur. Bu aynı zamanda bir süreç paniklediği zaman da gerçekleşir, stack yavaşça çözülür ve bütün veriler düşürülür.
 
-We can easily cause an error here by calling `recv` when there has been no corresponding `send`, e.g
-by looping `for i in 0..4`. The thread ends, and `tx` drops, and then `recv` will fail. This will also
-happen if the thread panics, which causes its stack to be unwound, dropping any values.
+Eğer `sync_channel` sıfır olmayan bir argümanla oluşturulursa, buna `n` diyelim, bu sefer en fazla `n` değeri alan bir sıra (queue) gibi davranır, `send` sadece sırada bekleyen `n`den fazla değer varsa süreci kilitleyecektir.
 
-If the `sync_channel` was created with a non-zero argument `n`, then it acts like a queue with a
-maximum size of `n` - `send` will only block when it tries to add more than `n` values to the queue.
+Kanallar güçlü tip (strongly type) mantığına uygundur, bu örnekte kanalın tipi `i32`dir, ancak tip çıkarımı bunu biraz gizler. Eğer farklı türden verilere ihtiyacınız varsa, numaralandırmalar (enum) bunu ifade etmek için uygundur. 
 
-Channels are strongly typed - here the channel had type `i32` - but type inference makes this implicit.
-If you need to pass different kinds of data, then enums are a good way to express this.
+## Senkronizasyon
+Senkranizasyona bakalım. `join` oldukça basit, tek işi bir iş parçacığı bitene kadar beklemek. `sync_channel` ise iki kanalı birbirine senkronize ediyor - son örneğimizde üretilen alt süreç ve ana süreç tamamen birbirine kilitlenmişti.
 
-## Synchronization
+Bariyer senkronizasyonu, bütün süreçlerin bir noktaya geldiği zaman diğer süreçlerin beklemesini içerir, sonra yollarına devam ederler. Bariyer, beklemesini istediğimiz süreçlerin toplam sayısıyla oluşturulur. Daha önce olduğu gibi `Arc` aracılığıyla bu bariyeri diğer altsüreçlerle paylaşabilirsiniz.
 
-Let's look at _synchronization_. `join` is very basic, and merely waits until a
-particular thread has finished.  A `sync_channel` synchronizes two threads - in the last example, the
-spawned thread and the main thread are completely locked together.
-
-Barrier synchronization is a checkpoint where the threads must wait until _all_ of
-them have reached that point. Then they can keep going as before. The barrier is
-created with the number of threads that we want to wait for. As before we use use `Arc`
-to share the barrier with all the threads.
 
 ```rust
 // thread7.rs
@@ -484,20 +373,12 @@ fn main() {
 // after wait 0
 // after wait 1
 ```
-The threads do their semi-random thing, all meet up, and then continue. It's like a kind
-of resumable `join` and useful when you need to farm off pieces of a job to
-different threads and want to take some action when all the pieces are finished.
+Süreçler yine yarı-rastgele çalışırken bir anda birleşiyorlar ve sonra tekrar devam ediyorlar. Bu, devam ettirilebilir bir `join` gibidir ve bütün süreçlerin belli bir işi yaptıktan sonra o işle devam etmesini istediğinizde kullanışlı olabilir. 
 
-## Shared State
+## Paylaşılmış Durumlar
+Süreçler, kendi paylaşılmış durum bilgisini nasıl *düzenler*?
 
-How can threads _modify_ shared state?
-
-Recall the `Rc<RefCell<T>>` strategy for _dynamically_ doing a
-mutable borrow on shared references.  The threading equivalent to `RefCell` is
-`Mutex` - you may get your mutable reference by calling `lock`. While this reference
-exists, no other thread can access it. `mutex` stands for 'Mutual Exclusion' - we lock
-a section of code so that only one thread can access it, and then unlock it. You get the
-lock with the `lock` method, and it is unlocked when the reference is dropped.
+Aklınıza *dinamik* olarak paylaşılan değişebilir referans almak için kullandığımız  `Rc<RefCell<T>>` stratejisini getirin. `RefCell`in süreçlerde kullanılan muadili ise `Mutex`  - değişken referansı `lock` kullanarak alabilirsiniz. Referans var olduğu müddetçe diğer süreçler veriye erişemeyecektir. `mutex`'in açılımı "Mutual Exclusion" yani "Karşılıklı Hariciyet" - bir sürecin erişmesi için kodun ilgili kısmını kilitliyoruz ve ardından kilidini açıyoruz. `lock` ile kilitlersiniz ve referans düşünce de kilit kalkar.  
 
 ```rust
 // thread9.rs
@@ -521,14 +402,9 @@ fn main() {
 
 }
 ```
-This isn't so straightforward as using `RefCell` because asking for the lock on
-the mutex might fail, if another thread has panicked while holding the lock.
-(In this case, the documentation actually recommends just exiting the thread with `unwrap`
-because things have gone seriously wrong!)
+`RefCell` kadar kolay değil çünkü eğer kilidin olduğu bir süreç paniklerse `mutex` daima kilitli kalabilir. (Böyle bir durumda, dokümentasyon açıkça süreci `unwrap` ile terk etmeniz gerektiğini söyler çünkü bir şeyler çok yanlış gitmiştir.)
 
-It's even more important to keep this mutable borrow as short as possible, because
-as long as the mutex is locked, other threads are _blocked_. This is not the place for
-expensive calculations! So typically such code would be used like this:
+Bu sefer değişebilir referansları mümkün olduğunca az tutmak çok daha önemli; çünkü bu `mutex` kapalı kaldıkça diğer süreçler de bloklanacaktır. Bu, kilitleyip bilgisayar için zor hesaplamaların yapmanın yeri bu değil! Yani, muhtemelen kodunuz şuna benzeyecek:
 
 ```rust
 // ... do something in the thread
@@ -539,13 +415,9 @@ expensive calculations! So typically such code would be used like this:
 }
 //... continue with the thread
 ```
-## Higher-Level Operations
-
-It's better to find higher-level ways of doing threading, rather than managing the synchronization
-yourself. An example is when you need to do things in parallel and collect the results. One very
-cool crate is [pipeliner](https://docs.rs/pipeliner/0.1.1/pipeliner/) which has a very straightforward
-API. Here's the 'Hello, World!' - an iterator feeds us inputs and we execute up to `n` of the operations
-on the values in parallel.
+## Yüksek Seviyeli İşlem
+Belki de süreçleri yönetmenin daha yüksek seviyeli bir yolunu bulmak, süreçleri tek tek elle kontrol etmekten daha iyidir. Bunun bir örneği hesaplamaları paralel olarak yaptırmak ve sonuçları toplamak olabilir. Epey enteresan bir sandık olarak [pipeliner](https://docs.rs/pipeliner/0.1.1/pipeliner/)[^old] sandığına bakabilirsiniz ki çok anlaşılır bir API'ya sahiptir. Deneysel bir "Merhaba Dünya"ye ne dersiniz? - bize çıktılar veren bir döngüleyici kurgulayalım ve `n` adet işlemi paralel olarak çalıştıralım:
+[^old]: Görünüşe göre pipeliner sandığı Şubat 2020'den beri güncelleme almamış
 
 ```rust
 extern crate pipeliner;
@@ -568,15 +440,11 @@ fn main() {
 // result: 4
 ```
 
-It's a silly example of course, because the operation is so cheap to calculate, but shows how easy it is
-to run code in parallel.
+Salakça bir örnek olduğunun farkındayız, çünkü ilgili operasyon zaten bilgisayar için zahmetsiz ancak paralel işlemler gerçekleştirmenin ne derece kolay olabileceğini göstermiş oldum.
 
-Here's something more useful. Doing network operations in parallel is very useful, because they can
-take time, and you don't want to wait for them _all_ to finish before starting to do work.
+Daha kullanışlı bir şey yapalım. Ağ işlemlerini paralel olarak gerçekleştirmek faydalı olabilir, çünkü genellikle uzun zaman alırlar ve işe başlamak için hepsinin tamamlanmasını beklemeyi istemezsiniz.
 
-This example is pretty crude (believe me, there are better ways of doing it) but here we want to focus
-on the principle. We reuse the `shell` function defined in section 4 to call `ping` on a range
-of IP4 addresses.
+Örneğimiz biraz kötü (emin olun yapmanın çok daha iyi yolları var) ancak ne işe odaklanın. 4. Bölümde tanımladığımız `shell` fonksiyonunu belli bir aralıktaki IP4 adreslerine `ping` atmak için tekrar kullanacağız:
 
 ```rust
 extern crate pipeliner;
@@ -610,7 +478,7 @@ fn main() {
 }
 ```
 
-And the result on my home network looks like this:
+Kendi ev ağımda sonuç şöyle bir şey:
 
 ```
 got: PING 192.168.0.1 (192.168.0.1) 56(84) bytes of data.
@@ -636,16 +504,10 @@ got: PING 192.168.0.5 (192.168.0.5) 56(84) bytes of data.
 ...
 ```
 
-The active addresses come through pretty fast within the first half-second, and we then wait for the negative
-results to come in. Otherwise, we would wait for the better part of a minute! You can now proceed
-to scrape things like ping times from the output, although this would only work on Linux. `ping`
-is universal, but the exact output format is different for each platform.  To do better we need to use
-the cross-platform Rust networking API, and so let's move onto Networking.
+Aktif adresler hızlıca bize bir saniyenin yarısı kadar bir sürede bize cevap verebiliyor, gerisi de olumsuz cevapları beklemek oluyor. Eğer paralel olarak çalıştırmasaydık, yaklaşık bir dakika boyunca sonuçları beklemek zorunda kalırdık! Ping zamanı gibi çıktıdan analiz ederek bulmayı düşünebilirsiniz, ancak bu sadece Linux üzerinde işe yarabilirdi. `ping` her sistemde vardır ancak çıktı her platform için değişiklik gösterebilir. Eğer Rust ile çalışacak evrensel br ağ API hizmeti tasarlamak isterseniz, ağlar kısmına geçiş yapabiliriz. 
 
-## A Better Way to Resolve Addresses
-
-If you _just_ want availability and not detailed ping statistics, the `std::net::ToSocketAddrs` trait
-will do any DNS resolution for you:
+## Adresleri Çözümlemenin Daha İyi Bir Yolu
+Eğer *sadece* neyin aktif olduğu bilmek istiyorsanız ve gelişmiş ping istatistikleri ilginizi çekmiyorsa, `std::net::ToSocketAddrs` özelliği sizin için DNS çözümlemesi yapacaktır.
 
 ```rust
 use std::net::*;
@@ -659,12 +521,9 @@ fn main() {
 // got V6([2c0f:fb50:4002:803::200e]:80)
 ```
 
-It's an iterator because there is often more than one interface associated with a domain - there are
-both IPV4 and IPV6 interfaces to Google.
+Bu bir döngüleyicidir çünkü genellikle bir alan adına birden çok arayüz bağlıdır, ikisi de Google'un arayüzleridir; birisi IPv4 ve diğeri IPv6 olmak üzere. 
 
-So, let's naively use this method to rewrite the pipeliner example. Most networking protocols use both an
-address and a port:
-
+Şimdi `pipeliner` örneğimizi masumca bu metotu yeniden yazmak için kullanabiliriz. Çoğu ağ protokolü hem bir adres hem de bir port kullanır:
 ```rust
 extern crate pipeliner;
 use pipeliner::Pipeline;
@@ -686,14 +545,9 @@ fn main() {
 // got: Ok(IntoIter([V4(192.168.0.5:0)]))
 // ....
 ```
+Bu, `ping` yollamaktan çok daha hızlıdır çünkü sadece bir IP adresinin geçerli olup olmadığını ölçüyoruz, eğer bir gerçek alan adlarının bir listesini kullansaydık DNS araştırması epey vakit alabilirdi ve bu paralleliğin nasıl önemli olabileceğini bize gösteriyor.
 
-This is much faster than the ping example because it's just checking that the IP address is valid - if we fed
-it a list of actual domain names the DNS lookup could take some time, hence the importance of parallelism.
-
-Suprisingly, it sort-of Just Works. The fact that everything in the standard library implements `Debug`
-is great for exploration as well as debugging.  The iterator is returning `Result` (hence `Ok`) and
-in that `Result` is an `IntoIter` into a `SocketAddr` which is an enum with either a ipv4 or a ipv6 address.
-Why `IntoIter`? Because a socket may have multiple addresses (e.g. both ipv4 and ipv6).
+İlginç bir şekilde, bu "çalıştır ve unut" mantığında işliyor. Standart kütüphanede bulunan ve `Debug` barındıran her şey, hata ayıklamak için de müthiş keşifler sunar. Dönngüleyici `Result` (hâliyle `Ok`) dönüyor ve bu `Result`, IPv4 veyahut IPv6 varyantları olan bir numalandırma olan `SocketAddr` barındıran bir `IntoIter` içeriyor. Peki neden `IntoIter`? Çünkü bir soketin birden çok adresi olabilir, (hem IPv4 hem de IPv6 adresi olması gibi.) 
 
 ```rust
     for result in addresses.with_threads(n)
@@ -705,31 +559,18 @@ Why `IntoIter`? Because a socket may have multiple addresses (e.g. both ipv4 and
 // got: V4(192.168.0.39:0)
 // got: V4(192.168.0.3:0)
 ```
-This also works, surprisingly enough, at least for our simple example. The first `unwrap` gets rid of
-the `Result`, and then we explicitly pull the first value out of the iterator. The `Result` will get
-bad typically when we give a nonsense address (like an address name without a port.)
+Bu da çalışıyor, ilginç olarak, bizim basit örneğimiz kadar işe yarıyor. İlk `unwrap` `Result`'tan kurtuluyor ve döngüleyiciden ilk çıkan değeri dışarı çıkartıyor. `Result` genellikle bu durumda anlamsız adreslerde tetiklenir. (Mesela portu olmayan adres isimleri gibi.)
 
-## TCP Client Server
+## TCP İstemci Sunucusu
+Rust, en çok kullanılan ve en yaygın ağ protokolü için gayet makul bir atayüz de sunar; TCP. TCP, hatalara karşı oldukça dayanıklıdır ve ağlarla örülü dünyamızın temel taşıdır - *paketler* onaylanarak gönderilir ve onaylanarak alınır. Bunun tersi olarak UDP ise paketleri hiçbir onay olmadan yollar. Bunun hakkında şöyle garabet bir espri vardır: "Sana UDP hakkında bir fıkra anlatabilirim ama muhtemelen kafan almayacak." (Ağlar hakkındaki espriler komiktir, sizin komikten ne anladığınıza göre değişir tabii.)
 
-Rust provides a straightforward interface to the most commonly used network protocol, TCP.
-It is very fault-resistant and is the base on which our networked world is built - _packets_ of
-data are sent and received, with acknowledgement. By contrast, UDP sends packets out into the wild
-without acknowledgement - there's a joke that goes "I could tell you a joke about UDP but you
-might not get it."
-(Jokes about networking are only funny for a specialized meaning of the word 'funny')
+Fakat, hata kontrolü ağlarla uğraşırken *çok* önemlidir çünkü her an her şey bir anlığına oluşabilir.
 
-However, error handling is _very_ important with networking, because anything can happen, and will,
-eventually.
+TCP, bir istemci/sunucu modeliyle çalışır; sunucu adresi belli bir *ağ portundan* dinler ve istemci de sunucuya bağlanır. Bağlantı oluşturulduğunda ise istemci ve sunucu bir soket üzerinden haberleşebilir.
 
-TCP works as a client/server model; the server listens on a address and a particular _network port_,
-and the client connects to that server. A connection is established and thereafter the client and server
-can communicate with a socket.
+`TcpStream::connect`, `SoccetAddr`'a dönüştürülebilecek her şeyi kabul eder, kullandığımız düz karakter dizilerini de.
 
-`TcpStream::connect` takes anything that can convert into a `SocketAddr`, in particular the plain strings
-we have been using.
-
-A simple TCP client in Rust is easy - a `TcpStream` struct is both readable and writeable. As usual, we
-have to bring the `Read`, `Write` and other `std::io` traits into scope:
+Rust'ta basit bir TCP istemcisi yazmak oldukça kolaydır - `TcpStream` yapısı hem yazılabilir hem de okunabilirdir. Her zaman olduğu gibi, özellikleri kullanmak için, `Read`, `Write` ve diğer `std::io` özelliklerini kapsamda görünür kılmalıyız.
 
 ```rust
 // client.rs
@@ -742,10 +583,7 @@ fn main() {
     write!(stream,"hello from the client!\n").expect("write failed");
  }
 ```
-
-The server is not much more complicated; we set up a listener and wait for connections. When a
-client connects, we get a `TcpStream` on the server side. In this
-case, we read everything that the client has written into a string.
+Sunucumuz pek karmaşık değil, bir dinleyici kuruyoruz ve bağlantıları bekliyoruz. Eğer bir istemci bağlanırsa, sunucu tarafında `TcpStream` elde ederiz. Bu örnekte sunucuya gelen her şey bir karakter dizisine yazılmış olur.
 
 ```rust
 // server.rs
@@ -770,21 +608,13 @@ fn main() {
 }
 ```
 
-Here I've chosen a port number moreorless at random, but [most ports](https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers)
-are assigned some meaning.
+Port numarasını aşağı yukarı rastgele geçtim, ancak pek çok [port](https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers) özel anlamlar barındırır.
 
-Note that both parties have to agree on a protocol - the client expects it can write
-text to the stream, and the server expects to read text from the stream.  If they don't play the same
-game, then situations can occur where one party is blocked, waiting for bytes that never come.
+İki tarafında protokol üzerinde uzlaştığına dikkat edin. İstemci akışa yazı yazabileceğini düşünür ve sunucu da akıştan yazıyı okuyabileceğini umar. Eğer oyunu aynı kurallarla oynamazlarsa, bir tarafın engellendiği ve hiç gelmeyecek bir cevabı beklediği durumlar oluşur. 
 
-Error checking is important - network I/O can fail for many reasons, and errors that might appear
-once in a blue moon on a local filesystem can happen on a regular basis.
-Someone can trip over the network cable, the other party could crash,  and so forth.
-This little server isn't very robust, because it will fall over on the first read error.
+Hataların kontrolü önemlidir - ağ girdi çıktıları çeşitli sebeplerden aksayabilir ve hatalar dolunayda dosya sisteminin kurtadama dönüşmesi gibi acayip sebeplerlerl de geçerkleşebilir. Birileri kablolarla ip atlayabilir, öbür tarafın bilgisayarı çökebilir, falan fistan. Yazdığımız ufak sunucu çok da sağlam değil, çünkü ilk hata çökecektir.
 
-Here is a more solid server that handles the error without failing. It also specifically reads a _line_
-from the stream, which is done using `io::BufReader` to create an `io::BufRead` on which we can call
-`read_line`.
+Hataları düzgünce ele alan güçlü bir sunucu aşağıda bulunmaktadır. Akıştan bir satırı bir `io::BufRead` üreten bir `io::BufReader` aracılığıyla okur ve böylece çıktı üzerinde `read_line` çağırabiliriz.
 
 ```rust
 // server2.rs
@@ -818,15 +648,11 @@ fn main() {
 }
 ```
 
-`read_line` might fail in `handle_connection`, but the resulting error is safely handled.
+`handle_connection` içindeki `read_line` çökebilir ancak sonuçta hata emniyetli bir şekilde kontrol edilmiş olur.
 
-One-way communications like this are certainly useful - for instance. a set of services across a
-network which want to collect their status reports together in one central place. But it's
-reasonable to expect a polite reply, even if just 'ok'!
+Bu tarz tek yönlü iletişimler bazen kullanışlı olabilir - bu örnekte olduğu gibi. Ağda bulunan servislerin durumlarını, merkezi bir yerde toplamış oluyoruz. Fakat kibarca bir şekilde geri dönüş yapsak iyi olur, en azından "ok" deyip geçelim.
 
-A simple example is a basic 'echo' server. The client writes some text ending in a newline to the
-server, and receives the same text back with a newline - the stream is readable and writeable.
-
+İşte bir "eko" sunucusu. İstemci, sonunda satır sonu işareti olan bir metni sunucuya yollar ve sunucuda ek bir satır sonu ekleyerek geri yollar - akış okunabilir ve yazılabilirdir. 
 ```rust
 // client_echo.rs
 use std::io::prelude::*;
@@ -844,8 +670,7 @@ fn main() {
     assert_eq!(msg,text);
 }
 ```
-
-The server has an interesting twist. Only `handle_connection` changes:
+Sunucu şimdi ilginç bir hâl aldı. Sadece `handle_connection`u değiştirelim:
 
 ```rust
 fn handle_connection(stream: TcpStream) -> io::Result<()>{
@@ -858,9 +683,4 @@ fn handle_connection(stream: TcpStream) -> io::Result<()>{
 }
 ```
 
-This is a common gotcha with simple two-way socket communication; we want to read a line, so
-need to feed the readable stream to `BufReader` - but it _consumes_ the stream! So we have to
-clone the stream, creating a new struct which refers to the same underlying socket. Then we
-have happiness.
-
-
+Bu yaygın olarak kullanılan yaygın br çift taraflı soket iletişimidir; `BufReader`'a yollamak için bir satır istiyoruz - fakat "BufReader" akışı *tüketiyor*! Bu yüzden akışı klonlamalıyız ve aynı soketi işaret eden yeni bir yapı oluşturmalıyız. Böylece nihayet huzuru elde ediyoruz.
