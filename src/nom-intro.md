@@ -1,4 +1,4 @@
-## Parsing Text with Nom
+## Yazıları Nom ile AyrıştırmakParsing Text with Nom
 
 [Nom](https://github.com/Geal/nom), [(documented here)](https://docs.rs/nom) is a parser library
 for Rust which is well worth the initial time investment.

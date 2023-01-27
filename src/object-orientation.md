@@ -1,59 +1,41 @@
-## Object-Orientation in Rust
+## Rust ve Nesne Yönelimli Programlama
+Her disiplinden birileri geliyor ve Nesne Yönelimli bir dilden gelmeniz olasılığınız oldukça yüksektir:
 
-Everyone comes from somewhere, and the chances are good that your previous programming language
-implemented Object-Oriented Programming (OOP) in a particular way:
+- "Sınıf"lar nesne (kimi zaman *örnek* (instance) deriz) üreten fabrikalar gibi çalışırlar.
+- Sınılar diğer sınıfların (*üst sınıf/ebeveyn*) alanlarını (*field*) ve davranışlarını (*metotlar*) *miras (inheritance)* alabilir.
+- Eğer B, A'dan miras alıyorsa, o zaman B aynı zamanda A olarak kabul edilebilir. (*alttip/subtyping*)
+- Nesne kendi verilerini gizlemelidir (*kapsülleme/encapsulation*), sadece metotlarıyla etkileşime geçmelidir.
+Nesne yönelimli *tasarım* sınıfların (yani isimleri) ve yöntemlerin (yani sıfatları) tanımlandığı anlayıştır. Aynı zamanda nesne yönelimli tasarımda bunlar arasındaki ilişkiler de tanımlanır ve bu ilişkiler *sahip olmak (has-a*) ve *onun türünden olmak (is-a)* olarak tanımlanır.
 
-  * 'classes' act as factories for generating _objects_ (often called _instances_)
-  and define unique types.
-  * Classes may _inherit_ from other classes (their _parents_), inheriting both data (_fields_)
-  and behaviour (_methods_)
-  * If B inherits from A, then an instance of B can be passed to something expecting A
-  (_subtyping_)
-  * An object should hide its data (_encapsulation_), which can only be operated on
-  with methods.
+Eski Star Trek serilerinde doktorun kaptana "Bu bir yaşam Jim, sadece bizim bildiğimiz yaşam değil" (It's Life, Jim, just not Life as we know it) dediği bir an vardır. Bu deyim aynen olduğu gibi Rust'taki nesne yönelimi anlayışını da açıklıyor: Önce "Bu ne ya?" diyorsunuz, çünkü Rust'taki veri yapıları (yapılar, numaralandırmalar ve demetler) pek de uçan kaçan tarzda değiller. Onlara metot tanımlayabilirsiniz, verinin kendisini gizleyebilirsiniz ve bütün kapsülleme yöntemlerini kullanabilirsiniz ancak her birisi *birbiriyle alakasız tiplerdir.* Alt tipler yoktur, miras alma yöntemi yoktur. (Sadece `Deref` zorlamaları miras olarak kabul edilebilir [^yorum])
 
-Object-oriented _design_ is then about identifying the classes (the 'nouns') and the methods
-(the 'verbs') and then establishing relationships between them, _is-a_ and _has-a_.
+[^yorum]: Çevirmenin yorumu: Nesne yönelimli programlamada miras alan tip, doğal olarak miras aldığı tip olduğu kabul edilir. Rust'ta bir literatür farklılığı vardır, o da tipin aslında o olmadığı ancak zorlanarak dönüştürüldüğü vurgusudur. Yani bu bir miras alma mıdır? Evet, belki de. Ancak Rust, "coercion" kelimesi ile Rust'ın bir tipi başka bir tipe zorla dönüştürdüğünü vurgulamaktadır.
 
-There was a point in the old Star Trek series where the doctor would say to the captain,
-"It's Life, Jim, just not Life as we know it". And this applies very much to Rust-flavoured
-object-orientation: it comes as a shock, because Rust data aggregates (structs, enums
-and tuples) are dumb. You can define methods on them, and make the data itself private,
-all the usual tactics of encapsulation, but they are all _unrelated types_.
-There is no subtyping and no inheritance of data (apart from the specialized
-case of `Deref` coercions.)
+Çeşitli tipler arasındaki ilişkiler *özellikler (trait)* ile inşa edilir. Rust öğrenme sürecinin büyük bir kısmı standart kütüphanede bulunan özelliklerin nasıl çalıştığını anlamaktan geçer çünkü bu bütün verileri birbiriyle çalışmasına izin veren ve onlara anlamlar yükleyen bir sistemdir.
 
-The relationships between various data types in Rust are
-established using _traits_.  A large part of learning Rust is understanding how the
-standard library traits operate, because that's the web of meaning that glues all the
-data types together.
+Özellik sistemi ilginçtir çünkü ana akım programlama dillerinde birebir benzeri yoktur.  Tabii, bu dinamiklik ya da statiklik arasındaki farklı düşünürsek. Dinamik olarak Java ve Go arayüzlerine (interface) benzerler.
 
-Traits are interesting because there's no one-to-one correspondence between them and concepts
-from mainstream languages. It depends if you're thinking dynamically or statically. In the
-dynamic case, they're rather like Java or Go interfaces.
+### Özellik Nesneleri
+Özellikleri anlatırken kullandığımız ilk örneği düşünün:
 
-### Trait Objects
-
-Consider the example first used to introduce traits:
-
-```rust
+ ```rust
 trait Show {
-    fn show(&self) -> String;
+fn show(&self) -> String;
 }
 
 impl Show for i32 {
-    fn show(&self) -> String {
-        format!("four-byte signed {}", self)
-    }
+fn show(&self) -> String {
+format!("four-byte signed {}", self)
+}
 }
 
 impl Show for f64 {
-    fn show(&self) -> String {
-        format!("eight-byte float {}", self)
-    }
+fn show(&self) -> String {
+format!("eight-byte float {}", self)
+}
 }
 ```
-Here's a little program with big implications:
+Bu da büyük `impl` bloklarıyla beraber ufak bir program:
 
 ```rust
 # trait Show {
@@ -73,30 +55,21 @@ Here's a little program with big implications:
 # }
 
 fn main() {
-    let answer = 42;
-    let maybe_pi = 3.14;
-    let v: Vec<&Show> = vec![&answer,&maybe_pi];
-    for d in v.iter() {
-        println!("show {}",d.show());
-    }
+let answer = 42;
+let maybe_pi = 3.14;
+let v: Vec<&Show> = vec![&answer,&maybe_pi];
+for d in v.iter() {
+println!("show {}",d.show());
+}
 }
 // show four-byte signed 42
 // show eight-byte float 3.14
 ```
-This is a case where Rust needs some type guidance - I specifically want a vector
-of references to anything that implements `Show`.  Now note that `i32` and `f64`
-have no relationship to each other, but they both understand the `show` method
-because they both implement the same trait. This method is _virtual_, because
-the actual method has different code for different types, and yet the correct
-method is invoked based on _runtime_ information. These references
-are called [trait objects](https://doc.rust-lang.org/stable/book/trait-objects.html).
+Burası Rust'ın tip bildirimi gerektirdiği bazı nadir noktalardan birisi - `Show` özelliğini içeren herhangi bir vektörü açıkça istemek durumundayım. `i32` ve `f64` arasında hiçbir şey bağlantı olmadığına dikkat edin, fakat ikisi de `show` metotuna sahip çünkü ikisi de aynı özelliğe sahip. Bu *sanal (virtual)* bir metottur, çünkü bu metot her tip için farklı bir kod çalıştırır ve çalışma zamanındaki duruma göre doğru yöntem çağrılır. Bu referanslara [özellik nesneleri](https://doc.rust-lang.org/stable/book/trait-objects.html) denir.
 
-And _that_ is how you can put objects of different types in the same vector. If
-you come from a Java or Go background, you can think of `Show` as acting like an interface.
+Ve *bu* farklı tipleri nasıl aynı vektöre koyabileceğinizin yoludur. Eğer Java veyahut Go temeliniz varsa, `Show`'u bir arayüz (interface) olarak düşünebilirsiniz.
 
-A little refinement of this example - we _box_ the values. A box contains a reference to data
-allocated on the heap, and acts very much like a reference - it's a _smart pointer_. When boxes
-go out of scope and `Drop` kicks in, then that memory is released.
+Biraz daha kurcalayalım ve değerleri bir `Box` işaretçisi içine koyalım. `Box`, heapta tahsis edilmiş alana yerleştirilen verinin referansını referansını temsil eder ve bir ödünç alma gibi çalışır - bu bir *akıllı işaretçidir (smart pointer)*. `Box` ortadan kalktığı zaman `Drop` devreye girer ve bellek serbest bırakır.
 
 ```rust
 # trait Show {
@@ -120,49 +93,43 @@ let maybe_pi = Box::new(3.14);
 
 let show_list: Vec<Box<Show>> = vec![answer,maybe_pi];
 for d in &show_list {
-    println!("show {}",d.show());
+println!("show {}",d.show());
 }
 // show four-byte signed 42
 // show eight-byte float 3.14
 ```
 
-The difference is that you can now take this vector, pass it as a
-reference or give it away without having to track any borrowed references.
-When the vector is dropped, the boxes will be dropped, and all memory is reclaimed.
+Buradaki fark, bu şekilde bu vektörü alıp bir yere referans takibi yapmaksızın başka yerlere ödünç verebilirsiniz. Vektör düşürüldüğü zaman, `Box` nesneleri de düşürülür ve bellek yeniden tahsis edilebilir.
 
-## Animals
-
-For some reason, any discussion of OOP and inheritance seems to end up talking about animals. It
-makes for a nice story: "See, a Cat is a Carnivore. And a Carnivore is an Animal". But I'll start
-with a classic slogan from the Ruby universe: "if it quacks, it's a duck". All your objects have
-to do is define `quack` and they can be considered to be ducks, albeit in a very narrow way.
+## Hayvanat Bahçesi
+Nesne yönelimli programlamadan ve miras alma işleminden bahsettiğimiz ilk andan itibaren hayvanlardan konuşmaya başlarız. Kulağa da fena gelmez, "Bak işte, kedi bir etoburdur ve etoburlar bir hayvandır". Ruby evreninden klasik bir sloganı analım: "Eğer vaklıyorsa, o bir ördektir". `quack` (vak!) metotuna sahip bütün nesneler ördek olarak tanımlanabilir, biraz kulağa tuhaf gelse de.
 
 ```rust
 
 trait Quack {
-    fn quack(&self);
+fn quack(&self);
 }
 
 struct Duck ();
 
 impl Quack for Duck {
-    fn quack(&self) {
-        println!("quack!");
-    }
+fn quack(&self) {
+println!("quack!");
+}
 }
 
 struct RandomBird {
-    is_a_parrot: bool
+is_a_parrot: bool
 }
 
 impl Quack for RandomBird {
-    fn quack(&self) {
-        if ! self.is_a_parrot {
-            println!("quack!");
-        } else {
-            println!("squawk!");
-        }
-    }
+fn quack(&self) {
+if !self.is_a_parrot {
+println!("quack!");
+} else {
+println!("squawk!");
+}
+}
 }
 
 let duck1 = Duck();
@@ -172,31 +139,28 @@ let parrot = RandomBird{is_a_parrot: true};
 let ducks: Vec<&Quack> = vec![&duck1,&duck2,&parrot];
 
 for d in &ducks {
-    d.quack();
+d.quack();
 }
 // quack!
 // quack!
 // squawk!
 ```
 
-Here we have two completely different types (one is so dumb it doesn't even have data), and yes,
-they all `quack()`. One is behaving a little odd (for a duck) but they share the same method name
-and Rust can keep a collection of such objects in a type-safe way.
+Elimizde iki farklı tip var (o kadar işlevsiz ki hiçbir veri tutmuyorlar), ve evet, hepsinin `quack()` metotu var. Bir tanesinin davranışı bir ördek için azıcık tuhaf, ancak yine de hepsi ortak bir metot ismini paylaşıyor ve Rust hepsini tip emniyetli bir şekilde bir araya getiriyor.
 
-Type safety is a fantastic thing.  Without static typing, you could insert
-a _cat_ into that collection of Quackers, resulting in run-time chaos.
+Tip emniyeti müthiş bir şey. Eğer tip emniyeti olmasaydı, ortalığı çalışma zamanında darmaduman edecek bir *kediyi* vakvak kardeşlerin arasına sokabilirdik.
 
-Here's a funny one:
+Şimdi saçma bir şey yapalım:
 
 ```rust
 // and why the hell not!
 impl Quack for i32 {
-    fn quack(&self) {
-        for i in 0..*self {
-            print!("quack {} ",i);
-        }
-        println!("");
-    }
+fn quack(&self) {
+for i in 0..*self {
+print!("quack {} ",i);
+}
+println!("");
+}
 }
 
 let int = 4;
@@ -209,90 +173,57 @@ let ducks: Vec<&Quack> = vec![&duck1,&duck2,&parrot,&int];
 // quack 0 quack 1 quack 2 quack 3
 ```
 
-What can I say? It quacks, it must be a duck. What's interesting is that you can apply your traits
-to any Rust value, not just 'objects'. (Since `quack` is passed a reference, there's an explicit
-dereference `*` to get the integer.)
+Ne diyebilirim ki? Vaklıyorsa ördektir. İlginç olan şey, özellikleri herhangi bir şeye ekleyebilirsiniz, sadece "nesnelere" değil. (`quack` bir referans olarak iletildiği için, defererans operatörü ile sayıyı alabilirsiniz.)
 
-However, you can only do this if you have defined the trait or the type in the same crate,
-That is, you can implement our trait `Quack` for the external type `i32`, but you cannot
-re-implement `ToString` (external trait) for `i32` (external trait).  So the standard library
-cannot be 'monkey patched'.  
+Yine de bunu sadece kendi sandığınızda tanımladığınız tipler üzerinde veya o sandıkta tanımlanmış özelliklerle yapabilirsiniz. Yani standart kütüphaneyi yamalı bohçaya (monkey patch) çeviremezsini, ki bu da Ruby vatandaşlarının başka bir alışkanlığı. (Çok da bayılan bir şey değildir doğrusu.)
 
-Up to this point, the trait `Quack` was behaving very much like a Java interface, and like
-modern Java interfaces you can have _provided_ methods which supply a default implementation
-if you have implemented the _required_ methods. (The `Iterator` trait is a good example.)
+Şimdiye kadar `Quack` bir Java arayüzü gibi davrandı ve isterseniz modern Java tipleri arayüzleri gibi çeşitli uygulamaları eğer gereken metotları sağladıysanız tipinize ekleyebilirsiniz. (`Iterator` özelliğini hatırlayın.)
 
-But, note that traits are not part of the _definition_ of a type and you can define and implement
-new traits on any type, subject to the same-crate restriction.
+Şimdiye kadar, özellikler bir tip *tanımının* parçası değildi ve isterseniz özellikleri istediğiniz tipe ekleyebilirsiniz,  ancak aynı sandık kısıtlamasını gözden kaçırmayın.
 
-It's possible to pass a reference to any `Quack` implementor:
+`Quack` özelliğine sahip bütün nesneleri referans olarak da görebilirsiniz:
 
 ```rust
 fn quack_ref (q: &Quack) {
-    q.quack();
+q.quack();
 }
 
 quack_ref(&d);
 ```
 
-And that's subtyping, Rust-style.
+İşte bu Rust'ın anladığı şekilde alttiplemedir.
 
-Since we're doing Programming Language Comparisons 101 here, I'll mention that Go has an interesting
-take on the quacking business - if there's a Go interface `Quack`, and a type has a `quack` method,
-then that type satisfies `Quack` without any need for explicit definition. This also breaks the
-baked-into-definition Java model, and allows compile-time duck-typing, at the cost of some
-clarity and type-safety.
+Burada "Programlama Dilleri Kapıştırmaca Dersleri" verdiğimiz için, Go'nun ilginç vaklama yaklaşımını da not etmek istiyorum. Eğer Go'da tanımlanmış bir `Quack` arayüzü varsa ve bir tipin `quack` metotu varsa, o tip `Quack` arayüzünü açık bir tanıma gerek duymadan kendisine implement eder. Bu Java'nın "Her şey tek tek tanımlanacak!" yaklaşımına ters düşer ve tip emnyetini biraz tehlikeye soksa da "ördek tiplemeye" izin verir. (Duck-typing)
 
-But there is a problem with duck-typing.
-One of the signs of bad OOP is too many methods which have some
-generic name like `run`. "If it has run(), it must be Runnable" doesn't sound so catchy as
-the original!  So it is possible for a Go interface to be _accidentally_ valid. In Rust,
-both the `Debug` and `Display` traits define `fmt` methods, but they really mean different
-things.
+Fakat ördek tipleme ile alakalı bir sorun var. Kötü bir nesne yönelimli programlamanın ilk işaretçisi çok fazla metotun `run` gibi her kalıba girebilecek isimlere sahip olmasıdır. "Eğer `run()` (Çalıştır) metotu varsa, o zaman `Runnable` (Çalıştırılabilir) olmalıdır" vaklıyorsa o ördektir kadar zarif gelmiyor. Yani *istemeden* bir `Go` arayüzü o tipte tanımlı olabilir. Rust için mesela, `Debug` ve `Display` aynı anda `fmt` metotunu barındırır, fakar iki özelliğin çok farklı anlamları vardır.
 
-So Rust traits allow traditional _polymorphic_ OOP.  But what about inheritance? People usually
-mean _implementation inheritance_ whereas Rust does _interface inheritance_.  It's as if a Java
-programmer never used `extend` and instead used `implements`. And this is actually
-[recommended practice](http://www.javaworld.com/article/2073649/core-java/why-extends-is-evil.html)
-by Alan Holub. He says:
+Yani, Rust özellikleri bildiğimiz anlamda çok biçimli nesne yönelimli programlamaya izin verir. Peki ya miras? İnsanlar genellikle "Miras alma"yı kastederken Rust genellikle "Arayüz mirasından" bahseder. `extend` yerine her zaman `implements` kullanmayı tercih eden bir Java programcısı gibi. Ve bu aslında Alan Jolub tarafından [tavsiye edilen bir alışkanlıktır.](http://www.javaworld.com/article/2073649/core-java/why-extends-is-evil.html) Der ki:
 
-> I once attended a Java user group meeting where James Gosling (Java's inventor) was the featured
-> speaker. During the memorable Q&A session, someone asked him: "If you could do Java over again,
-> what would you change?" "I'd leave out classes," he replied. After the laughter died down,
-> he explained that the real problem wasn't classes per se, but rather implementation inheritance
-> (the extends relationship). Interface inheritance (the implements relationship) is preferable.
-> You should avoid implementation inheritance whenever possible
+> James Gosling'in (Java'nın yaratıcısı) sunduğu bir Java kullanıcıları gurubu konferansında bir keresinde bulunmuştum. O akılda kalıcı soru - cevap kısmında birisi şöyle bir soru sordu: "Eğer Java'yı yeniden tasarlasaydınız, neyi değiştirirdiniz?". O da şöyle bir cevap verdi: "Sınıf anlayışını terk ederdim". İnsanların kahkahası sona erdikten sonra sorunun sınıflar olmadığını ancak "miras alma" işleminden ziyade (*extends* ilişkisi) olduğundan bahsetti. "Arayüz mirası" (*implements* ilişkisi) çok daha tercih edilesi. Miras almayı mümkün olduğunca az yapmanız faydanıza olur.
 
-So even in Java, you've probably been overdoing classes!
+Java gibi bir dilde bile, çok fazla sınıf üretiyor olabilirsiniz!
 
-Implementation inheritance has some serious problems. But it does feel so very
-_convenient_. There's this fat base class called `Animal` and it has loads of useful
-functionality (it may even expose its innards!) which our derived class `Cat` can use. That is,
-it is a form of code reuse. But code reuse is a separate concern.
+Miras alma anlayışının çok ciddi sorunları var, fakat oldukça *akla yatkın* görünüyor. Aşırı geniş bir sınıf olan `Animal`ı tasarlıyoruz ve içerisine çok faydalı şeyler ekliyoruz (tehlikeli olsa bile), ve bizim `Cat` sınıfımız da bu faydalı şeyleri kullanabiliyor. Hepsi bu, kodları tekrar kullanmanın bir yolu. Ancak kodun yeniden kullanımı aslında başka bir konudur.
 
-Getting the distinction between implementation and interface inheritance is important when
-understanding Rust.
+Miras alma ve arayüz mirası arasındaki farkı anlamak Rust'ı anlarken oldukça önemlidir.
 
-Note that traits may have _provided_ methods. Consider `Iterator` - you only _have_ to override
-`next`, but get a whole host of methods free.  This is similar to 'default' methods of modern
-Java interfaces. Here we only define `name` and `upper_case` is defined for us. We _could_
-override `upper_case` as well, but it isn't _required_.
+Özelliklerin size başka metotlar *sağladığını* unutmayın. `Iterator` özelliğini düşünün, `next` metotunu tanımladıktan sonra başka metotları zahmetsizce tipinize eklemiş olursunuz. Modern Java arayüzlerindeki "varsayılan" metotlar gibi. Alttaki örnekte `name` kısmını tanımlıyoruz ve `upper_case` bizim yerimize tanımlanmış oluyor. *İstersek* `upper_case` metotunu yeniden yazabiliriz, ama bu *gerekli* değildir.  
 
 ```rust
 trait Named {
-    fn name(&self) -> String;
+fn name(&self) -> String;
 
-    fn upper_case(&self) -> String {
-        self.name().to_uppercase()
-    }
+fn upper_case(&self) -> String {
+self.name().to_uppercase()
+}
 }
 
 struct Boo();
 
 impl Named for Boo {
-    fn name(&self) -> String {
-        "boo".to_string()
-    }
+fn name(&self) -> String {
+"boo".to_string()
+}
 }
 
 let f = Boo();
@@ -300,46 +231,38 @@ let f = Boo();
 assert_eq!(f.name(),"boo".to_string());
 assert_eq!(f.upper_case(),"BOO".to_string());
 ```
-This is a _kind_ of code reuse, true, but note that it does not apply to the data, only the interface!
+Bu da bir *çeşit* kodu tekrar kullanma yöntemi, evet, ama bunun verinin kendisinde geçerli olmadığını sadece arayüzde tanımlı olduğuna dikkat edin.
 
-## Ducks and Generics
+## Ördekler ve Genellemeler
 
-An example of generic-friendly duck function in Rust would be this trivial one:
+Burada Rustla yazılmış, genelleme kullanılarak yazılan "ördek" fonksiyonu gözünüze anlamsız gelmiş olabilir:
 
 ```rust
 fn quack<Q> (q: &Q)
 where Q: Quack {
-    q.quack();
+q.quack();
 }
 
 let d = Duck();
 quack(&d);
 ```
 
-The type parameter is _any_ type which implements `Quack`. There's an important difference
-between `quack` and the `quack_ref` defined in the last section.
-The body of this function is compiled for _each_ of the calling
-types and no virtual method is needed; such functions can be completely inlined. It
-uses the trait `Quack` in a different way, as a _constraint_ on generic types.
+Tip parametresi, `Quack` özelliğini barındıran herhangi bir şeyi işaret eder. Buradaki `quack` ve önceki bölümde tanımladığımız `quack_ref` arasında önemli bir fark var. Fonksiyonun içeriği, çağıran her bir tip için ayrıca oluşturulur ve sanal metotlara ihtiyacımız yok, bu tarz fonksiyonlar tamamen "satır içi" (inline) olabilir. Burada `Quack` tipi genellenen tip üzerinde bir kısıtlama olarak kullanılır.
 
-This is the C++ equivalent to the generic `quack` (note the `const`):
+Bu da genellenen `quack` metotumuzun C++ muadili (`const`a dikkat edin):
 
 ```cpp
 template <class Q>
 void quack(const Q& q) {
-    q.quack();
+q.quack();
 }
 ```
 
-Note that the type parameter is not constrained in any way.
+Tip parametresinin herhangi bir şeyle kısıtlanmadığına dikkat edin.
 
-This is very much compile-time duck-typing - if we pass a reference to a
-non-quackable type, then the compiler will complain bitterly about no `quack` method.
-At least the error is found at compile-time, but it's worse when a type is accidentally
-Quackable, as happens with Go. More involved template functions and classes lead to
-terrible error messages, because there are _no_ constraints on the generic types.
+Bu daha çok derleme zamanında çalışan bir ördek tiplemeye benziyor - vaklamayan bir tipi iletirsek derleyici `quack` diye bir metot olmadığından bahsedecektir. En azından sonra derleme zamanında keşfediliyor. Go'da direkt bütün tipin `Quackable` arayüzüne sahip olması daha da kötü şeylere sebep olabilir. Daha karmaşık `template` fonksiyonları ve sınıfları berbat hata mesajlarına yol açacaktır çünkü bu sefer genellenen tipler üzerinde `hiçbir` kısıtlama olmayacaktır.
 
-You could define a function which could handle an iteration over Quacker pointers:
+Vaklayan nesne üzerindeki işaretçilerle bir döngü tanımlamayı düşünebilirsiniz:
 
 ```cpp
 template <class It>
@@ -350,62 +273,34 @@ void quack_everyone (It start, It finish) {
 }
 ```
 
-This would then be implemented for _each_ iterator type `It`.
-The Rust equivalent is a little more challenging:
+Bu, her `It` döngüleyici türü için çalışacaktır. Rust muadili az biraz daha ilginçtir:
 
 ```rust
 fn quack_everyone <I> (iter: I)
 where I: Iterator<Item=Box<Quack>> {
-    for d in iter {
-        d.quack();
-    }
+for d in iter {
+d.quack();
+}
 }
 
 let ducks: Vec<Box<Quack>> = vec![Box::new(duck1),Box::new(duck2),Box::new(parrot),Box::new(int)];
 
 quack_everyone(ducks.into_iter());
 ```
+Rust'taki döngüleyiciler ördek tipli değildir ancak ilişkili tipler `Iterator` özelliğini barındırmalıdır ve ilgili örneğimizde `Box<Quack>` için döngüleyici tanımlanıyor. Hangi tiple çalışacağı hakkında bir belirsizlik yoktur ve ilişkili veriler muhakkak `Quack`'ı tanımlamalıdır. Bazen bir Rust fonksiyonu yazarken fonksiyon imzası yazmaktan Rust'tan bıkabilirsiniz, bu yüzden standart kütüphanenin kaynak kodlarını dikkatlice okumanızı şiddetle öneririm - ancak fonksiyon yazmak fonksiyon yazmaktan daha kolaydır! Örneğimizdeki tek tip parametresi döngüleyici tipidir, yani bu sadece vektör döngüleyicisiyle değil, `Box<Duck>` dizisi olan her şeyle çalışacaktır. 
 
-Iterators in Rust aren't duck-typed but are types that must implement `Iterator`, and in
-this case the iterator provides boxes of `Quack`.  There's no ambiguity about the types
-involved, and the values must satisfy `Quack`. Often the function signature is the most challenging
-thing about a generic Rust function, which is why I recommend reading
-the source of the standard library - the implementation is often much simpler than the declaration!
-Here the only type parameter is the actual iterator type,
-which means that this will work with anything that can deliver a sequence of `Box<Duck>`, not just
-a vector iterator.
+## Miras Alma
+Nesne yönelimli tasarımlı ilişkili en yaygın sorun nesnelerin bir "onun türünden olma" *(is-a)* ilişkisiyle tanımlanmasıdır, sahip olma ilişkileri *(has-a)* genellikle ihmal edilir. [GoF](https://en.wikipedia.org/wiki/Design_Patterns), "Design Patterns" (Dizayn örüntüleri) kitabında yirmi iki yıl önce "Birleşkeleri mirasa tercih edin" demiş.
 
-## Inheritance
+İşte size iyi bir örnek: Bir şirketin çalışanlarını modellemek istiyorsunuz ve `Calisan` sizin için iyi bir sınıf ismi gibi görünüyor. Sonra, "Yönetici" bir çalışan türüdür (yani doğru) ve kendi hiyerarşimizi `Yonetici`'yi `Calisan`ın alt sınıfı olarak inşa ediyoruz kurguluyoruz. Zekice görünse de değil. İsimleri belirlemeye kendimizi kaptırmışken çalışanların ve yöneticilerin aslında birbirinden farklı canlılar olduğunu düşündük aslında. Belki de `Calisan` sınıfı sadece bir `Roller` dizisine sahip olmalıdır ve yöneticiyi daha fazla yetkiye sahip bir çalışan olarak tanımlamalıyız?
 
-A common problem with object-oriented design is trying to force things into a _is-a_ relationship,
-and neglecting _has-a_ relationships. The [GoF](https://en.wikipedia.org/wiki/Design_Patterns)
-said "Prefer Composition to Inheritance" in their Design Patterns book, twenty-two years ago.
+Taşıtları düşünelim, bisikletten damperli kamyonlara kadar geniş bir skalası var. Araçları kategorize etmenin çok farklı yolları var, üzerinde gittiği yoldan (şehir içinde, tarlada, rayda), kullandığı enerji türüne (dizel, hibrit, elektrikli vs), insan mı yoksa yük taşımacılığında mı kullanıldığı gibi. Sınıfların sabit bir hiyerarşisi, tek bir bakış açısı dışında diğer bakış açılarının görmezden gelindiği anlamına gelir. Gördüğünüz gibi, araçları çok farklı şekillerde sınıflandırabilirsiniz!
 
-Here's an example: you want to model the employees of some company, and `Employee` seems a good
-name for a class.  Then, Manager is-a Employee (this is true) so we start building our
-hierarchy with a `Manager` subclass of `Employee`. This isn't as smart as it seems. Maybe we got
-carried away with identifying important Nouns, maybe we (unconsciously) think that managers and
-employees are different kinds of animals?  It's better for `Employee` to has-a `Roles` collection,
-and then a manager is just an `Employee` with more responsibilities and capabilities.
+Rust için birleşkeler çok daha önemlidir çünkü başka bir sınıftan işlevleri olduğu gibi devrealmak tembelce bir yöntemdir.
 
-Or consider Vehicles - ranging from bicycles to 300t ore trucks. There are multiple ways to think
-about vehicles, road-worthiness (all-terrain, city, rail-bound, etc), power-source (electric,
-diesel, diesel-electric, etc), cargo-or-people, and so forth.  Any fixed hierarchy of classes
-you create based on one aspect ignores all other aspects. That is, there are multiple possible
-classifications of vehicles!
+Ödünç alma denetimi açısından da birleşkeler önemlidir çünkü çeşitli yapıların (struct) hangi alanlarının kullandıldığının takibi yapılabilir. Bir alanın değişken referansı alınırken diğer alanın değişmez referası ödünç alınabilir; bu yüzden yapılar kullanım rahatlığı için kendi metotlarına sahip olmalıdır. (Yapının *dışsal* arayüzü ise özellikler üzerinden sağlanabilir.)
 
-Composition is more important in Rust for the obvious reason that you can't inherit functionality
-in a lazy way from a base class.
-
-Composition is also important because the borrow checker is smart enough
-to know that borrowing different struct fields are separate borrows. You can have
-a mutable borrow of one field while having an immutable borrow of another field,
-and so forth. Rust cannot tell that a method only accesses one field, so the
-fields should be structs with their own methods for implementation convenience.
-(The _external_ interface of the struct can be anything you like using suitable traits.)
-
-A concrete example of 'split borrowing' will make this clearer. We have a struct that
-owns some strings, with a method for borrowing the first string mutably.
+Ayrık referansların net bir örneği bunu daha anlaşılır kılacaktır. Kendi `String` alanları olan bir yapı tanımladık ve tek bir `String`'in değişken referansını aldık.
 
 ```rust
 struct Foo {
@@ -420,45 +315,29 @@ impl Foo {
     ....
 }
 ```
+(Rust'ın isimlendirme anlayışının da aynı zamanda bir öneğidir - bu tarz metot isimleri `_mut` ile sona ermelidir.)
 
-(This is an example of a Rust naming convention - such methods should end in `_mut`)
-
-Now, a method for borrowing both strings, reusing the first method:
+Şimdi ilk metotu tekrar kullanarak iki `String` alanını da ödünç alan bir yapı tanımlayalım:
 
 ```rust
     fn borrow_both(&self) -> (&str,&str) {
         (self.borrow_one_mut(), &self.two)
     }
 ```
+Çalışamaz! `self`'in değişmez referansını aldık ve aynı zamanda `self`'in değişebilir referansını almaya çalışıyoruz. Eğer Rust bu tarz durumlara izin verseydi değişmez referansın değişemeyeceğini garanti edemeyebilirdi.
 
-Which can't work!  We've borrowed mutably from `self` and _also_ borrowed immmutably from `self`.
-If Rust allowed situations like this, then that immmutable reference can't be guaranteed not to
-change.
-
-The solution is simple:
+Çözüm basit:
 
 ```rust
     fn borrow_both(&self) -> (&str,&str) {
         (&self.one, &self.two)
     }
 ```
+Bunda bir sorun yok çünkü bunların ikisini ödünç alma denetçisi bunların ikisini de bağımsız ödünç almalar olarak tanımlar. Alanların gelişigüzel yapılar olduğunu düşünün, rastgele çağırdığınız metotlar bu alanlar üzerinde çalışırken bir hataya sebep olmayacaktır.
 
-And this is fine, because the borrow checker considers these to be independent borrows. So imagine
-that the fields were some arbitrary types, and you can see that methods called on these fields
-will not cause borrowing problems.
+Miras almanın sınırlandırılmış ancak önemli bir türü [Deref](https://rust-lang.github.io/book/second-edition/ch15-02-deref.html) özelliğidir, ismi "Dereferans" operatörü olan `*` ile gelir. `String` tipi `Deref<Target=str>` özelliğine sahiptir ve `&str` tipi için çalışacak bütün metotlar aynı zamanda `String` ile de çalışabilir! Benzer şekilde, `Foo` ile çalışan bütün metotlar aynı `Box<Foo>` üzerinden de doğruca çalışabilir. Başta biraz... kontrolsüz bir şekilde pratik görünse de aslında epey kullanışlıdır. Rust'ın içerisinde basit bir mantık var, ancak kullanımı o kadar da akılcı görünmüyor. Sadece değişken bir türün ödünç alındığı zaman daha basit davranması gerketiği zaman kullanılmalıdır.
 
-
-There is a restricted but very important kind of
-'inheritance' with [Deref](https://rust-lang.github.io/book/second-edition/ch15-02-deref.html),
-which is the trait for the 'dereference' operator `*`.
-`String` implements `Deref<Target=str>` and so all the methods defined on `&str` are automatically
-available for `String` as well!  In a similar way, the methods of `Foo` can be directly
-called on `Box<Foo>`.  Some find this a little ... magical, but it is tremendously convenient.
-There is a simpler language inside modern Rust, but it would not be half as pleasant to use.
-It really should be used for cases where there is an owned, mutable type and a simpler borrowed
-type.
-
-Generally in Rust there is _trait inheritance_:
+Rust'ta *özellikler birbirini miras alabilir*:
 
 ```rust
 trait Show {
@@ -471,11 +350,9 @@ trait Location {
 
 trait ShowTell: Show + Location {}
 ```
+Son özellik iki ayrıksı özelliği de barındırıyor, istenirse kendi içine metotlar tanımlanabilir. 
 
-The last trait simply combines our two distinct traits into one, although it could specify
-other methods.
-
-Things now proceed as before:
+Şimdi alıştığımız şeye geri döndük:
 
 ```rust
 #[derive(Debug)]
@@ -509,10 +386,9 @@ impl ShowTell for Foo {}
 
 ```
 
-Now, if I have a value `foo` of type `Foo`, then a reference to that value will
-satisfy `&Show`, `&Location` or `&ShowTell` (which implies both.)
+Eğer `Foo` türünden `foo` diye bir değerim varsa, bu türün değişkeni `&Show` ve `&Location`'u karşıladığı gibi (ikisini de barındıran) `&ShowTell`'i de karşılayacak.
 
-Here's a useful little macro:
+İşte işimize yaracak ufak bir makro:
 
 ```rust
 macro_rules! dbg {
@@ -521,10 +397,7 @@ macro_rules! dbg {
     }
 }
 ```
-It takes one argument (represented by `$x`) which must be an 'expression'. We print out its
-value, and a _stringified_ version of the value. C programmers can be a _little_ smug at this point,
-but this means that if I passed `1+2` (an expression) then `stringify!(1+2)` is the literal
-string "1+2". This will save us some typing when playing with code:
+(`$x` ile gösterilen) tek bir argümanı alıyor ve bu argüman bir "ifade" olmalıdır. Bu değeri ekrana yazdırıyoruz ve veriyi ve metinin metinleştirilmiş hâlini ekrana yazdırıyoruz. C programcıları burada bıyık altından gülebilir, ancak eğer `1 + 2` (bir ifade) değerini verirsem `stringify!(1 + 2)` bize "1 + 2" şeklinde karakter dizisi verecektir. Bu, bize biraz kodları incelemek için yardımcı olacaktır:
 
 ```rust
 let foo = Foo::new("Pete","bathroom");
@@ -559,48 +432,28 @@ show(&boo);
 // s.show() = "Alice"
 ```
 
-This _is_ object-orientation, just not the kind you may be used to.
+İşte *bu* nesne yönelimli programlamadır, sadece alıştığınız türden değil.
 
-Please note that the `Show` reference passed to `show` can not be _dynamically_
-upgraded to a `ShowTell`!  Languages with more dynamic class systems allow you to
-check whether a given object is an instance of a class and then to do a
-dynamic cast to that type. It isn't really a good idea in general, and specifically
-cannot work in Rust because that `Show` reference has 'forgotten' that it was originally
-a `ShowTell` reference.
+`Show` referansına iletilen `show` değerinin *dinamik olarak* `ShowTell` olmayacağına dikkat edin! Daha dinamik sınıf sistemlerine sahip dillerin size objenin bir sınıfın nesnesi olup olmadığını denetleme imkanı verdiğine ve bu dinamik türe göre çağrı yapma izni verdiğine dikkat edin! Aslında bu pek de iyi bir fikir değildir ve Rust'ta bunu yapmanın bir yol yoktur çünkü Rust `Show` referansının aslında `ShowTell` referansı olduğunu unutmuştur bile.
 
-You always have a choice: polymorphic, via trait objects, or monomorphic, via generics
-constrainted by traits. Modern C++ and the Rust standard library tends to take the generic
-route, but the polymorphic route is not obsolete. You do have to understand the different
-trade-offs - generics generate the fastest code, which can be inlined. This may lead
-to code bloat. But not everything needs to be as _fast as possible_ - it may only happen
-a 'few' times in the lifetime of a typical program run.
+Her zaman seçimleriniz vardır; özellik nesneleri aracılığıyla çok biçimlilik ya da özellik kısıtlamaları ile biçimlendirilmiş genelleme tanımlarıyla tek biçimlilik. Modern C++ ve Rust standart kütüphanesi genelleme yolunu tercih eder, ancak çok biçimlilik yolu da hâlen daha tercih edilebilir. Her zaman neyin karşılığında neyi aldığınızı bilmeniz gerekir - genellemeler daha hızlı kod üretir ve satır içi (inline) kullanılabilirler. Bunun neticesinde kodunuz şişebilir. (code bloat) Fakat her şeyin *mümkün olduğunca hızlı olmasına* da gerek yoktur - olağan bir program akışında birkaç defa bu gerçekleşebilir.
 
-So, here's a summary:
+Sonuç olarak:
 
-  - the role played by `class` is shared between data and traits
-  - structs and enums are dumb, although you can define methods and do data hiding
-  - a _limited_ form of subtyping is possible on data using the `Deref` trait
-  - traits don't have any data, but can be implemented for any type (not just structs)
-  - traits can inherit from other traits
-  - traits can have provided methods, allowing interface code re-use
-  - traits give you both virtual methods (polymorphism) and generic constraints (monomorphism)
+- Sınıfların rolü veri ve özellikler (trait) arasında paylaştırılmıştır.
+- Yapılar ve numaralandırmalar veri gizlemesine ve metot tanımlanabilmesine rağmen fazla işleve sahip değildir.
+- Alttiplemenin *sınırlandırılmış* bir türü `Deref` özelliği ile sağlanabilir.
+- Özellikler bir veri tutmaz ancak her tipe uygunlanabilirler. (Yalnızca yapılara değil.)
+- Özellikler, başka özellikleri miras alabilir.
+- Özellikler metotlar sunabilir, kodların tekrar kullanımını mümkün kılarlar
+- Özellikler size sanal metotlar (çok biçimlilik) ve genelleme sınırlamaları (tek biçimlilik) sunabilirler.
 
-## Example: Windows API
+## Ördek: Windows API
+Geleneksel nesne yönetimli programlamanın en çok kullanıldığı yerlerden birisi GUI (Ç.N: düğmeli menüyü arayüzler işte) kütüphaneleridir. `EditControl` ve `ListWindow`, `Window` türünden sınıflardır falan filan. Bu, GUI kütüphanelerine Rust bağlantıları yazmayı biraz daha zorlaştırır.
 
-One of the areas where traditional OOP is used extensively is GUI toolkits. An `EditControl` or a `ListWindow`
-is-a `Window`, and so forth. This makes writing Rust bindings to GUI toolkits more difficult
-than it needs to be.
+Rust'ta Win32 programlaması [direkt](https://www.codeproject.com/Tips/1053658/Win-GUI-Programming-In-Rust-Language) yapılabilir, ve orijinal C'den daha az gariptir. C'den C++'a geçer geçmez daha sade bir şey yapmak istedim ve kendi nesne tabanlı kodlarımı yazdım.
 
-Win32 programming can be done [directly](https://www.codeproject.com/Tips/1053658/Win-GUI-Programming-In-Rust-Language)
-in Rust, and it's a little less awkward than the original C. As soon as I graduated from C
-to C++ I wanted something cleaner and did my own OOP wrapper.
-
-A typical Win32 API function is [ShowWindow](https://docs.rs/user32-sys/0.0.9/i686-pc-windows-gnu/user32_sys/fn.ShowWindow.html)
-which is used to control the visibility of a window. Now, an `EditControl` has some specialized
-functionality, but it's all done with a Win32 `HWND` ('handle to window') opaque value.
-You would like `EditControl` to also have a `show` method, which traditionally would be done
-by implementation inheritance. You _not_ want to have to type out all these inherited methods
-for each type! But Rust traits provide a solution. There would be a `Window` trait:
+Tipik bir Win32 API fonksiyonu [ShowWindow'dur](https://docs.rs/user32-sys/0.0.9/i686-pc-windows-gnu/user32_sys/fn.ShowWindow.html) ve bir pencerenin görünüp görünmediğini denetlemek için kullanılır. Şimdi, `EditControl`'ün kendisine özgü nitelikleri bulunur fakat hepsi Win32'nin `HWND` ("pencere yönetimi") opak değeriyle yapılır. `EditControl`'ün aynı zamanda `show` metotu olmasını isteyebilirsiniz, genelde miras alma yöntemiyle halledilir. Fakat bu tipin her işlevi miras almasını istemeyebilirsiniz! Rust size güzel bir çözüm sunar, `Window` özelliğini düşünelim:
 
 ```rust
 trait Window {
@@ -619,26 +472,20 @@ trait Window {
 }
 ```
 
-So, the implementation struct for `EditControl` can just contain a `HWND` and implement `Window`
-by defining one method; `EditControl` is a trait that inherits from `Window` and defines the extended
-interface.  Something like `ComboxBox` - which behaves like an `EditControl` _and_ a
-`ListWindow` can be easily implemented with trait inheritance.
+Şimdi `EditControl` yapısı sadece bir `HWHD`'ye sahip olabilir ve `Window`'u eklemek tek bir metotu tanımlayarak mümkün olabilir. `EditControl` ise `Window` özelliğini miras alan bir yapıdır ve daha geniş bir arayüz tanımlar. `ComboBox` gibi düşünün - `EditControl` gibi davranır ve bir `ListWindow` da özellik mirası aracılığıyla eklenebilir.
 
-The Win32 API ('32' no longer means '32-bit' anymore) is in fact object-oriented, but an
-older style, influenced by Alan Kay's definition: objects contain hidden data, and are operated
-on by _messages_. So at the heart of any Windows application there's a message loop, and
-the various kinds of windows (called 'window classes') implement these methods with their
-own switch statements.  There is a message called `WM_SETTEXT` but the implementation can be
-different: a label's text changes, but a top-level window's caption changes.
+Win32 API'sı ("32" artık "32-bit" anlamına gelmiyor) özünde nesne yönelimlidir, ancak daha eski bir şekilde, Alan Key'in tanımından etkilenmiş bir şekilde: nesneler gizli veriler tutar ve *mesajlar* üzerinden işlenir. Yani Windows uygulamalarının kalbi bir mesaj döngüsüdür ve çeşitli pencereler (pencere sınıfları da denir) kendi metotlarını kendi anahtar ifadeleriyle uygularlar. `WM_SETTEXT` diye bir mesaj vardır fakat bunun koda dökülüş hâli biraz daha farklıdır: bir etiketin yazısı değişebilir ya pencere başlığı değişir.
 
-[Here](https://gabdube.github.io/native-windows-gui/book_20.html) is a rather promising
-minimal Windows GUI framework. But to my taste, there are too many `unwrap` instances
-going on - and some of them aren't even errors. This is because NWG is exploiting the
-loose dynamic nature of messaging.  With a proper type-safe interface, more errors are
-caught at compile-time.
+[Burada](https://gabdube.github.io/native-windows-gui/book_20.html) daha anlaşılır ve minimal bir Windows GUI frameworkü görebilirsiniz. Bana göre çok fazla `unwrap` öğeleri var ve bunların çoğu hata bile değil.  Bu, "NWG"nin mesajlaşmanın dinamik doğasına ters düşmesiyle alakalı. Daha tip güvenli bir arayüz sunmak için, hatalar derleme zamanında sunuluyor.
 
-The [next edition](https://rust-lang.github.io/book/second-edition/ch17-00-oop.html)
-of The Rust Programming Language book has a very good discussion on what 'object-oriented'
-means in Rust.
+[Rust programlama kitabında "Nesne yönelimli nedir?"](https://doc.rust-lang.org/stable/book/ch17-00-oop.html) üzerine güzel bir tartışma mevcuttur.
 
-
+> Çeviri notu: Bu bölümün sonlarına doğru bir dolu hata yapmış olabilirim, çünkü bu son kısımları yazarken saat gecenin üçüne yaklaşıyor ve kafa olarak biraz yorgundum. :)
+> 
+> Türk yazılımcısı çoğunlukla nesne yönelimli kavramını C# ve Java aracılığıyla öğrendiği için nesne yönelimi kavramı dilde `class` kelimesinin sunulmasıyla bağdaştırılıyor ve bu epeyce bir kafa karışıklığı yaratıyor. Nesne tabanlı programlama, kendi özünde verilerin soyutlanıp yazılımcıya daha çok anlam ifade eden "bütünlere" dönüştürülmesiyle alakalı bir tekniktir ve bu tekniğin uygulanması için verinin gizlenmesi, yalnızca metotlarla erişim gibi ilkeler vardır. `class` ile tanımlanan yaplar, bu ilkeleri otomatik olarak inşa etmeye yarar. Ortada `class` adı hiç geçmese bile nesne tabanlı programlama yapılabilir ve Lua, Nim, Nix gibi diller buna iyi bir örnek oluşturur. İşin özü, JavaScript da bu sınıfların listesindeydi ancak sonradan `class` kelimesi bazı prototip işlemlerini otomatikleştirmek için eklendi. Eklenene dek, JavaScript her zaman nesne tabanlıydı ancak "fonksiyonel" ve "nesne tabanlı" olmak arasında kalmış bir dil gibi düşünüldü; aslında JavaScript her zaman "prototip" üzerinden işleyen nesne yönelimli bir dildi.
+> 
+> Bir literatür hatası olarak, saf fonksiyonel diller aynı zamanda nesne yönelimli olamayacağı için fonksiyonel programlama ve nesne yönelimli programlama arasında bir zıtlık varmış gibi anlaşıldı. Sonradan Go, Rust gibi klasik nesne yönelimli diller sınıfına uymayan diller "fonksiyonel" diller olarak anlaşıldı. Rust'ta fonksiyonel esintiler bulunmasına rağmen Rust saf bir fonksiyonel dil değildir, nesne yönelimi ile Rust'ın alakası neyse fonksiyonel programlama ile Rust'ın alakası o seviyede diyebilirim. Ha, fonksiyonel programlama "işlevsel, işe yarayan programlama" demek değildir diye not edelim.
+> 
+> Peki, neden Rust'ta sınıflar yok? Bu bölümde bahsedildiği gibi sınıflar çok fazla işi bir anda halleder ve bu kesinlikle Rust'ın doğasına uymaz. Rust'ta her şey açık, belirgin ve bilindiktir. Rust, sınıfların yaptığı şeyleri yapmanıza izin verecek araçları size sunar ancak kolaylık olsun diye gizlice bir şeyler hazırlamaz. Bu yüzden, Rust nesne yönelimli bir dil gibi görünmese de aslında nesne yönelimini size sunar.
+> 
+> Eğer nesne yönelimli programlamaya karşı bakış açınızı gözden geçirmek ve nesne yönelimli programlamanın yaratıcısından da neyin ne olduğunu öğrenmek isterseniz, [bu bağlantıya tıklayabilirsiniz.](https://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en)
