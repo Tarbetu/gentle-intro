@@ -1,35 +1,16 @@
-## Yazıları Nom ile AyrıştırmakParsing Text with Nom
+## Yazıları Nom ile Ayrıştırmak
 
-[Nom](https://github.com/Geal/nom), [(documented here)](https://docs.rs/nom) is a parser library
-for Rust which is well worth the initial time investment.
+[Nom](https://github.com/Geal/nom), [(burada anlatıldığı şekilde)](https://docs.rs/nom) öğrenmeye değer bir metin ayrıştırma için kullanılan bir Rust kütüphanesidir.
 
-If you have to parse a known data format, like CSV or JSON, then
-it's best to use a specialized library like [Rust CSV](https://github.com/BurntSushi/rust-csv) or
-the JSON libraries discussed in [Section 4](4-modules.html#cargo).
+Eğer CSV veya JSON gibi türü bilinen bir veri türünü ayrıştırmak istiyorsanız bu işin özelleşmiş kütüphanelerden birisi olan [Rust CSV](https://github.com/BurntSushi/rust-csv) veya [Bölüm 4'te] bahsedilen JavaScript kütüphanelerinden birisine bakmak isteyebilirsiniz. 
 
-Likewise, for configuration files
-use dedicated parsers like [ini](https://docs.rs/rust-ini/0.10.0/ini/) or
-[toml](http://alexcrichton.com/toml-rs/toml/index.html). (The last one is particularly cool since
-it integrates with the Serde framework, just as we saw with [serde_json](https://docs.rs/serde_json).
+Aynı şekilde, [ini](https://docs.rs/rust-ini/0.10.0/ini/) veya [toml](http://alexcrichton.com/toml-rs/toml/index.html). gibi yapılandırma dosyaları için onlara özel kendisine özgü kütüphanelere göz atabilirsiniz. ([serde_json](https://docs.rs/serde_json)'den bildiğimiz Serde Frameworkü ile uyumlu çalıştığı için Toml için hazırlanan kütüphane ayrıca hoştur.)
 
-But if the text is not regular, or some made-up format, then you need to scan that text without
-writing a lot of tedious string-processing code. The suggested go-to is often [regex](https://github.com/rust-lang/regex),
-but regexes can be frustratingly opaque when sufficiently involved. Nom provides a way to parse
-text which is just as powerful and can be built up by combining simpler parsers. And regexes have
-their limits, for instance, don't [use regexes for parsing HTML](http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags)
-but you _could_ use Nom to parse HTML.  If you ever had the itch to write your own programming
-language, Nom is a good place for you start on that hard road to obscurity.
+Fakat belli bir standarda ait olmayan, keyfe keder bir şekilde hazırlanmış verilerı taramak karakter dizileriyle geçireceğiniz sıkıcı saatlere işaret ediyor da olabilir. İlk fikir [regex](https://github.com/rust-lang/regex) olur, ancak regex bir yerden sonra alabildiğine mantıksız bir şeye dönüşebilir. Nom, metin ayrılmanın güçlü ve sadece basit araçları birleştirmekten ibaret olduğu güzel bir yol sunar. Aynı zamanda regexlerin bir sınırı vardır, mesela [HTML taramak için regex kullanamazsınız.](http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags), fakat Nom ile HTML ayrıştırabilirsiniz. Hatta kendi programlama dilinizi yazmayı düşündüyseniz, Nom öğrenmek bu zorlu yolculuğun ilk adımı olabilir.
 
-There are some excellent tutorials for learning Nom, but I want to start at the hello-world
-level to build some initial familiarity. The basic things you need to know - first, Nom is macros all the
-way down, and second, Nom prefers to work with byte slices, not strings. The first means that you have to
-be especially careful to get Nom expressions right, because the error messages are not going to be
-friendly. And the second means that Nom can be used for _any_ data format, not just text. People
-have used Nom to decode binary protocols and file headers. It can also work with 'text'
-in encodings other than UTF-8.
+Nom öğrenmek için müthiş rehberler var, ancak ben biraz sindirerek gitmek istediğim için en basit yerden başlamak istiyorum. Bilmeniz gereken ilk şey, Nom baştan aşağıya makrolardan oluşur, ikincisi Nom karakter dizileri yerine bayt dilimleriyle çalışmayı tercih eder. Birinci şey, Nom'u kullanırken dikkatli olmanız gerektiğine işaret eder çünkü hata mesajlarından hiçbir şey anlamayabilirsiniz. İkincisi Nom'u *herhangi* bir veri türüyle kullanabileceğinizi işaret eder, sadece "metin" ayıklamak için değil. Nom kullanmış kişiler ikili biçimleri deşifre etmek veya dosya başlıklarını anlamak için kullandı. "UTF-8" ile kodlanmamış metinlerle de çalışabilirsiniz.
 
-Recent versions of Nom work fine with string slices, although you need to use the macros that
-end with `_s`.
+Nom'un son versiyonları karakter dizileriyle de çalışabilmeyi başladı, fakat karakter dizileriyle çalışabilen makroların sonunda `_s` bulunur.
 
 ```rust
 #[macro_use]
@@ -46,22 +27,11 @@ fn main() {
 // Done(" there", "hi")
 
 ```
+`named!` isimli makro (varsayılan olarak `&[u8]` tipinden) girdi alıp ve sivri parantezlerin ikinci argümanının tipinden geri dönen fonksiyonlar oluşturur. `tag_s!` ise kendisine iletilen karakter dizisi ile eşleşir, ve değer genellikle verilenin türünden olur. (Eğer `&[u8]` ile çalışmak isterseniz, bunun yerine `tag!` kullanabilirsiniz.) 
 
-The `named!` macro creates functions which take some input type (`&[u8]` by default)
-and return the second type in angle brackets.
-`tag_s!` matches a literal string in the stream of characters, and its value is
-a string slice representing that literal.  (If you wanted to work with `&[u8]` then
-use the `tag!` macro.)
+Tanımladığımız `get_greeting` ayrıştırıcısını bir `&str` ile çağırabiliriz ve bize [IResult](http://rust.unhandledexpression.com/nom/enum.IResult.html) dönecektir, bir de elbette ki eşleşen veriyi.
 
-We call the defined parser `get_greeting` with a `&str` and
-get back an [IResult](http://rust.unhandledexpression.com/nom/enum.IResult.html).
-And indeed we get back the matching value.
-
-Look at " there" - This is the string slice left over after matching..
-
-We want to ignore whitespace. By just wrapping the `tag!` in `ws!` we can match "hi" anywhere
-among spaces, tabs or newlines:
-
+Boşlukları görmezden gelmek isteyebiliriz, `tag!` makrosunu `ws!` ile sarmalarsak aradığımız "hi" kelimesini eşleştirirken bütün boşluklar görmezden gelinecektir:
 ```rust
 named!(get_greeting<&str,&str>,
     ws!(tag_s!("hi"))
@@ -73,14 +43,9 @@ fn main() {
 }
 // Done("there", "hi")
 ```
+Sonuç daha önce olduğu gibi "hi" olacaktır, ardında kalan karakter dizisi boşlukları kaldırılmış bir şekilde "there" olacaktır!
 
-The result is "hi" as before, and the remaining string is "there"! The spaces have been skipped.
-
-"hi" is matching nicely, although this isn't very useful yet.
-Let's match _either_ "hi" or "bye". The `alt!` macro ("alternate") takes parser expressions
-separated by `|` and matches _any_ of them. Note that you can use whitespace here to make
-the parser function easier to read:
-
+Tamam, "hi" eşleşmesi tıkırında çalışıyor ama bir şey yaramıyor. Hadi sadece "hi" yerine *hem* "hi"  *hem de* "bye" kısmını eşleştirelim.  `alt!` makrosu ("alternatif") `|` ile ayrılmış ayrıştırıcılardan *birisiyle* eşleşir. Aynı şekilde burada boşlukları okunaklı olması için kullanabilirsiniz: 
 ```rust
 named!(get_greeting<&str>,
     ws!(alt!(tag_s!("hi") | tag_s!("bye")))
@@ -93,10 +58,9 @@ println!("{:?}", get_greeting("  hola "));
 // Error(Alt)
 ```
 
-The last match failed because there is no alternative that matches "hola".
+Sonuncu hatalı, çünkü "hola" ile eşleşen bir metnimiz yok.
 
-Clearly we need to understand this `IResult` type to go further, but first let's compare this
-with the regex solution:
+Doğrusu `IResult` tipini iyice anlamamız gerekiyor ki daha ileriye gidebilelim; fakat neden bunu bir "regex" ifadesiyle kıyaslamıyoruz?
 
 ```rust
     let greetings = Regex::new(r"\s*(hi|bye)\s*").expect("bad regex");
@@ -105,35 +69,21 @@ with the regex solution:
 // Captures({0: Some(" hi "), 1: Some("hi")})
 ```
 
-Regular expressions are certainly more _compact_!.
-We needed to put '()' around the two possibilities
-separated by '|' so that we will _capture_ the greeting and nothing else. The first result is the
-whole string, the second is the matched capture. ('|' is the so-called 'alternation' operator in
-regexes, which is the motivation for the `alt!` macro syntax.)
+Doğrusu Regex göze daha *sade* görünüyor! Sadece parantez içine `|` koyduk ve bir tarafına "hi" diğer tarafına "bye" yerleştirdik. İlk sonuç girdi olarak aldığımız karakter dizisi, ikincisi de eşleşen ifade. (`|` regex için sözde "çeşitlilik (alternation)" operatörüdür, `alt!` makrosuna ilham vermiştir.)  
 
-But this is a very simple regex, and they get complicated very quickly. Being a text mini-language, you
-have to escape significant characters like `*` and `(`. If I wanted to match "(hi)" or
-"(bye)" the regex becomes "\s*\((hi|bye)\)\s*" but the Nom parser simply becomes
-`alt!(tag_s!("(hi)") | tag_s!("(bye)"))`.
+Fakat bu basit bir regex olsa bile bir anda herkes karmaşıklaşabilir. İşin ilginci metinlerde sıkça kullanılan `*` ve `(` gibi karakterlerden kaçınmanız gerekir ve `(hi)` veya `(bye)` ile eşleşen bir regex ifadesi yazmak isterseniz sevimli regeximix `\s*((hi | bye))\s*` gibi ucube bir hâl alacaktır. Bunun Nom muadili, gayet anlaşılır bir biçimde `alt!(tag_s!("(hi)") | tag_s!("(bye)"))` şeklindedir.
 
-It's also a heavy-weight dependency. On this fairly feeble i5 laptop, Nom examples take about 0.55
-seconds to compile, which is not much more than "Hello world". But the regex examples take about
-0.90s. And the stripped release build executable of the Nom example is about 0.3Mb (which is about
-as small as statically linked Rust programs go) versus 0.8Mb for the regex example.
+İşin kötüsü `regex` kütüphanesi ağır bir bağımlılıktır. Ananıza babanıza ancak verebileceğiniz bu i5 işlemcili laptota "Merhaba Dünya" seviyesi Nom örneklerinin derlenmesi sadece 0.55 saniye sürüyor. Fakat aynı şey regex için 0.90 saniye sürüyor. Aynı şekilde `strip` komutu uygulanmış ikili programın boyutu 0.3Mb tutarken (Statik linklenmiş bir Rust programının tutabileceği en küçük boyut) Regex örneği için 0.3Mb tutmaktadır. (Ç.N: Gözünüze bunlar anlamsız salt istatiksel veriler gibi görünebilir, ancak program büyüdükçe bu kütüphaneler kullanıldıkça bu farkın nasıl da katlanarak artacağını gözünüzde canlandırın.)
 
-## What a Nom Parser returns
+## Nom Ayrıştırıcısı Bize Ne Döner?
 
-[IResult](http://rust.unhandledexpression.com/nom/enum.IResult.html) has an interesting difference
-from the standard `Result` type - there are three possibilities:
+[IResult](http://rust.unhandledexpression.com/nom/enum.IResult.html) tipi standart `Result` tipinden daha çok şey döner. Üç ihtimal var:
 
-  - `Done` - success - you get both the result and the remaining bytes
-  - `Error` - failed to parse - you get an error
-  - `Imcomplete` - more data needed
+  - `Done` - başarılı - sonucu ve geri kalan baytları alırsınız.
+  - `Error` - ayrıştırma başarısız - bir hata alırsınız.
+  - `Imcomplete` - (tamamlanmadı) daha fazla veriye ihtiyaç vardır.
 
-We can write a generic `dump` function that handles any return value that can be debug-printed.
-This also demonstrates the `to_result` method which returns a regular `Result` - this is probably
-the method you will use for most cases since it returns either the returned value or an error.
-
+Hata ayrışma çıktısını bize dönebilen herhangi bir veriyi argüman olarak alan genellenen bir `dump` fonksiyonu yazabiliriz. Bu örnek aynı zamanda bize bildiğimiz `Result`'u dönen `to_result` metodununu nasıl kullanılabileceğini de gösterir - bu metodu veriyi ya da hatayı istediğiniz durumların çoğunda sıkça kullanacaksınızdır.
 ```rust
 #[macro_use]
 extern crate nom;
@@ -169,14 +119,10 @@ fn main() {
 // result Ok("bye")
 ```
 
-Parsers returning any unparsed text, and being able to indicate that they don't have enough
-input characters to decide, is very useful for stream parsing. But usually `to_result` is your friend.
+Ayrıştırıcılar bize ayrıştırılmamış verileri de dönüyor ve yeterince girdi almadıklarını da ortaya çıakrırlar, fakat genellikle `to_result`'u tercih edeceksiniz.
 
-## Combining Parsers
-
-Let's continue the greeting example and imagine that a greeting consists of "hi" or "bye", plus
-a name. `nom::alpha` matches a series of alphabetical characters.
-The `pair!` macro will collect the result of matching two parsers as a tuple:
+## Ayrıştırıcıları Birleştirmek
+Selamlama örneğimizle devam edelim ve "hi" veya "bye", artı bir isimden oluşan bir selamlama tasarlayalım. `nom::alpha` alfabetik karakter serileriyle eşleşecek `pair!` ise iki ayrıştırıcıyı tek bir demekte birleştirecektir.
 
 ```rust
     named!(full_greeting<&str,(&str,&str)>,
@@ -189,9 +135,7 @@ The `pair!` macro will collect the result of matching two parsers as a tuple:
     println!("result {:?}", full_greeting(" hi Bob  ").to_result());
 // result Ok(("hi", "Bob"))
 ```
-Now, further imagine that the greeter is perhaps a little shy or doesn't know anybody's name:
-let us make the name optional. Naturally, the second value of the tuple becomes an `Option`.
-
+Şimdi, selamlayıcımızın pek sosyal olduğunu veya kimsenin adını bilmediğini de hesaba katalım, ismi opsiyonel yapalım. Doğal olarak demetteki ikinci veri bir `Option` olacaktır.  
 ```rust
     named!(full_greeting<&str, (&str,Option<&str>)>,
         pair!(
@@ -205,18 +149,9 @@ let us make the name optional. Naturally, the second value of the tuple becomes 
 // result Ok(("hi", Some("Bob")))
 // result Ok(("bye", None))
 ```
+Selamlama için kullandığımız ayrıştırıcı ile isimleri yakalayan ayrıştırıcıyı birleştirmenin ve isim yakalamayı opsiyonel yapmanın ne seviye kolay olduğuna dikkat edin. Bu Nom'un geldiği gücün kaynağıdır ve bu yüzden ona "ayrıştırıcıları birleştiren kütüphane" (parse combinator library) denir. Basit ayrıştırıcılardan birleşerek inşa olan karmaşık ayrıştırıcılar inşa edebilir ve bunları teker teker test edebilirsiniz. (Buna eşdeğer bir regex bir Perl programı gibi görünmeye başlardı: çünkü regexlerin birleşmesi pek hayra alamet değildir.)
 
-Notice that it was straightforward to combine an existing parser for greetings with a parser
-that picks up names, and then it was easy to make that name optional. This is the great power of Nom,
-and it's why it's called a "parser combinator library".  You can build up your complicated
-parsers from simpler parsers, which you can test individually. (At this point, the equivalent
-regex is starting to look like a Perl program: regexes do not combine well.)
-
-However, we are not yet home and dry!  `full_greeting(" bye ")` will fail with an
-`Imcomplete` error. Nom knows that "bye" may be followed by a name and wants us to give it more
-data. This is how a _streaming_ parser needs to work, so you can feed it a file chunk by chunk,
-but here we need to tell Nom that the input is complete.
-
+Fakat, henüz istediğimiz noktaya varamadık! `full_greeting(" bye ")` bize bir `Incomplete` hatası olarak dönecektir. Nom için "bye"dan sonra isim gelmelidir ve bu yüzden bizden isim namına bir şeyler isteyecektir. Bu bir *akış ayrıştırıcısının (streaming parser)* çalışmasının nasıl çalışması gerektiğidir, bu sayede dosyaları parça parça iletebilirsiniz; ancak burada Nom'a girdinin yetersiz olacağını bildirmemiz gerekir. 
 ```rust
     named!(full_greeting<&str,(&str,Option<&str>)>,
         pair!(
@@ -229,12 +164,8 @@ but here we need to tell Nom that the input is complete.
 // result Ok(("bye", None))
 ```
 
-## Parsing Numbers
-
-Nom provides a function `digit` which matches a series of numerical digits.
-So we use `map!`, to convert the string into an integer,
-and return the full `Result` type.
-
+## Numaraları Ayrıştırmak
+Nom bir dizi rakam serisini taramaya yarayan  `digit` fonksiyonuna sahiptir. `map!` kullanarak bir yazıyı bir sayıya dönüştürebilir ve bir `Result` tipi içinde geri dönebiliriz.
 ```rust
 use nom::digit;
 use std::str::FromStr;
@@ -259,14 +190,11 @@ println!("{:?}", int32("1202"));
 // Done("", Ok(1202))
 ```
 
-So what we get is a parser `IResult` containing a conversion `Result` - and sure enough, there
-is more than one way to fail here. Note that the body of our converting function has exactly
-the same code; the actual conversion depends on the return type of the function.
+Burada `Result`'a dönüşebilen bir `IResult` ayrıştırıcısı elde ederiz - ve  elbette ki, burada mümkün olan birden çok hata vardır. Fonksiyonların içeriklerinin aynı olduğuna dikkat edin, esas dönüşüm fonksiyonun döndüğü tipe bağlıdır.
 
-Integers may have a sign. We can capture integers as a pair, where the first
-value may be a sign, and the second value would be any digits following.
+Sayıların işareti olabilir. Sayıları bir çift parça hâlinde yakabilirsiniz; önce bir işaret gelir ardından rakam gelir.
 
-Consider:
+Mesela: 
 
 ```rust
 named!(signed_digits<&str, (Option<&str>,&str)>,
@@ -282,8 +210,7 @@ println!("signed {:?}", signed_digits("+12"));
 // signed Done("", (Some("+"), "12"))
 ```
 
-When we aren't interested in the intermediate results, but just want all the matching
-input, then `recognize!` is what you need.
+Eğer hedefe odaklıysanız ve ara sonuçları atlamak istiyorsanız, `recognize!` istediğiniz şeyi verebilir.
 
 ```rust
 named!(maybe_signed_digits<&str,&str>,
@@ -294,12 +221,7 @@ println!("signed {:?}", maybe_signed_digits("+12"));
 // signed Done("", "+12")
 ```
 
-With this technique, we can recognize floating-point numbers. Again we map to string slice
-from the byte slice over all these matches. `tuple!` is the generalization of `pair!`,
-although we aren't interested in the generated tuple here. `complete!` is needed to resolve
-the same problem we had with incomplete greetings - "12" is a valid number without the
-optional floating-point part.
-
+Bu teknikle noktalı sayıları da yakalayabiliriz. Bu eşleşmeler üzerinden bayt dilimlerinden karakter dizilerine ulaşıyoruz.  `tuple!`, `pair!`'in oluşturulan demetle ilgilenmediğimiz türünden bir muadili. `complete!` ise "yarım kalan selamlama"da yaşadığımız sorunu çözmek için kullandığımız bir araç - "12", noktalı olmasa da aslında geçerli bir sayıdır.
 ```rust
 named!(floating_point<&str,&str>,
     recognize!(
@@ -318,8 +240,7 @@ named!(floating_point<&str,&str>,
 );
 ```
 
-By defining a little helper macro, we get some passing tests. The test
-passes if `floating_point` matches all of the string that it is given.
+Yardımcı olacak minik bir makro tanımlayarak bazı geçerli testler üretebilriz. Bu testler, `floating _point` verilen metinden sayı yakalayabildiyse geçerli sonuç verecektir.
 
 ```rust
 macro_rules! nom_eq {
@@ -335,36 +256,22 @@ nom_eq!(floating_point, "2343.23");
 nom_eq!(floating_point, "2e20");
 nom_eq!(floating_point, "2.0e-6");
 ```
+(Makrolar kodu *biraz* kirletilmiş gösterse de, testlerinizi hazırlamak faydalı bir şeydir.)
 
-(Although sometimes macros feel a _little_ dirty, making your tests pretty is a fine thing.)
-
-And then we can parse and convert floating point numbers. Here I'll throw caution to the
-winds and throw away the error:
-
+Ve metinleri ayrıştırıp noktalı sayılara çevirebilirsiniz. Burada akışa odaklanacağım ve hatayı uzaklaştıracağım: 
 ```rust
     named!(float64<f64>,
         map_res!(floating_point, FromStr::from_str)
     );
 ```
 
-Please note how it's possible to build up complicated parsers step by step, testing each
-part in isolation first. That's a strong advantage of parser combinators over regexes.
-It is very much the classic programming tactic of divide-and-rule.
+Lütfen birbirinden karmaşık testler ayrıştırıcılar oluşturmanın adım adım nasıl mümkün olduğuna dikkat edin, her bir parçayı ayrıca test edebilirsiniz. Bu, birleştirilmiş ayrıştırıcıların regexler üzerinde güçlü bir avantajıdır. Bu gayet klasik bir programlama taktiği olan "böl ve yönettir". 
+## Çeşitli eşlemeler üzerinde işlemler
+Sabit bir sayıda örüntüyü yakalayan ve bir Rust demeti dönen `pairs!` ve `tuple!` ile tanıştık.
 
-## Operations over Multiple Matches
+Bir de `many0` ve `many1` var - ikisi de değişken sayıda örüntüyü bir vektör içerisinde tanımlar. İkisi artasındaki fark birisinin "sıfır veya daha fazla", diğerinin ise "bir veya daha fazla" şeyi yakalalıyor olmasıdır. (regexteki `*` ve `+` karakterini düşünün) Yani, `many1!(ws(float64))`, "1 2 3" şeklinde bir karakter dizisi bize `vec![1.0, 2.0, 3.0]` olarak dönmeyi tercih edecek ancak boş bir karakter dizisinde hata verecektir.
 
-We've met `pairs!` and `tuple!` which capture a fixed number of matches as Rust tuples.
-
-There is also `many0` and `many1` - they both capture indefinite numbers of matches as vectors.
-The difference is that the first may capture 'zero or many' and the second 'one or many' (like the
-difference between the regex `*` versus `+` modifiers.)  So `many1!(ws!(float64))` would
-parse "1 2 3" into  `vec![1.0,2.0,3.0]`, but will fail on the empty string.
-
-`fold_many0` is a _reducing_ operation. The match values are combined into a single value,
-using a binary operator.
-For instance, this is how Rust people did sums over iterators before `sum` was added; this fold
-starts with an initial value (here zero) for the _accumulator_ and keeps adding values to
-that accumulator using `+`.
+`fold_many0` ise bir *azaltma (reduce)* işlemidir. Ayrıştırılan değerler tek bir değerde bir ikili operatör kullanılarak tek bir değerde toplanır. Mesela, Rust programcıları döngüleyicilerin içeriğini toplamak kullanmak için `sum` gelmeden önce ne yapıyorsa bu da ona benzer; aşağıdaki `fold` *işleyici (accumulator)* için bir başlangıç değerine (burada sıfır) sahiptir ve işleyicinin ne yapacağını bildirmesi için `+` operatörünü kullanır.
 
 ```rust
     let res = [1,2,3].iter().fold(0,|acc,v| acc + v);
@@ -372,7 +279,7 @@ that accumulator using `+`.
     // 6
 ```
 
-Here's the Nom equivalent:
+Nom muadili şöyledir:
 
 ```rust
     named!(fold_sum<&str,f64>,
@@ -386,8 +293,7 @@ Here's the Nom equivalent:
     println!("fold {}", fold_sum("1 2 3").to_result().unwrap());
     //fold 6
 ```
-
-Up to now, we've had to capture every expression, or just grab all matching bytes with `recognize!`:
+Şimdiye dek bütün ifadeleri yakalamaya çalıştık veya eşleşen baytları `recognize!` ile aldık:
 
 ```rust
     named!(pointf<(f64,&[u8],f64)>,
@@ -402,13 +308,9 @@ Up to now, we've had to capture every expression, or just grab all matching byte
  //got (20, ",", 52.2)
 ```
 
-For more complicated expressions, capturing the results of all the parsers leads to
-rather untidy types!  We can do better.
+Karmaşık ifadeler için, ayrıştırıcıların bütün sonuçlarını almış olmak bizi dağınık bir çalışma prensibine sokar! Daha iyisini yapabiliriz.
 
-`do_parse!` lets you extract only the values you're interested in. The matches are separated
-with `>>` - the matches of interest are of the form `name: parser`. Finally, there's a code
-block in parentheses.
-
+`do_parse!` sadece ihtiyacınız olan değerlere erişmesinize izin verir. Yakalanan veriler `>>` ile ayrılır - ilginizi çeken verileri `isim: ayrıştırıcı` formatında işaretleyebilirsiniz. Son olarak, parantezler arasında kodunuzu belirtirsiniz.
 ```rust
     #[derive(Debug)]
     struct Point {
@@ -430,19 +332,12 @@ block in parentheses.
 // got Point { x: 20, y: 52.2 }
 ```
 
-We're not interested in that tag's value (it can only be a comma) but we assign the two float values
-to temporary values which are used to build a struct. The code at the end can be any Rust
-expression.
+İlgilenmediğimiz değerleri (bu örnekte olduğu gibi virgül) bir isme bağlamıyoruz ve iki noktalı sayıyı bir yapı oluşturmak için geçici isimlere atıyoruz. Parantezler içinde kalan kısım ise bir Rust kodu olmalı.
 
-## Parsing Arithmetic Expressions
+## Aritmatik İfadeleri Ayrıştırmak
+Gerekli bilgiler sayesinde basit aritmatik ifadeleri ayrıştırabiliriz. İşte regexlerle yapamayacağınız şeylere güzel bir örnek.
 
-With the necessary background established, we can do simple arithmetic expressions.
-This is a good example of something that really can't be done with regexes.
-
-The idea is to build up expressions from the bottom up. Expressions consist of _terms_, which are
-added or subtracted. Terms consist of _factors_, which are multiplied or divided. And (for now)
-factors are just floating-point numbers:
-
+Aşağıda yapmaya çalıştığımız şey ifadelerimizi ayıklayacak şeyi basitten karmaşığa doğru inşa etmektir. İfadeler eklenip çıkartılabilir *terimlerden (term)* oluşur. Terimler ise çarpılıp bölünebilir *faktörlerden* oluşur. Ve (şimdilik), faktörler sadece noktalı sayılardır:
 ```rust
     named!(factor<f64>,
         ws!(float64)
@@ -480,15 +375,11 @@ factors are just floating-point numbers:
 
 ```
 
-This expresses our definitions more precisely - an expression consists of at least one term, and then
-zero or many plus-or-minus terms. We don't collect them, but _fold_ them using the appropriate
-operator. (It's one of those cases where Rust can't quite work out the type of the expression, so
-we need a type hint.)  Doing it like this establishes the correct _operator precedence_ - `*` always
-wins over `+` and so forth.
+İfadelerimiz daha net ifade edilmiş oldu - bir ifade bir terimden ve artılı eksili daha fazla terimden oluşur. Onları biriktirmiyoruz, fakat uygun operatör vasıtasıyla *işliyoruz. (fold)* (Bunun gibi durumlarda Rust, ifadenin türünü tam olarak anlayamadığından işin içinden çıkamaz ve bir ipucu ister). Bu sayede işlem önceliğini sağlamış oluruz - `*` her zaman `+` gibi şeyler.
 
-We're going to need floating-point asserts here, and [there's a crate for that](http://brendanzab.github.io/approx/approx/index.html).
+Noktalı sayılar için test ifadelerine ihtiyacımız olacak, ve [bunun için bir sandık var.](http://brendanzab.github.io/approx/approx/index.html).
 
-Add the line 'approx="0.1.1" to your Cargo.toml, and away we go:
+Cargo.toml dosyanıza `approx=0.1.1` satırını ekleyin ve işimize bakalım:
 
 ```rust
 #[macro_use]
@@ -496,10 +387,7 @@ extern crate approx;
 ...
     assert_relative_eq!(fold_sum("1 2 3").to_result().unwrap(), 6.0);
 ```
-
-Let's define a convenient little testing macro. `stringify!` turns the expression into a string
-literal which we can feed into `expr` and then compare the result with how Rust would
-evaluate it.
+Bir küçük bir test makrosu yazalım. `stringify!`, ifadeyi bir karakter dizisi ifadesine dönüştürür ve bunu `expr` içerisine argüman olarak iletebiliriz, sonra da sonucu Rust'ın bulacağı ifadenin sonucu ile kıyaslayalım:
 
 ```rust
     macro_rules! expr_eq {
@@ -514,9 +402,7 @@ evaluate it.
     expr_eq!(2.0*3.0 - 4.0);
 ```
 
-This is very cool - a few lines to get an expression evaluator! But it gets better.
-We add an alternative to numbers in the `factor` parser - expressions contained inside
-parentheses:
+Şükela - sadece birkaç satırla ifade işleyicisi tanımladık! Daha iyi olabilir. `factor` içindeki numaralara bir alternatif ekleyebiliriz - parantez içindeki ifadeler için:
 
 ```rust
     named!(factor<&str,f64>,
@@ -530,15 +416,11 @@ parentheses:
     expr_eq!((1.0 + 2.0)*(3.0 + 4.0*(5.0 + 6.0)));
 ```
 
-The coolness is that expressions are now defined _recursively_ in terms of expressions!
+Şükelalık ifadenin artık terimler açısından *özyinemeli (recursively)* olarak çağrılmasıdır!
 
-The particular magic of `delimited!` is that parentheses may be nested - Nom makes sure
-the brackets match up.
+`delimited!` makrosunun özel sırrı parantezlerin iç içe olabilmesidir - Nom parantezlerin kapandığından emin olacaktır.
 
-We are now way past the capabilities of regular expressions, and the stripped executable at 0.5Mb
-is still half the size of a "hello world" regex program.
-
-
+Regexin yapabileceklerinin çok çok ötesindeki ve `strip` uygulanmış ikili dosyamız sadece 0.5Mb, ki  hâlen daha ekrana "Merhaba Dünya" yazdıran regex programımızın yarısı kadar ediyor bu.
 
 
 
