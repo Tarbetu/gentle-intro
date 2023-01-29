@@ -13,19 +13,9 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "src/nom-intro.md",
+                "file": "src/pain-points.md",
                 "mode": "source",
                 "source": false
-              }
-            }
-          },
-          {
-            "id": "5978f2af0fcb63fd",
-            "type": "leaf",
-            "state": {
-              "type": "image",
-              "state": {
-                "file": "src/PPrustS.png"
               }
             }
           }
@@ -79,7 +69,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "8c934807429577fa",
@@ -95,7 +86,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "src/nom-intro.md",
+                "file": "src/pain-points.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -112,7 +103,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "src/nom-intro.md",
+                "file": "src/pain-points.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -135,7 +126,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "src/nom-intro.md"
+                "file": "src/pain-points.md"
               }
             }
           }
@@ -158,10 +149,10 @@
   },
   "active": "b9a21273c74a5cc4",
   "lastOpenFiles": [
+    "src/nom-intro.md",
     "src/PPrustS.png",
     "src/SUMMARY.md",
     "src/pain-points.md",
-    "src/nom-intro.md",
     "4-modules.html.md",
     "src/object-orientation.md",
     "src/7-shared-and-networking.md",
