@@ -1,5 +1,6 @@
 # Neden yeni bir programlama dili öğrenmelisiniz?
 ![Rust hakkında bir karikatür](https://stevedonovan.github.io/rust-gentle-intro/PPrustS.png)
+
 [David Marino'ya teşekkürlerle!](https://leftoversalad.com/c/015_programmingpeople/)
 
 >Karikatürün çevirisi:

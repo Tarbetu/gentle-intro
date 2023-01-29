@@ -1,0 +1,623 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Nesne Yönelimli Programlama - Rust&#x27;a Yumuşak Bir Başlangıç</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="Rust diline, standart sistemine ve ekosistemine bir giriş.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="1-basics.html"><strong aria-hidden="true">1.</strong> Merhaba Dünya</a></li><li class="chapter-item expanded "><a href="2-structs-enums-lifetimes.html"><strong aria-hidden="true">2.</strong> Yapılar, Numaralandırmalar ve Eşleştirmeler</a></li><li class="chapter-item expanded "><a href="3-filesystem.html"><strong aria-hidden="true">3.</strong> Dosya Sistemi ve Süreçler</a></li><li class="chapter-item expanded "><a href="4-modules.html"><strong aria-hidden="true">4.</strong> Modüller ve Kargo</a></li><li class="chapter-item expanded "><a href="5-stdlib-containers.html"><strong aria-hidden="true">5.</strong> Standart Kütüphane Konteynırları</a></li><li class="chapter-item expanded "><a href="6-error-handling.html"><strong aria-hidden="true">6.</strong> Hataları Yönetmek</a></li><li class="chapter-item expanded "><a href="7-shared-and-networking.html"><strong aria-hidden="true">7.</strong> Sistem Süreçleri, Ağlar ve Paylaşım</a></li><li class="chapter-item expanded "><a href="object-orientation.html" class="active"><strong aria-hidden="true">8.</strong> Nesne Yönelimli Programlama</a></li><li class="chapter-item expanded "><a href="nom-intro.html"><strong aria-hidden="true">9.</strong> Yazıları Nom ile Ayrıştırmak</a></li><li class="chapter-item expanded "><a href="pain-points.html"><strong aria-hidden="true">10.</strong> Rust ve Çektirdiği Çile</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust&#x27;a Yumuşak Bir Başlangıç</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="rust-ve-nesne-yönelimli-programlama"><a class="header" href="#rust-ve-nesne-yönelimli-programlama">Rust ve Nesne Yönelimli Programlama</a></h2>
+<p>Her disiplinden birileri geliyor ve Nesne Yönelimli bir dilden gelmeniz olasılığınız oldukça yüksektir:</p>
+<ul>
+<li>&quot;Sınıf&quot;lar nesne (kimi zaman <em>örnek</em> (instance) deriz) üreten fabrikalar gibi çalışırlar.</li>
+<li>Sınılar diğer sınıfların (<em>üst sınıf/ebeveyn</em>) alanlarını (<em>field</em>) ve davranışlarını (<em>metotlar</em>) <em>miras (inheritance)</em> alabilir.</li>
+<li>Eğer B, A'dan miras alıyorsa, o zaman B aynı zamanda A olarak kabul edilebilir. (<em>alttip/subtyping</em>)</li>
+<li>Nesne kendi verilerini gizlemelidir (<em>kapsülleme/encapsulation</em>), sadece metotlarıyla etkileşime geçmelidir.
+Nesne yönelimli <em>tasarım</em> sınıfların (yani isimleri) ve yöntemlerin (yani sıfatları) tanımlandığı anlayıştır. Aynı zamanda nesne yönelimli tasarımda bunlar arasındaki ilişkiler de tanımlanır ve bu ilişkiler <em>sahip olmak (has-a</em>) ve <em>onun türünden olmak (is-a)</em> olarak tanımlanır.</li>
+</ul>
+<p>Eski Star Trek serilerinde doktorun kaptana &quot;Bu bir yaşam Jim, sadece bizim bildiğimiz yaşam değil&quot; (It's Life, Jim, just not Life as we know it) dediği bir an vardır. Bu deyim aynen olduğu gibi Rust'taki nesne yönelimi anlayışını da açıklıyor: Önce &quot;Bu ne ya?&quot; diyorsunuz, çünkü Rust'taki veri yapıları (yapılar, numaralandırmalar ve demetler) pek de uçan kaçan tarzda değiller. Onlara metot tanımlayabilirsiniz, verinin kendisini gizleyebilirsiniz ve bütün kapsülleme yöntemlerini kullanabilirsiniz ancak her birisi <em>birbiriyle alakasız tiplerdir.</em> Alt tipler yoktur, miras alma yöntemi yoktur. (Sadece <code>Deref</code> zorlamaları miras olarak kabul edilebilir <sup class="footnote-reference"><a href="#yorum">1</a></sup>)</p>
+<div class="footnote-definition" id="yorum"><sup class="footnote-definition-label">1</sup>
+<p>Çevirmenin yorumu: Nesne yönelimli programlamada miras alan tip, doğal olarak miras aldığı tip olduğu kabul edilir. Rust'ta bir literatür farklılığı vardır, o da tipin aslında o olmadığı ancak zorlanarak dönüştürüldüğü vurgusudur. Yani bu bir miras alma mıdır? Evet, belki de. Ancak Rust, &quot;coercion&quot; kelimesi ile Rust'ın bir tipi başka bir tipe zorla dönüştürdüğünü vurgulamaktadır.</p>
+</div>
+<p>Çeşitli tipler arasındaki ilişkiler <em>özellikler (trait)</em> ile inşa edilir. Rust öğrenme sürecinin büyük bir kısmı standart kütüphanede bulunan özelliklerin nasıl çalıştığını anlamaktan geçer çünkü bu bütün verileri birbiriyle çalışmasına izin veren ve onlara anlamlar yükleyen bir sistemdir.</p>
+<p>Özellik sistemi ilginçtir çünkü ana akım programlama dillerinde birebir benzeri yoktur.  Tabii, bu dinamiklik ya da statiklik arasındaki farklı düşünürsek. Dinamik olarak Java ve Go arayüzlerine (interface) benzerler.</p>
+<h3 id="Özellik-nesneleri"><a class="header" href="#Özellik-nesneleri">Özellik Nesneleri</a></h3>
+<p>Özellikleri anlatırken kullandığımız ilk örneği düşünün:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Show {
+fn show(&amp;self) -&gt; String;
+}
+
+impl Show for i32 {
+fn show(&amp;self) -&gt; String {
+format!(&quot;four-byte signed {}&quot;, self)
+}
+}
+
+impl Show for f64 {
+fn show(&amp;self) -&gt; String {
+format!(&quot;eight-byte float {}&quot;, self)
+}
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Bu da büyük <code>impl</code> bloklarıyla beraber ufak bir program:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">trait Show {
+</span><span class="boring">    fn show(&amp;self) -&gt; String;
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl Show for i32 {
+</span><span class="boring">    fn show(&amp;self) -&gt; String {
+</span><span class="boring">        format!(&quot;four-byte signed {}&quot;, self)
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl Show for f64 {
+</span><span class="boring">    fn show(&amp;self) -&gt; String {
+</span><span class="boring">        format!(&quot;eight-byte float {}&quot;, self)
+</span><span class="boring">    }
+</span><span class="boring">}
+</span>
+fn main() {
+let answer = 42;
+let maybe_pi = 3.14;
+let v: Vec&lt;&amp;Show&gt; = vec![&amp;answer,&amp;maybe_pi];
+for d in v.iter() {
+println!(&quot;show {}&quot;,d.show());
+}
+}
+// show four-byte signed 42
+// show eight-byte float 3.14</code></pre></pre>
+<p>Burası Rust'ın tip bildirimi gerektirdiği bazı nadir noktalardan birisi - <code>Show</code> özelliğini içeren herhangi bir vektörü açıkça istemek durumundayım. <code>i32</code> ve <code>f64</code> arasında hiçbir şey bağlantı olmadığına dikkat edin, fakat ikisi de <code>show</code> metotuna sahip çünkü ikisi de aynı özelliğe sahip. Bu <em>sanal (virtual)</em> bir metottur, çünkü bu metot her tip için farklı bir kod çalıştırır ve çalışma zamanındaki duruma göre doğru yöntem çağrılır. Bu referanslara <a href="https://doc.rust-lang.org/stable/book/trait-objects.html">özellik nesneleri</a> denir.</p>
+<p>Ve <em>bu</em> farklı tipleri nasıl aynı vektöre koyabileceğinizin yoludur. Eğer Java veyahut Go temeliniz varsa, <code>Show</code>'u bir arayüz (interface) olarak düşünebilirsiniz.</p>
+<p>Biraz daha kurcalayalım ve değerleri bir <code>Box</code> işaretçisi içine koyalım. <code>Box</code>, heapta tahsis edilmiş alana yerleştirilen verinin referansını referansını temsil eder ve bir ödünç alma gibi çalışır - bu bir <em>akıllı işaretçidir (smart pointer)</em>. <code>Box</code> ortadan kalktığı zaman <code>Drop</code> devreye girer ve bellek serbest bırakır.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">trait Show {
+</span><span class="boring">    fn show(&amp;self) -&gt; String;
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl Show for i32 {
+</span><span class="boring">    fn show(&amp;self) -&gt; String {
+</span><span class="boring">        format!(&quot;four-byte signed {}&quot;, self)
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl Show for f64 {
+</span><span class="boring">    fn show(&amp;self) -&gt; String {
+</span><span class="boring">        format!(&quot;eight-byte float {}&quot;, self)
+</span><span class="boring">    }
+</span><span class="boring">}
+</span>
+let answer = Box::new(42);
+let maybe_pi = Box::new(3.14);
+
+let show_list: Vec&lt;Box&lt;Show&gt;&gt; = vec![answer,maybe_pi];
+for d in &amp;show_list {
+println!(&quot;show {}&quot;,d.show());
+}
+// show four-byte signed 42
+// show eight-byte float 3.14
+<span class="boring">}</span></code></pre></pre>
+<p>Buradaki fark, bu şekilde bu vektörü alıp bir yere referans takibi yapmaksızın başka yerlere ödünç verebilirsiniz. Vektör düşürüldüğü zaman, <code>Box</code> nesneleri de düşürülür ve bellek yeniden tahsis edilebilir.</p>
+<h2 id="hayvanat-bahçesi"><a class="header" href="#hayvanat-bahçesi">Hayvanat Bahçesi</a></h2>
+<p>Nesne yönelimli programlamadan ve miras alma işleminden bahsettiğimiz ilk andan itibaren hayvanlardan konuşmaya başlarız. Kulağa da fena gelmez, &quot;Bak işte, kedi bir etoburdur ve etoburlar bir hayvandır&quot;. Ruby evreninden klasik bir sloganı analım: &quot;Eğer vaklıyorsa, o bir ördektir&quot;. <code>quack</code> (vak!) metotuna sahip bütün nesneler ördek olarak tanımlanabilir, biraz kulağa tuhaf gelse de.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span>
+<span class="boring">fn main() {
+</span>trait Quack {
+fn quack(&amp;self);
+}
+
+struct Duck ();
+
+impl Quack for Duck {
+fn quack(&amp;self) {
+println!(&quot;quack!&quot;);
+}
+}
+
+struct RandomBird {
+is_a_parrot: bool
+}
+
+impl Quack for RandomBird {
+fn quack(&amp;self) {
+if !self.is_a_parrot {
+println!(&quot;quack!&quot;);
+} else {
+println!(&quot;squawk!&quot;);
+}
+}
+}
+
+let duck1 = Duck();
+let duck2 = RandomBird{is_a_parrot: false};
+let parrot = RandomBird{is_a_parrot: true};
+
+let ducks: Vec&lt;&amp;Quack&gt; = vec![&amp;duck1,&amp;duck2,&amp;parrot];
+
+for d in &amp;ducks {
+d.quack();
+}
+// quack!
+// quack!
+// squawk!
+<span class="boring">}</span></code></pre></pre>
+<p>Elimizde iki farklı tip var (o kadar işlevsiz ki hiçbir veri tutmuyorlar), ve evet, hepsinin <code>quack()</code> metotu var. Bir tanesinin davranışı bir ördek için azıcık tuhaf, ancak yine de hepsi ortak bir metot ismini paylaşıyor ve Rust hepsini tip emniyetli bir şekilde bir araya getiriyor.</p>
+<p>Tip emniyeti müthiş bir şey. Eğer tip emniyeti olmasaydı, ortalığı çalışma zamanında darmaduman edecek bir <em>kediyi</em> vakvak kardeşlerin arasına sokabilirdik.</p>
+<p>Şimdi saçma bir şey yapalım:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// and why the hell not!
+impl Quack for i32 {
+fn quack(&amp;self) {
+for i in 0..*self {
+print!(&quot;quack {} &quot;,i);
+}
+println!(&quot;&quot;);
+}
+}
+
+let int = 4;
+
+let ducks: Vec&lt;&amp;Quack&gt; = vec![&amp;duck1,&amp;duck2,&amp;parrot,&amp;int];
+...
+// quack!
+// quack!
+// squawk!
+// quack 0 quack 1 quack 2 quack 3
+<span class="boring">}</span></code></pre></pre>
+<p>Ne diyebilirim ki? Vaklıyorsa ördektir. İlginç olan şey, özellikleri herhangi bir şeye ekleyebilirsiniz, sadece &quot;nesnelere&quot; değil. (<code>quack</code> bir referans olarak iletildiği için, defererans operatörü ile sayıyı alabilirsiniz.)</p>
+<p>Yine de bunu sadece kendi sandığınızda tanımladığınız tipler üzerinde veya o sandıkta tanımlanmış özelliklerle yapabilirsiniz. Yani standart kütüphaneyi yamalı bohçaya (monkey patch) çeviremezsini, ki bu da Ruby vatandaşlarının başka bir alışkanlığı. (Çok da bayılan bir şey değildir doğrusu.)</p>
+<p>Şimdiye kadar <code>Quack</code> bir Java arayüzü gibi davrandı ve isterseniz modern Java tipleri arayüzleri gibi çeşitli uygulamaları eğer gereken metotları sağladıysanız tipinize ekleyebilirsiniz. (<code>Iterator</code> özelliğini hatırlayın.)</p>
+<p>Şimdiye kadar, özellikler bir tip <em>tanımının</em> parçası değildi ve isterseniz özellikleri istediğiniz tipe ekleyebilirsiniz,  ancak aynı sandık kısıtlamasını gözden kaçırmayın.</p>
+<p><code>Quack</code> özelliğine sahip bütün nesneleri referans olarak da görebilirsiniz:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn quack_ref (q: &amp;Quack) {
+q.quack();
+}
+
+quack_ref(&amp;d);
+<span class="boring">}</span></code></pre></pre>
+<p>İşte bu Rust'ın anladığı şekilde alttiplemedir.</p>
+<p>Burada &quot;Programlama Dilleri Kapıştırmaca Dersleri&quot; verdiğimiz için, Go'nun ilginç vaklama yaklaşımını da not etmek istiyorum. Eğer Go'da tanımlanmış bir <code>Quack</code> arayüzü varsa ve bir tipin <code>quack</code> metotu varsa, o tip <code>Quack</code> arayüzünü açık bir tanıma gerek duymadan kendisine implement eder. Bu Java'nın &quot;Her şey tek tek tanımlanacak!&quot; yaklaşımına ters düşer ve tip emnyetini biraz tehlikeye soksa da &quot;ördek tiplemeye&quot; izin verir. (Duck-typing)</p>
+<p>Fakat ördek tipleme ile alakalı bir sorun var. Kötü bir nesne yönelimli programlamanın ilk işaretçisi çok fazla metotun <code>run</code> gibi her kalıba girebilecek isimlere sahip olmasıdır. &quot;Eğer <code>run()</code> (Çalıştır) metotu varsa, o zaman <code>Runnable</code> (Çalıştırılabilir) olmalıdır&quot; vaklıyorsa o ördektir kadar zarif gelmiyor. Yani <em>istemeden</em> bir <code>Go</code> arayüzü o tipte tanımlı olabilir. Rust için mesela, <code>Debug</code> ve <code>Display</code> aynı anda <code>fmt</code> metotunu barındırır, fakar iki özelliğin çok farklı anlamları vardır.</p>
+<p>Yani, Rust özellikleri bildiğimiz anlamda çok biçimli nesne yönelimli programlamaya izin verir. Peki ya miras? İnsanlar genellikle &quot;Miras alma&quot;yı kastederken Rust genellikle &quot;Arayüz mirasından&quot; bahseder. <code>extend</code> yerine her zaman <code>implements</code> kullanmayı tercih eden bir Java programcısı gibi. Ve bu aslında Alan Jolub tarafından <a href="http://www.javaworld.com/article/2073649/core-java/why-extends-is-evil.html">tavsiye edilen bir alışkanlıktır.</a> Der ki:</p>
+<blockquote>
+<p>James Gosling'in (Java'nın yaratıcısı) sunduğu bir Java kullanıcıları gurubu konferansında bir keresinde bulunmuştum. O akılda kalıcı soru - cevap kısmında birisi şöyle bir soru sordu: &quot;Eğer Java'yı yeniden tasarlasaydınız, neyi değiştirirdiniz?&quot;. O da şöyle bir cevap verdi: &quot;Sınıf anlayışını terk ederdim&quot;. İnsanların kahkahası sona erdikten sonra sorunun sınıflar olmadığını ancak &quot;miras alma&quot; işleminden ziyade (<em>extends</em> ilişkisi) olduğundan bahsetti. &quot;Arayüz mirası&quot; (<em>implements</em> ilişkisi) çok daha tercih edilesi. Miras almayı mümkün olduğunca az yapmanız faydanıza olur.</p>
+</blockquote>
+<p>Java gibi bir dilde bile, çok fazla sınıf üretiyor olabilirsiniz!</p>
+<p>Miras alma anlayışının çok ciddi sorunları var, fakat oldukça <em>akla yatkın</em> görünüyor. Aşırı geniş bir sınıf olan <code>Animal</code>ı tasarlıyoruz ve içerisine çok faydalı şeyler ekliyoruz (tehlikeli olsa bile), ve bizim <code>Cat</code> sınıfımız da bu faydalı şeyleri kullanabiliyor. Hepsi bu, kodları tekrar kullanmanın bir yolu. Ancak kodun yeniden kullanımı aslında başka bir konudur.</p>
+<p>Miras alma ve arayüz mirası arasındaki farkı anlamak Rust'ı anlarken oldukça önemlidir.</p>
+<p>Özelliklerin size başka metotlar <em>sağladığını</em> unutmayın. <code>Iterator</code> özelliğini düşünün, <code>next</code> metotunu tanımladıktan sonra başka metotları zahmetsizce tipinize eklemiş olursunuz. Modern Java arayüzlerindeki &quot;varsayılan&quot; metotlar gibi. Alttaki örnekte <code>name</code> kısmını tanımlıyoruz ve <code>upper_case</code> bizim yerimize tanımlanmış oluyor. <em>İstersek</em> <code>upper_case</code> metotunu yeniden yazabiliriz, ama bu <em>gerekli</em> değildir.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Named {
+fn name(&amp;self) -&gt; String;
+
+fn upper_case(&amp;self) -&gt; String {
+self.name().to_uppercase()
+}
+}
+
+struct Boo();
+
+impl Named for Boo {
+fn name(&amp;self) -&gt; String {
+&quot;boo&quot;.to_string()
+}
+}
+
+let f = Boo();
+
+assert_eq!(f.name(),&quot;boo&quot;.to_string());
+assert_eq!(f.upper_case(),&quot;BOO&quot;.to_string());
+<span class="boring">}</span></code></pre></pre>
+<p>Bu da bir <em>çeşit</em> kodu tekrar kullanma yöntemi, evet, ama bunun verinin kendisinde geçerli olmadığını sadece arayüzde tanımlı olduğuna dikkat edin.</p>
+<h2 id="Ördekler-ve-genellemeler"><a class="header" href="#Ördekler-ve-genellemeler">Ördekler ve Genellemeler</a></h2>
+<p>Burada Rustla yazılmış, genelleme kullanılarak yazılan &quot;ördek&quot; fonksiyonu gözünüze anlamsız gelmiş olabilir:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn quack&lt;Q&gt; (q: &amp;Q)
+where Q: Quack {
+q.quack();
+}
+
+let d = Duck();
+quack(&amp;d);
+<span class="boring">}</span></code></pre></pre>
+<p>Tip parametresi, <code>Quack</code> özelliğini barındıran herhangi bir şeyi işaret eder. Buradaki <code>quack</code> ve önceki bölümde tanımladığımız <code>quack_ref</code> arasında önemli bir fark var. Fonksiyonun içeriği, çağıran her bir tip için ayrıca oluşturulur ve sanal metotlara ihtiyacımız yok, bu tarz fonksiyonlar tamamen &quot;satır içi&quot; (inline) olabilir. Burada <code>Quack</code> tipi genellenen tip üzerinde bir kısıtlama olarak kullanılır.</p>
+<p>Bu da genellenen <code>quack</code> metotumuzun C++ muadili (<code>const</code>a dikkat edin):</p>
+<pre><code class="language-cpp">template &lt;class Q&gt;
+void quack(const Q&amp; q) {
+q.quack();
+}
+</code></pre>
+<p>Tip parametresinin herhangi bir şeyle kısıtlanmadığına dikkat edin.</p>
+<p>Bu daha çok derleme zamanında çalışan bir ördek tiplemeye benziyor - vaklamayan bir tipi iletirsek derleyici <code>quack</code> diye bir metot olmadığından bahsedecektir. En azından sonra derleme zamanında keşfediliyor. Go'da direkt bütün tipin <code>Quackable</code> arayüzüne sahip olması daha da kötü şeylere sebep olabilir. Daha karmaşık <code>template</code> fonksiyonları ve sınıfları berbat hata mesajlarına yol açacaktır çünkü bu sefer genellenen tipler üzerinde <code>hiçbir</code> kısıtlama olmayacaktır.</p>
+<p>Vaklayan nesne üzerindeki işaretçilerle bir döngü tanımlamayı düşünebilirsiniz:</p>
+<pre><code class="language-cpp">template &lt;class It&gt;
+void quack_everyone (It start, It finish) {
+    for (It i = start; i != finish; i++) {
+        (*i)-&gt;quack();
+    }
+}
+</code></pre>
+<p>Bu, her <code>It</code> döngüleyici türü için çalışacaktır. Rust muadili az biraz daha ilginçtir:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn quack_everyone &lt;I&gt; (iter: I)
+where I: Iterator&lt;Item=Box&lt;Quack&gt;&gt; {
+for d in iter {
+d.quack();
+}
+}
+
+let ducks: Vec&lt;Box&lt;Quack&gt;&gt; = vec![Box::new(duck1),Box::new(duck2),Box::new(parrot),Box::new(int)];
+
+quack_everyone(ducks.into_iter());
+<span class="boring">}</span></code></pre></pre>
+<p>Rust'taki döngüleyiciler ördek tipli değildir ancak ilişkili tipler <code>Iterator</code> özelliğini barındırmalıdır ve ilgili örneğimizde <code>Box&lt;Quack&gt;</code> için döngüleyici tanımlanıyor. Hangi tiple çalışacağı hakkında bir belirsizlik yoktur ve ilişkili veriler muhakkak <code>Quack</code>'ı tanımlamalıdır. Bazen bir Rust fonksiyonu yazarken fonksiyon imzası yazmaktan Rust'tan bıkabilirsiniz, bu yüzden standart kütüphanenin kaynak kodlarını dikkatlice okumanızı şiddetle öneririm - ancak fonksiyon yazmak fonksiyon yazmaktan daha kolaydır! Örneğimizdeki tek tip parametresi döngüleyici tipidir, yani bu sadece vektör döngüleyicisiyle değil, <code>Box&lt;Duck&gt;</code> dizisi olan her şeyle çalışacaktır. </p>
+<h2 id="miras-alma"><a class="header" href="#miras-alma">Miras Alma</a></h2>
+<p>Nesne yönelimli tasarımlı ilişkili en yaygın sorun nesnelerin bir &quot;onun türünden olma&quot; <em>(is-a)</em> ilişkisiyle tanımlanmasıdır, sahip olma ilişkileri <em>(has-a)</em> genellikle ihmal edilir. <a href="https://en.wikipedia.org/wiki/Design_Patterns">GoF</a>, &quot;Design Patterns&quot; (Dizayn örüntüleri) kitabında yirmi iki yıl önce &quot;Birleşkeleri mirasa tercih edin&quot; demiş.</p>
+<p>İşte size iyi bir örnek: Bir şirketin çalışanlarını modellemek istiyorsunuz ve <code>Calisan</code> sizin için iyi bir sınıf ismi gibi görünüyor. Sonra, &quot;Yönetici&quot; bir çalışan türüdür (yani doğru) ve kendi hiyerarşimizi <code>Yonetici</code>'yi <code>Calisan</code>ın alt sınıfı olarak inşa ediyoruz kurguluyoruz. Zekice görünse de değil. İsimleri belirlemeye kendimizi kaptırmışken çalışanların ve yöneticilerin aslında birbirinden farklı canlılar olduğunu düşündük aslında. Belki de <code>Calisan</code> sınıfı sadece bir <code>Roller</code> dizisine sahip olmalıdır ve yöneticiyi daha fazla yetkiye sahip bir çalışan olarak tanımlamalıyız?</p>
+<p>Taşıtları düşünelim, bisikletten damperli kamyonlara kadar geniş bir skalası var. Araçları kategorize etmenin çok farklı yolları var, üzerinde gittiği yoldan (şehir içinde, tarlada, rayda), kullandığı enerji türüne (dizel, hibrit, elektrikli vs), insan mı yoksa yük taşımacılığında mı kullanıldığı gibi. Sınıfların sabit bir hiyerarşisi, tek bir bakış açısı dışında diğer bakış açılarının görmezden gelindiği anlamına gelir. Gördüğünüz gibi, araçları çok farklı şekillerde sınıflandırabilirsiniz!</p>
+<p>Rust için birleşkeler çok daha önemlidir çünkü başka bir sınıftan işlevleri olduğu gibi devrealmak tembelce bir yöntemdir.</p>
+<p>Ödünç alma denetimi açısından da birleşkeler önemlidir çünkü çeşitli yapıların (struct) hangi alanlarının kullandıldığının takibi yapılabilir. Bir alanın değişken referansı alınırken diğer alanın değişmez referası ödünç alınabilir; bu yüzden yapılar kullanım rahatlığı için kendi metotlarına sahip olmalıdır. (Yapının <em>dışsal</em> arayüzü ise özellikler üzerinden sağlanabilir.)</p>
+<p>Ayrık referansların net bir örneği bunu daha anlaşılır kılacaktır. Kendi <code>String</code> alanları olan bir yapı tanımladık ve tek bir <code>String</code>'in değişken referansını aldık.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct Foo {
+    one: String,
+    two: String
+}
+
+impl Foo {
+    fn borrow_one_mut(&amp;mut self) -&gt; &amp;mut String {
+        &amp;mut self.one
+    }
+    ....
+}
+<span class="boring">}</span></code></pre></pre>
+<p>(Rust'ın isimlendirme anlayışının da aynı zamanda bir öneğidir - bu tarz metot isimleri <code>_mut</code> ile sona ermelidir.)</p>
+<p>Şimdi ilk metotu tekrar kullanarak iki <code>String</code> alanını da ödünç alan bir yapı tanımlayalım:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    fn borrow_both(&amp;self) -&gt; (&amp;str,&amp;str) {
+        (self.borrow_one_mut(), &amp;self.two)
+    }
+<span class="boring">}</span></code></pre></pre>
+<p>Çalışamaz! <code>self</code>'in değişmez referansını aldık ve aynı zamanda <code>self</code>'in değişebilir referansını almaya çalışıyoruz. Eğer Rust bu tarz durumlara izin verseydi değişmez referansın değişemeyeceğini garanti edemeyebilirdi.</p>
+<p>Çözüm basit:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    fn borrow_both(&amp;self) -&gt; (&amp;str,&amp;str) {
+        (&amp;self.one, &amp;self.two)
+    }
+<span class="boring">}</span></code></pre></pre>
+<p>Bunda bir sorun yok çünkü bunların ikisini ödünç alma denetçisi bunların ikisini de bağımsız ödünç almalar olarak tanımlar. Alanların gelişigüzel yapılar olduğunu düşünün, rastgele çağırdığınız metotlar bu alanlar üzerinde çalışırken bir hataya sebep olmayacaktır.</p>
+<p>Miras almanın sınırlandırılmış ancak önemli bir türü <a href="https://rust-lang.github.io/book/second-edition/ch15-02-deref.html">Deref</a> özelliğidir, ismi &quot;Dereferans&quot; operatörü olan <code>*</code> ile gelir. <code>String</code> tipi <code>Deref&lt;Target=str&gt;</code> özelliğine sahiptir ve <code>&amp;str</code> tipi için çalışacak bütün metotlar aynı zamanda <code>String</code> ile de çalışabilir! Benzer şekilde, <code>Foo</code> ile çalışan bütün metotlar aynı <code>Box&lt;Foo&gt;</code> üzerinden de doğruca çalışabilir. Başta biraz... kontrolsüz bir şekilde pratik görünse de aslında epey kullanışlıdır. Rust'ın içerisinde basit bir mantık var, ancak kullanımı o kadar da akılcı görünmüyor. Sadece değişken bir türün ödünç alındığı zaman daha basit davranması gerketiği zaman kullanılmalıdır.</p>
+<p>Rust'ta <em>özellikler birbirini miras alabilir</em>:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Show {
+    fn show(&amp;self) -&gt; String;
+}
+
+trait Location {
+    fn location(&amp;self) -&gt; String;
+}
+
+trait ShowTell: Show + Location {}
+<span class="boring">}</span></code></pre></pre>
+<p>Son özellik iki ayrıksı özelliği de barındırıyor, istenirse kendi içine metotlar tanımlanabilir. </p>
+<p>Şimdi alıştığımız şeye geri döndük:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Debug)]
+struct Foo {
+    name: String,
+    location: String
+}
+
+impl Foo {
+    fn new(name: &amp;str, location: &amp;str) -&gt; Foo {
+        Foo{
+            name: name.to_string(),
+            location: location.to_string()
+        }
+    }
+}
+
+impl Show for Foo {
+    fn show(&amp;self) -&gt; String {
+        self.name.clone()
+    }
+}
+
+impl Location for Foo {
+    fn location(&amp;self) -&gt; String {
+        self.location.clone()
+    }
+}
+
+impl ShowTell for Foo {}
+
+<span class="boring">}</span></code></pre></pre>
+<p>Eğer <code>Foo</code> türünden <code>foo</code> diye bir değerim varsa, bu türün değişkeni <code>&amp;Show</code> ve <code>&amp;Location</code>'u karşıladığı gibi (ikisini de barındıran) <code>&amp;ShowTell</code>'i de karşılayacak.</p>
+<p>İşte işimize yaracak ufak bir makro:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>macro_rules! dbg {
+    ($x:expr) =&gt; {
+        println!(&quot;{} = {:?}&quot;,stringify!($x),$x);
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p>(<code>$x</code> ile gösterilen) tek bir argümanı alıyor ve bu argüman bir &quot;ifade&quot; olmalıdır. Bu değeri ekrana yazdırıyoruz ve veriyi ve metinin metinleştirilmiş hâlini ekrana yazdırıyoruz. C programcıları burada bıyık altından gülebilir, ancak eğer <code>1 + 2</code> (bir ifade) değerini verirsem <code>stringify!(1 + 2)</code> bize &quot;1 + 2&quot; şeklinde karakter dizisi verecektir. Bu, bize biraz kodları incelemek için yardımcı olacaktır:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let foo = Foo::new(&quot;Pete&quot;,&quot;bathroom&quot;);
+dbg!(foo.show());
+dbg!(foo.location());
+
+let st: &amp;ShowTell = &amp;foo;
+
+dbg!(st.show());
+dbg!(st.location());
+
+fn show_it_all(r: &amp;ShowTell) {
+    dbg!(r.show());
+    dbg!(r.location());
+}
+
+let boo = Foo::new(&quot;Alice&quot;,&quot;cupboard&quot;);
+show_it_all(&amp;boo);
+
+fn show(s: &amp;Show) {
+    dbg!(s.show());
+}
+
+show(&amp;boo);
+
+// foo.show() = &quot;Pete&quot;
+// foo.location() = &quot;bathroom&quot;
+// st.show() = &quot;Pete&quot;
+// st.location() = &quot;bathroom&quot;
+// r.show() = &quot;Alice&quot;
+// r.location() = &quot;cupboard&quot;
+// s.show() = &quot;Alice&quot;
+<span class="boring">}</span></code></pre></pre>
+<p>İşte <em>bu</em> nesne yönelimli programlamadır, sadece alıştığınız türden değil.</p>
+<p><code>Show</code> referansına iletilen <code>show</code> değerinin <em>dinamik olarak</em> <code>ShowTell</code> olmayacağına dikkat edin! Daha dinamik sınıf sistemlerine sahip dillerin size objenin bir sınıfın nesnesi olup olmadığını denetleme imkanı verdiğine ve bu dinamik türe göre çağrı yapma izni verdiğine dikkat edin! Aslında bu pek de iyi bir fikir değildir ve Rust'ta bunu yapmanın bir yol yoktur çünkü Rust <code>Show</code> referansının aslında <code>ShowTell</code> referansı olduğunu unutmuştur bile.</p>
+<p>Her zaman seçimleriniz vardır; özellik nesneleri aracılığıyla çok biçimlilik ya da özellik kısıtlamaları ile biçimlendirilmiş genelleme tanımlarıyla tek biçimlilik. Modern C++ ve Rust standart kütüphanesi genelleme yolunu tercih eder, ancak çok biçimlilik yolu da hâlen daha tercih edilebilir. Her zaman neyin karşılığında neyi aldığınızı bilmeniz gerekir - genellemeler daha hızlı kod üretir ve satır içi (inline) kullanılabilirler. Bunun neticesinde kodunuz şişebilir. (code bloat) Fakat her şeyin <em>mümkün olduğunca hızlı olmasına</em> da gerek yoktur - olağan bir program akışında birkaç defa bu gerçekleşebilir.</p>
+<p>Sonuç olarak:</p>
+<ul>
+<li>Sınıfların rolü veri ve özellikler (trait) arasında paylaştırılmıştır.</li>
+<li>Yapılar ve numaralandırmalar veri gizlemesine ve metot tanımlanabilmesine rağmen fazla işleve sahip değildir.</li>
+<li>Alttiplemenin <em>sınırlandırılmış</em> bir türü <code>Deref</code> özelliği ile sağlanabilir.</li>
+<li>Özellikler bir veri tutmaz ancak her tipe uygunlanabilirler. (Yalnızca yapılara değil.)</li>
+<li>Özellikler, başka özellikleri miras alabilir.</li>
+<li>Özellikler metotlar sunabilir, kodların tekrar kullanımını mümkün kılarlar</li>
+<li>Özellikler size sanal metotlar (çok biçimlilik) ve genelleme sınırlamaları (tek biçimlilik) sunabilirler.</li>
+</ul>
+<h2 id="Ördek-windows-api"><a class="header" href="#Ördek-windows-api">Ördek: Windows API</a></h2>
+<p>Geleneksel nesne yönetimli programlamanın en çok kullanıldığı yerlerden birisi GUI (Ç.N: düğmeli menüyü arayüzler işte) kütüphaneleridir. <code>EditControl</code> ve <code>ListWindow</code>, <code>Window</code> türünden sınıflardır falan filan. Bu, GUI kütüphanelerine Rust bağlantıları yazmayı biraz daha zorlaştırır.</p>
+<p>Rust'ta Win32 programlaması <a href="https://www.codeproject.com/Tips/1053658/Win-GUI-Programming-In-Rust-Language">direkt</a> yapılabilir, ve orijinal C'den daha az gariptir. C'den C++'a geçer geçmez daha sade bir şey yapmak istedim ve kendi nesne tabanlı kodlarımı yazdım.</p>
+<p>Tipik bir Win32 API fonksiyonu <a href="https://docs.rs/user32-sys/0.0.9/i686-pc-windows-gnu/user32_sys/fn.ShowWindow.html">ShowWindow'dur</a> ve bir pencerenin görünüp görünmediğini denetlemek için kullanılır. Şimdi, <code>EditControl</code>'ün kendisine özgü nitelikleri bulunur fakat hepsi Win32'nin <code>HWND</code> (&quot;pencere yönetimi&quot;) opak değeriyle yapılır. <code>EditControl</code>'ün aynı zamanda <code>show</code> metotu olmasını isteyebilirsiniz, genelde miras alma yöntemiyle halledilir. Fakat bu tipin her işlevi miras almasını istemeyebilirsiniz! Rust size güzel bir çözüm sunar, <code>Window</code> özelliğini düşünelim:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Window {
+    // you need to define this!
+    fn get_hwnd(&amp;self) -&gt; HWND;
+
+    // and all these will be provided
+    fn show(&amp;self, visible: bool) {
+        unsafe {
+         user32_sys::ShowWindow(self.get_hwnd(), if visible {1} else {0})
+        }
+    }
+
+    // ..... oodles of methods operating on Windows
+
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Şimdi <code>EditControl</code> yapısı sadece bir <code>HWHD</code>'ye sahip olabilir ve <code>Window</code>'u eklemek tek bir metotu tanımlayarak mümkün olabilir. <code>EditControl</code> ise <code>Window</code> özelliğini miras alan bir yapıdır ve daha geniş bir arayüz tanımlar. <code>ComboBox</code> gibi düşünün - <code>EditControl</code> gibi davranır ve bir <code>ListWindow</code> da özellik mirası aracılığıyla eklenebilir.</p>
+<p>Win32 API'sı (&quot;32&quot; artık &quot;32-bit&quot; anlamına gelmiyor) özünde nesne yönelimlidir, ancak daha eski bir şekilde, Alan Key'in tanımından etkilenmiş bir şekilde: nesneler gizli veriler tutar ve <em>mesajlar</em> üzerinden işlenir. Yani Windows uygulamalarının kalbi bir mesaj döngüsüdür ve çeşitli pencereler (pencere sınıfları da denir) kendi metotlarını kendi anahtar ifadeleriyle uygularlar. <code>WM_SETTEXT</code> diye bir mesaj vardır fakat bunun koda dökülüş hâli biraz daha farklıdır: bir etiketin yazısı değişebilir ya pencere başlığı değişir.</p>
+<p><a href="https://gabdube.github.io/native-windows-gui/book_20.html">Burada</a> daha anlaşılır ve minimal bir Windows GUI frameworkü görebilirsiniz. Bana göre çok fazla <code>unwrap</code> öğeleri var ve bunların çoğu hata bile değil.  Bu, &quot;NWG&quot;nin mesajlaşmanın dinamik doğasına ters düşmesiyle alakalı. Daha tip güvenli bir arayüz sunmak için, hatalar derleme zamanında sunuluyor.</p>
+<p><a href="https://doc.rust-lang.org/stable/book/ch17-00-oop.html">Rust programlama kitabında &quot;Nesne yönelimli nedir?&quot;</a> üzerine güzel bir tartışma mevcuttur.</p>
+<blockquote>
+<p>Çeviri notu: Bu bölümün sonlarına doğru bir dolu hata yapmış olabilirim, çünkü bu son kısımları yazarken saat gecenin üçüne yaklaşıyor ve kafa olarak biraz yorgundum. :)</p>
+<p>Türk yazılımcısı çoğunlukla nesne yönelimli kavramını C# ve Java aracılığıyla öğrendiği için nesne yönelimi kavramı dilde <code>class</code> kelimesinin sunulmasıyla bağdaştırılıyor ve bu epeyce bir kafa karışıklığı yaratıyor. Nesne tabanlı programlama, kendi özünde verilerin soyutlanıp yazılımcıya daha çok anlam ifade eden &quot;bütünlere&quot; dönüştürülmesiyle alakalı bir tekniktir ve bu tekniğin uygulanması için verinin gizlenmesi, yalnızca metotlarla erişim gibi ilkeler vardır. <code>class</code> ile tanımlanan yaplar, bu ilkeleri otomatik olarak inşa etmeye yarar. Ortada <code>class</code> adı hiç geçmese bile nesne tabanlı programlama yapılabilir ve Lua, Nim, Nix gibi diller buna iyi bir örnek oluşturur. İşin özü, JavaScript da bu sınıfların listesindeydi ancak sonradan <code>class</code> kelimesi bazı prototip işlemlerini otomatikleştirmek için eklendi. Eklenene dek, JavaScript her zaman nesne tabanlıydı ancak &quot;fonksiyonel&quot; ve &quot;nesne tabanlı&quot; olmak arasında kalmış bir dil gibi düşünüldü; aslında JavaScript her zaman &quot;prototip&quot; üzerinden işleyen nesne yönelimli bir dildi.</p>
+<p>Bir literatür hatası olarak, saf fonksiyonel diller aynı zamanda nesne yönelimli olamayacağı için fonksiyonel programlama ve nesne yönelimli programlama arasında bir zıtlık varmış gibi anlaşıldı. Sonradan Go, Rust gibi klasik nesne yönelimli diller sınıfına uymayan diller &quot;fonksiyonel&quot; diller olarak anlaşıldı. Rust'ta fonksiyonel esintiler bulunmasına rağmen Rust saf bir fonksiyonel dil değildir, nesne yönelimi ile Rust'ın alakası neyse fonksiyonel programlama ile Rust'ın alakası o seviyede diyebilirim. Ha, fonksiyonel programlama &quot;işlevsel, işe yarayan programlama&quot; demek değildir diye not edelim.</p>
+<p>Peki, neden Rust'ta sınıflar yok? Bu bölümde bahsedildiği gibi sınıflar çok fazla işi bir anda halleder ve bu kesinlikle Rust'ın doğasına uymaz. Rust'ta her şey açık, belirgin ve bilindiktir. Rust, sınıfların yaptığı şeyleri yapmanıza izin verecek araçları size sunar ancak kolaylık olsun diye gizlice bir şeyler hazırlamaz. Bu yüzden, Rust nesne yönelimli bir dil gibi görünmese de aslında nesne yönelimini size sunar.</p>
+<p>Eğer nesne yönelimli programlamaya karşı bakış açınızı gözden geçirmek ve nesne yönelimli programlamanın yaratıcısından da neyin ne olduğunu öğrenmek isterseniz, <a href="https://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en">bu bağlantıya tıklayabilirsiniz.</a></p>
+</blockquote>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="7-shared-and-networking.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="nom-intro.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="7-shared-and-networking.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="nom-intro.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>

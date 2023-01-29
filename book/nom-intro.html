@@ -1,0 +1,575 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Yazıları Nom ile Ayrıştırmak - Rust&#x27;a Yumuşak Bir Başlangıç</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="Rust diline, standart sistemine ve ekosistemine bir giriş.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="1-basics.html"><strong aria-hidden="true">1.</strong> Merhaba Dünya</a></li><li class="chapter-item expanded "><a href="2-structs-enums-lifetimes.html"><strong aria-hidden="true">2.</strong> Yapılar, Numaralandırmalar ve Eşleştirmeler</a></li><li class="chapter-item expanded "><a href="3-filesystem.html"><strong aria-hidden="true">3.</strong> Dosya Sistemi ve Süreçler</a></li><li class="chapter-item expanded "><a href="4-modules.html"><strong aria-hidden="true">4.</strong> Modüller ve Kargo</a></li><li class="chapter-item expanded "><a href="5-stdlib-containers.html"><strong aria-hidden="true">5.</strong> Standart Kütüphane Konteynırları</a></li><li class="chapter-item expanded "><a href="6-error-handling.html"><strong aria-hidden="true">6.</strong> Hataları Yönetmek</a></li><li class="chapter-item expanded "><a href="7-shared-and-networking.html"><strong aria-hidden="true">7.</strong> Sistem Süreçleri, Ağlar ve Paylaşım</a></li><li class="chapter-item expanded "><a href="object-orientation.html"><strong aria-hidden="true">8.</strong> Nesne Yönelimli Programlama</a></li><li class="chapter-item expanded "><a href="nom-intro.html" class="active"><strong aria-hidden="true">9.</strong> Yazıları Nom ile Ayrıştırmak</a></li><li class="chapter-item expanded "><a href="pain-points.html"><strong aria-hidden="true">10.</strong> Rust ve Çektirdiği Çile</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust&#x27;a Yumuşak Bir Başlangıç</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="yazıları-nom-ile-ayrıştırmak"><a class="header" href="#yazıları-nom-ile-ayrıştırmak">Yazıları Nom ile Ayrıştırmak</a></h2>
+<p><a href="https://github.com/Geal/nom">Nom</a>, <a href="https://docs.rs/nom">(burada anlatıldığı şekilde)</a> öğrenmeye değer bir metin ayrıştırma için kullanılan bir Rust kütüphanesidir.</p>
+<p>Eğer CSV veya JSON gibi türü bilinen bir veri türünü ayrıştırmak istiyorsanız bu işin özelleşmiş kütüphanelerden birisi olan <a href="https://github.com/BurntSushi/rust-csv">Rust CSV</a> veya [Bölüm 4'te] bahsedilen JavaScript kütüphanelerinden birisine bakmak isteyebilirsiniz. </p>
+<p>Aynı şekilde, <a href="https://docs.rs/rust-ini/0.10.0/ini/">ini</a> veya <a href="http://alexcrichton.com/toml-rs/toml/index.html">toml</a>. gibi yapılandırma dosyaları için onlara özel kendisine özgü kütüphanelere göz atabilirsiniz. (<a href="https://docs.rs/serde_json">serde_json</a>'den bildiğimiz Serde Frameworkü ile uyumlu çalıştığı için Toml için hazırlanan kütüphane ayrıca hoştur.)</p>
+<p>Fakat belli bir standarda ait olmayan, keyfe keder bir şekilde hazırlanmış verilerı taramak karakter dizileriyle geçireceğiniz sıkıcı saatlere işaret ediyor da olabilir. İlk fikir <a href="https://github.com/rust-lang/regex">regex</a> olur, ancak regex bir yerden sonra alabildiğine mantıksız bir şeye dönüşebilir. Nom, metin ayrılmanın güçlü ve sadece basit araçları birleştirmekten ibaret olduğu güzel bir yol sunar. Aynı zamanda regexlerin bir sınırı vardır, mesela <a href="http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags">HTML taramak için regex kullanamazsınız.</a>, fakat Nom ile HTML ayrıştırabilirsiniz. Hatta kendi programlama dilinizi yazmayı düşündüyseniz, Nom öğrenmek bu zorlu yolculuğun ilk adımı olabilir.</p>
+<p>Nom öğrenmek için müthiş rehberler var, ancak ben biraz sindirerek gitmek istediğim için en basit yerden başlamak istiyorum. Bilmeniz gereken ilk şey, Nom baştan aşağıya makrolardan oluşur, ikincisi Nom karakter dizileri yerine bayt dilimleriyle çalışmayı tercih eder. Birinci şey, Nom'u kullanırken dikkatli olmanız gerektiğine işaret eder çünkü hata mesajlarından hiçbir şey anlamayabilirsiniz. İkincisi Nom'u <em>herhangi</em> bir veri türüyle kullanabileceğinizi işaret eder, sadece &quot;metin&quot; ayıklamak için değil. Nom kullanmış kişiler ikili biçimleri deşifre etmek veya dosya başlıklarını anlamak için kullandı. &quot;UTF-8&quot; ile kodlanmamış metinlerle de çalışabilirsiniz.</p>
+<p>Nom'un son versiyonları karakter dizileriyle de çalışabilmeyi başladı, fakat karakter dizileriyle çalışabilen makroların sonunda <code>_s</code> bulunur.</p>
+<pre><pre class="playground"><code class="language-rust">#[macro_use]
+extern crate nom;
+
+named!(get_greeting&lt;&amp;str,&amp;str&gt;,
+    tag_s!(&quot;hi&quot;)
+);
+
+fn main() {
+    let res = get_greeting(&quot;hi there&quot;);
+    println!(&quot;{:?}&quot;,res);
+}
+// Done(&quot; there&quot;, &quot;hi&quot;)
+</code></pre></pre>
+<p><code>named!</code> isimli makro (varsayılan olarak <code>&amp;[u8]</code> tipinden) girdi alıp ve sivri parantezlerin ikinci argümanının tipinden geri dönen fonksiyonlar oluşturur. <code>tag_s!</code> ise kendisine iletilen karakter dizisi ile eşleşir, ve değer genellikle verilenin türünden olur. (Eğer <code>&amp;[u8]</code> ile çalışmak isterseniz, bunun yerine <code>tag!</code> kullanabilirsiniz.) </p>
+<p>Tanımladığımız <code>get_greeting</code> ayrıştırıcısını bir <code>&amp;str</code> ile çağırabiliriz ve bize <a href="http://rust.unhandledexpression.com/nom/enum.IResult.html">IResult</a> dönecektir, bir de elbette ki eşleşen veriyi.</p>
+<p>Boşlukları görmezden gelmek isteyebiliriz, <code>tag!</code> makrosunu <code>ws!</code> ile sarmalarsak aradığımız &quot;hi&quot; kelimesini eşleştirirken bütün boşluklar görmezden gelinecektir:</p>
+<pre><pre class="playground"><code class="language-rust">named!(get_greeting&lt;&amp;str,&amp;str&gt;,
+    ws!(tag_s!(&quot;hi&quot;))
+);
+
+fn main() {
+    let res = get_greeting(&quot;hi there&quot;);
+    println!(&quot;{:?}&quot;,res);
+}
+// Done(&quot;there&quot;, &quot;hi&quot;)</code></pre></pre>
+<p>Sonuç daha önce olduğu gibi &quot;hi&quot; olacaktır, ardında kalan karakter dizisi boşlukları kaldırılmış bir şekilde &quot;there&quot; olacaktır!</p>
+<p>Tamam, &quot;hi&quot; eşleşmesi tıkırında çalışıyor ama bir şey yaramıyor. Hadi sadece &quot;hi&quot; yerine <em>hem</em> &quot;hi&quot;  <em>hem de</em> &quot;bye&quot; kısmını eşleştirelim.  <code>alt!</code> makrosu (&quot;alternatif&quot;) <code>|</code> ile ayrılmış ayrıştırıcılardan <em>birisiyle</em> eşleşir. Aynı şekilde burada boşlukları okunaklı olması için kullanabilirsiniz: </p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>named!(get_greeting&lt;&amp;str&gt;,
+    ws!(alt!(tag_s!(&quot;hi&quot;) | tag_s!(&quot;bye&quot;)))
+);
+println!(&quot;{:?}&quot;, get_greeting(&quot; hi &quot;));
+println!(&quot;{:?}&quot;, get_greeting(&quot; bye &quot;));
+println!(&quot;{:?}&quot;, get_greeting(&quot;  hola &quot;));
+// Done(&quot;&quot;, &quot;hi&quot;)
+// Done(&quot;&quot;, &quot;bye&quot;)
+// Error(Alt)
+<span class="boring">}</span></code></pre></pre>
+<p>Sonuncu hatalı, çünkü &quot;hola&quot; ile eşleşen bir metnimiz yok.</p>
+<p>Doğrusu <code>IResult</code> tipini iyice anlamamız gerekiyor ki daha ileriye gidebilelim; fakat neden bunu bir &quot;regex&quot; ifadesiyle kıyaslamıyoruz?</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let greetings = Regex::new(r&quot;\s*(hi|bye)\s*&quot;).expect(&quot;bad regex&quot;);
+    let caps = greetings.captures(&quot; hi &quot;).expect(&quot;match failed&quot;);
+    println!(&quot;{:?}&quot;,caps);
+// Captures({0: Some(&quot; hi &quot;), 1: Some(&quot;hi&quot;)})
+<span class="boring">}</span></code></pre></pre>
+<p>Doğrusu Regex göze daha <em>sade</em> görünüyor! Sadece parantez içine <code>|</code> koyduk ve bir tarafına &quot;hi&quot; diğer tarafına &quot;bye&quot; yerleştirdik. İlk sonuç girdi olarak aldığımız karakter dizisi, ikincisi de eşleşen ifade. (<code>|</code> regex için sözde &quot;çeşitlilik (alternation)&quot; operatörüdür, <code>alt!</code> makrosuna ilham vermiştir.)</p>
+<p>Fakat bu basit bir regex olsa bile bir anda herkes karmaşıklaşabilir. İşin ilginci metinlerde sıkça kullanılan <code>*</code> ve <code>(</code> gibi karakterlerden kaçınmanız gerekir ve <code>(hi)</code> veya <code>(bye)</code> ile eşleşen bir regex ifadesi yazmak isterseniz sevimli regeximix <code>\s*((hi | bye))\s*</code> gibi ucube bir hâl alacaktır. Bunun Nom muadili, gayet anlaşılır bir biçimde <code>alt!(tag_s!(&quot;(hi)&quot;) | tag_s!(&quot;(bye)&quot;))</code> şeklindedir.</p>
+<p>İşin kötüsü <code>regex</code> kütüphanesi ağır bir bağımlılıktır. Ananıza babanıza ancak verebileceğiniz bu i5 işlemcili laptota &quot;Merhaba Dünya&quot; seviyesi Nom örneklerinin derlenmesi sadece 0.55 saniye sürüyor. Fakat aynı şey regex için 0.90 saniye sürüyor. Aynı şekilde <code>strip</code> komutu uygulanmış ikili programın boyutu 0.3Mb tutarken (Statik linklenmiş bir Rust programının tutabileceği en küçük boyut) Regex örneği için 0.3Mb tutmaktadır. (Ç.N: Gözünüze bunlar anlamsız salt istatiksel veriler gibi görünebilir, ancak program büyüdükçe bu kütüphaneler kullanıldıkça bu farkın nasıl da katlanarak artacağını gözünüzde canlandırın.)</p>
+<h2 id="nom-ayrıştırıcısı-bize-ne-döner"><a class="header" href="#nom-ayrıştırıcısı-bize-ne-döner">Nom Ayrıştırıcısı Bize Ne Döner?</a></h2>
+<p><a href="http://rust.unhandledexpression.com/nom/enum.IResult.html">IResult</a> tipi standart <code>Result</code> tipinden daha çok şey döner. Üç ihtimal var:</p>
+<ul>
+<li><code>Done</code> - başarılı - sonucu ve geri kalan baytları alırsınız.</li>
+<li><code>Error</code> - ayrıştırma başarısız - bir hata alırsınız.</li>
+<li><code>Imcomplete</code> - (tamamlanmadı) daha fazla veriye ihtiyaç vardır.</li>
+</ul>
+<p>Hata ayrışma çıktısını bize dönebilen herhangi bir veriyi argüman olarak alan genellenen bir <code>dump</code> fonksiyonu yazabiliriz. Bu örnek aynı zamanda bize bildiğimiz <code>Result</code>'u dönen <code>to_result</code> metodununu nasıl kullanılabileceğini de gösterir - bu metodu veriyi ya da hatayı istediğiniz durumların çoğunda sıkça kullanacaksınızdır.</p>
+<pre><pre class="playground"><code class="language-rust">#[macro_use]
+extern crate nom;
+use nom::IResult;
+use std::str::from_utf8;
+use std::fmt::Debug;
+
+fn dump&lt;T: Debug&gt;(res: IResult&lt;&amp;str,T&gt;) {
+    match res {
+      IResult::Done(rest, value) =&gt; {println!(&quot;Done {:?} {:?}&quot;,rest,value)},
+      IResult::Error(err) =&gt; {println!(&quot;Err {:?}&quot;,err)},
+      IResult::Incomplete(needed) =&gt; {println!(&quot;Needed {:?}&quot;,needed)}
+    }
+}
+
+
+fn main() {
+    named!(get_greeting&lt;&amp;str,&amp;str&gt;,
+        ws!(
+            alt!( tag_s!(&quot;hi&quot;) | tag_s!(&quot;bye&quot;))
+        )
+    );
+
+    dump(get_greeting(&quot; hi &quot;));
+    dump(get_greeting(&quot; bye hi&quot;));
+    dump(get_greeting(&quot;  hola &quot;));
+
+    println!(&quot;result {:?}&quot;, get_greeting(&quot; bye  &quot;).to_result());
+}
+// Done &quot;&quot; &quot;hi&quot;
+// Done &quot;hi&quot; &quot;bye&quot;
+// Err Alt
+// result Ok(&quot;bye&quot;)</code></pre></pre>
+<p>Ayrıştırıcılar bize ayrıştırılmamış verileri de dönüyor ve yeterince girdi almadıklarını da ortaya çıakrırlar, fakat genellikle <code>to_result</code>'u tercih edeceksiniz.</p>
+<h2 id="ayrıştırıcıları-birleştirmek"><a class="header" href="#ayrıştırıcıları-birleştirmek">Ayrıştırıcıları Birleştirmek</a></h2>
+<p>Selamlama örneğimizle devam edelim ve &quot;hi&quot; veya &quot;bye&quot;, artı bir isimden oluşan bir selamlama tasarlayalım. <code>nom::alpha</code> alfabetik karakter serileriyle eşleşecek <code>pair!</code> ise iki ayrıştırıcıyı tek bir demekte birleştirecektir.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    named!(full_greeting&lt;&amp;str,(&amp;str,&amp;str)&gt;,
+        pair!(
+            get_greeting,
+            nom::alpha
+        )
+    );
+
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; hi Bob  &quot;).to_result());
+// result Ok((&quot;hi&quot;, &quot;Bob&quot;))
+<span class="boring">}</span></code></pre></pre>
+<p>Şimdi, selamlayıcımızın pek sosyal olduğunu veya kimsenin adını bilmediğini de hesaba katalım, ismi opsiyonel yapalım. Doğal olarak demetteki ikinci veri bir <code>Option</code> olacaktır.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    named!(full_greeting&lt;&amp;str, (&amp;str,Option&lt;&amp;str&gt;)&gt;,
+        pair!(
+            get_greeting,
+            opt!(nom::alpha)
+        )
+    );
+
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; hi Bob  &quot;).to_result());
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; bye ?&quot;).to_result());
+// result Ok((&quot;hi&quot;, Some(&quot;Bob&quot;)))
+// result Ok((&quot;bye&quot;, None))
+<span class="boring">}</span></code></pre></pre>
+<p>Selamlama için kullandığımız ayrıştırıcı ile isimleri yakalayan ayrıştırıcıyı birleştirmenin ve isim yakalamayı opsiyonel yapmanın ne seviye kolay olduğuna dikkat edin. Bu Nom'un geldiği gücün kaynağıdır ve bu yüzden ona &quot;ayrıştırıcıları birleştiren kütüphane&quot; (parse combinator library) denir. Basit ayrıştırıcılardan birleşerek inşa olan karmaşık ayrıştırıcılar inşa edebilir ve bunları teker teker test edebilirsiniz. (Buna eşdeğer bir regex bir Perl programı gibi görünmeye başlardı: çünkü regexlerin birleşmesi pek hayra alamet değildir.)</p>
+<p>Fakat, henüz istediğimiz noktaya varamadık! <code>full_greeting(&quot; bye &quot;)</code> bize bir <code>Incomplete</code> hatası olarak dönecektir. Nom için &quot;bye&quot;dan sonra isim gelmelidir ve bu yüzden bizden isim namına bir şeyler isteyecektir. Bu bir <em>akış ayrıştırıcısının (streaming parser)</em> çalışmasının nasıl çalışması gerektiğidir, bu sayede dosyaları parça parça iletebilirsiniz; ancak burada Nom'a girdinin yetersiz olacağını bildirmemiz gerekir. </p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    named!(full_greeting&lt;&amp;str,(&amp;str,Option&lt;&amp;str&gt;)&gt;,
+        pair!(
+            get_greeting,
+            opt!(complete!(nom::alpha))
+        )
+    );
+
+    println!(&quot;result {:?}&quot;, full_greeting(&quot; bye &quot;).to_result());
+// result Ok((&quot;bye&quot;, None))
+<span class="boring">}</span></code></pre></pre>
+<h2 id="numaraları-ayrıştırmak"><a class="header" href="#numaraları-ayrıştırmak">Numaraları Ayrıştırmak</a></h2>
+<p>Nom bir dizi rakam serisini taramaya yarayan  <code>digit</code> fonksiyonuna sahiptir. <code>map!</code> kullanarak bir yazıyı bir sayıya dönüştürebilir ve bir <code>Result</code> tipi içinde geri dönebiliriz.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nom::digit;
+use std::str::FromStr;
+use std::num::ParseIntError;
+
+named!(int8 &lt;&amp;str, Result&lt;i8,ParseIntError&gt;&gt;,
+    map!(digit, FromStr::from_str)
+);
+
+named!(int32 &lt;&amp;str, Result&lt;i32,ParseIntError&gt;&gt;,
+    map!(digit, FromStr::from_str)
+);
+
+println!(&quot;{:?}&quot;, int8(&quot;120&quot;));
+println!(&quot;{:?}&quot;, int8(&quot;1200&quot;));
+println!(&quot;{:?}&quot;, int8(&quot;x120&quot;));
+println!(&quot;{:?}&quot;, int32(&quot;1202&quot;));
+
+// Done(&quot;&quot;, Ok(120))
+// Done(&quot;&quot;, Err(ParseIntError { kind: Overflow }))
+// Error(Digit)
+// Done(&quot;&quot;, Ok(1202))
+<span class="boring">}</span></code></pre></pre>
+<p>Burada <code>Result</code>'a dönüşebilen bir <code>IResult</code> ayrıştırıcısı elde ederiz - ve  elbette ki, burada mümkün olan birden çok hata vardır. Fonksiyonların içeriklerinin aynı olduğuna dikkat edin, esas dönüşüm fonksiyonun döndüğü tipe bağlıdır.</p>
+<p>Sayıların işareti olabilir. Sayıları bir çift parça hâlinde yakabilirsiniz; önce bir işaret gelir ardından rakam gelir.</p>
+<p>Mesela: </p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>named!(signed_digits&lt;&amp;str, (Option&lt;&amp;str&gt;,&amp;str)&gt;,
+    pair!(
+        opt!(alt!(tag_s!(&quot;+&quot;) | tag_s!(&quot;-&quot;))),  // maybe sign?
+        digit
+    )
+);
+
+println!(&quot;signed {:?}&quot;, signed_digits(&quot;4&quot;));
+println!(&quot;signed {:?}&quot;, signed_digits(&quot;+12&quot;));
+// signed Done(&quot;&quot;, (None, &quot;4&quot;))
+// signed Done(&quot;&quot;, (Some(&quot;+&quot;), &quot;12&quot;))
+<span class="boring">}</span></code></pre></pre>
+<p>Eğer hedefe odaklıysanız ve ara sonuçları atlamak istiyorsanız, <code>recognize!</code> istediğiniz şeyi verebilir.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>named!(maybe_signed_digits&lt;&amp;str,&amp;str&gt;,
+    recognize!(signed_digits)
+);
+
+println!(&quot;signed {:?}&quot;, maybe_signed_digits(&quot;+12&quot;));
+// signed Done(&quot;&quot;, &quot;+12&quot;)
+<span class="boring">}</span></code></pre></pre>
+<p>Bu teknikle noktalı sayıları da yakalayabiliriz. Bu eşleşmeler üzerinden bayt dilimlerinden karakter dizilerine ulaşıyoruz.  <code>tuple!</code>, <code>pair!</code>'in oluşturulan demetle ilgilenmediğimiz türünden bir muadili. <code>complete!</code> ise &quot;yarım kalan selamlama&quot;da yaşadığımız sorunu çözmek için kullandığımız bir araç - &quot;12&quot;, noktalı olmasa da aslında geçerli bir sayıdır.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>named!(floating_point&lt;&amp;str,&amp;str&gt;,
+    recognize!(
+        tuple!(
+            maybe_signed_digits,
+            opt!(complete!(pair!(
+                tag_s!(&quot;.&quot;),
+                digit
+            ))),
+            opt!(complete!(pair!(
+                alt!(tag_s!(&quot;e&quot;) | tag_s!(&quot;E&quot;)),
+                maybe_signed_digits
+            )))
+        )
+    )
+);
+<span class="boring">}</span></code></pre></pre>
+<p>Yardımcı olacak minik bir makro tanımlayarak bazı geçerli testler üretebilriz. Bu testler, <code>floating _point</code> verilen metinden sayı yakalayabildiyse geçerli sonuç verecektir.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>macro_rules! nom_eq {
+    ($p:expr,$e:expr) =&gt; (
+        assert_eq!($p($e).to_result().unwrap(), $e)
+    )
+}
+
+nom_eq!(floating_point, &quot;+2343&quot;);
+nom_eq!(floating_point, &quot;-2343&quot;);
+nom_eq!(floating_point, &quot;2343&quot;);
+nom_eq!(floating_point, &quot;2343.23&quot;);
+nom_eq!(floating_point, &quot;2e20&quot;);
+nom_eq!(floating_point, &quot;2.0e-6&quot;);
+<span class="boring">}</span></code></pre></pre>
+<p>(Makrolar kodu <em>biraz</em> kirletilmiş gösterse de, testlerinizi hazırlamak faydalı bir şeydir.)</p>
+<p>Ve metinleri ayrıştırıp noktalı sayılara çevirebilirsiniz. Burada akışa odaklanacağım ve hatayı uzaklaştıracağım: </p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    named!(float64&lt;f64&gt;,
+        map_res!(floating_point, FromStr::from_str)
+    );
+<span class="boring">}</span></code></pre></pre>
+<p>Lütfen birbirinden karmaşık testler ayrıştırıcılar oluşturmanın adım adım nasıl mümkün olduğuna dikkat edin, her bir parçayı ayrıca test edebilirsiniz. Bu, birleştirilmiş ayrıştırıcıların regexler üzerinde güçlü bir avantajıdır. Bu gayet klasik bir programlama taktiği olan &quot;böl ve yönettir&quot;. </p>
+<h2 id="Çeşitli-eşlemeler-üzerinde-işlemler"><a class="header" href="#Çeşitli-eşlemeler-üzerinde-işlemler">Çeşitli eşlemeler üzerinde işlemler</a></h2>
+<p>Sabit bir sayıda örüntüyü yakalayan ve bir Rust demeti dönen <code>pairs!</code> ve <code>tuple!</code> ile tanıştık.</p>
+<p>Bir de <code>many0</code> ve <code>many1</code> var - ikisi de değişken sayıda örüntüyü bir vektör içerisinde tanımlar. İkisi artasındaki fark birisinin &quot;sıfır veya daha fazla&quot;, diğerinin ise &quot;bir veya daha fazla&quot; şeyi yakalalıyor olmasıdır. (regexteki <code>*</code> ve <code>+</code> karakterini düşünün) Yani, <code>many1!(ws(float64))</code>, &quot;1 2 3&quot; şeklinde bir karakter dizisi bize <code>vec![1.0, 2.0, 3.0]</code> olarak dönmeyi tercih edecek ancak boş bir karakter dizisinde hata verecektir.</p>
+<p><code>fold_many0</code> ise bir <em>azaltma (reduce)</em> işlemidir. Ayrıştırılan değerler tek bir değerde bir ikili operatör kullanılarak tek bir değerde toplanır. Mesela, Rust programcıları döngüleyicilerin içeriğini toplamak kullanmak için <code>sum</code> gelmeden önce ne yapıyorsa bu da ona benzer; aşağıdaki <code>fold</code> <em>işleyici (accumulator)</em> için bir başlangıç değerine (burada sıfır) sahiptir ve işleyicinin ne yapacağını bildirmesi için <code>+</code> operatörünü kullanır.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let res = [1,2,3].iter().fold(0,|acc,v| acc + v);
+    println!(&quot;{}&quot;,res);
+    // 6
+<span class="boring">}</span></code></pre></pre>
+<p>Nom muadili şöyledir:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    named!(fold_sum&lt;&amp;str,f64&gt;,
+        fold_many1!(
+            ws!(float64),
+            0.0,
+            |acc, v| acc + v
+        )
+    );
+
+    println!(&quot;fold {}&quot;, fold_sum(&quot;1 2 3&quot;).to_result().unwrap());
+    //fold 6
+<span class="boring">}</span></code></pre></pre>
+<p>Şimdiye dek bütün ifadeleri yakalamaya çalıştık veya eşleşen baytları <code>recognize!</code> ile aldık:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    named!(pointf&lt;(f64,&amp;[u8],f64)&gt;,
+        tuple!(
+            float64,
+            tag_s!(&quot;,&quot;),
+            float64
+        )
+    );
+
+    println!(&quot;got {:?}&quot;, nom_res!(pointf,&quot;20,52.2&quot;).unwrap());
+ //got (20, &quot;,&quot;, 52.2)
+<span class="boring">}</span></code></pre></pre>
+<p>Karmaşık ifadeler için, ayrıştırıcıların bütün sonuçlarını almış olmak bizi dağınık bir çalışma prensibine sokar! Daha iyisini yapabiliriz.</p>
+<p><code>do_parse!</code> sadece ihtiyacınız olan değerlere erişmesinize izin verir. Yakalanan veriler <code>&gt;&gt;</code> ile ayrılır - ilginizi çeken verileri <code>isim: ayrıştırıcı</code> formatında işaretleyebilirsiniz. Son olarak, parantezler arasında kodunuzu belirtirsiniz.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    #[derive(Debug)]
+    struct Point {
+        x: f64,
+        y: f64
+    }
+
+    named!(pointf&lt;Point&gt;,
+        do_parse!(
+            first: float64 &gt;&gt;
+            tag_s!(&quot;,&quot;) &gt;&gt;
+            second: float64
+            &gt;&gt;
+            (Point{x: first, y: second})
+        )
+    );
+
+    println!(&quot;got {:?}&quot;, nom_res!(pointf,&quot;20,52.2&quot;).unwrap());
+// got Point { x: 20, y: 52.2 }
+<span class="boring">}</span></code></pre></pre>
+<p>İlgilenmediğimiz değerleri (bu örnekte olduğu gibi virgül) bir isme bağlamıyoruz ve iki noktalı sayıyı bir yapı oluşturmak için geçici isimlere atıyoruz. Parantezler içinde kalan kısım ise bir Rust kodu olmalı.</p>
+<h2 id="aritmatik-İfadeleri-ayrıştırmak"><a class="header" href="#aritmatik-İfadeleri-ayrıştırmak">Aritmatik İfadeleri Ayrıştırmak</a></h2>
+<p>Gerekli bilgiler sayesinde basit aritmatik ifadeleri ayrıştırabiliriz. İşte regexlerle yapamayacağınız şeylere güzel bir örnek.</p>
+<p>Aşağıda yapmaya çalıştığımız şey ifadelerimizi ayıklayacak şeyi basitten karmaşığa doğru inşa etmektir. İfadeler eklenip çıkartılabilir <em>terimlerden (term)</em> oluşur. Terimler ise çarpılıp bölünebilir <em>faktörlerden</em> oluşur. Ve (şimdilik), faktörler sadece noktalı sayılardır:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    named!(factor&lt;f64&gt;,
+        ws!(float64)
+    );
+
+    named!(term&lt;&amp;str,f64&gt;, do_parse!(
+        init: factor &gt;&gt;
+        res: fold_many0!(
+            tuple!(
+                alt!(tag_s!(&quot;*&quot;) | tag_s!(&quot;/&quot;)),
+                factor
+            ),
+            init,
+            |acc, v:(_,f64)| {
+                if v.0 == &quot;*&quot; {acc * v.1} else {acc / v.1}
+            }
+        )
+        &gt;&gt; (res)
+    ));
+
+    named!(expr&lt;&amp;str,f64&gt;, do_parse!(
+        init: term &gt;&gt;
+        res: fold_many0!(
+            tuple!(
+                alt!(tag_s!(&quot;+&quot;) | tag_s!(&quot;-&quot;)),
+                term
+            ),
+            init,
+            |acc, v:(_,f64)| {
+                if v.0 == &quot;+&quot; {acc + v.1} else {acc - v.1}
+            }
+        )
+        &gt;&gt; (res)
+    ));
+
+<span class="boring">}</span></code></pre></pre>
+<p>İfadelerimiz daha net ifade edilmiş oldu - bir ifade bir terimden ve artılı eksili daha fazla terimden oluşur. Onları biriktirmiyoruz, fakat uygun operatör vasıtasıyla <em>işliyoruz. (fold)</em> (Bunun gibi durumlarda Rust, ifadenin türünü tam olarak anlayamadığından işin içinden çıkamaz ve bir ipucu ister). Bu sayede işlem önceliğini sağlamış oluruz - <code>*</code> her zaman <code>+</code> gibi şeyler.</p>
+<p>Noktalı sayılar için test ifadelerine ihtiyacımız olacak, ve <a href="http://brendanzab.github.io/approx/approx/index.html">bunun için bir sandık var.</a>.</p>
+<p>Cargo.toml dosyanıza <code>approx=0.1.1</code> satırını ekleyin ve işimize bakalım:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[macro_use]
+extern crate approx;
+...
+    assert_relative_eq!(fold_sum(&quot;1 2 3&quot;).to_result().unwrap(), 6.0);
+<span class="boring">}</span></code></pre></pre>
+<p>Bir küçük bir test makrosu yazalım. <code>stringify!</code>, ifadeyi bir karakter dizisi ifadesine dönüştürür ve bunu <code>expr</code> içerisine argüman olarak iletebiliriz, sonra da sonucu Rust'ın bulacağı ifadenin sonucu ile kıyaslayalım:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    macro_rules! expr_eq {
+        ($e:expr) =&gt; (assert_relative_eq!(
+            expr(stringify!($e).to_result().unwrap(),
+            $e)
+        )
+    }
+
+    expr_eq!(2.3);
+    expr_eq!(2.0 + 3.0 - 4.0);
+    expr_eq!(2.0*3.0 - 4.0);
+<span class="boring">}</span></code></pre></pre>
+<p>Şükela - sadece birkaç satırla ifade işleyicisi tanımladık! Daha iyi olabilir. <code>factor</code> içindeki numaralara bir alternatif ekleyebiliriz - parantez içindeki ifadeler için:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    named!(factor&lt;&amp;str,f64&gt;,
+        alt!(
+            ws!(float64) |
+            ws!(delimited!( tag_s!(&quot;(&quot;), expr, tag_s!(&quot;)&quot;) ))
+        )
+    );
+
+    expr_eq!(2.2*(1.1 + 4.5)/3.4);
+    expr_eq!((1.0 + 2.0)*(3.0 + 4.0*(5.0 + 6.0)));
+<span class="boring">}</span></code></pre></pre>
+<p>Şükelalık ifadenin artık terimler açısından <em>özyinemeli (recursively)</em> olarak çağrılmasıdır!</p>
+<p><code>delimited!</code> makrosunun özel sırrı parantezlerin iç içe olabilmesidir - Nom parantezlerin kapandığından emin olacaktır.</p>
+<p>Regexin yapabileceklerinin çok çok ötesindeki ve <code>strip</code> uygulanmış ikili dosyamız sadece 0.5Mb, ki  hâlen daha ekrana &quot;Merhaba Dünya&quot; yazdıran regex programımızın yarısı kadar ediyor bu.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="object-orientation.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="pain-points.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="object-orientation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="pain-points.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>

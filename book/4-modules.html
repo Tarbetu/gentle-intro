@@ -1,0 +1,611 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Modüller ve Kargo - Rust&#x27;a Yumuşak Bir Başlangıç</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="Rust diline, standart sistemine ve ekosistemine bir giriş.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="1-basics.html"><strong aria-hidden="true">1.</strong> Merhaba Dünya</a></li><li class="chapter-item expanded "><a href="2-structs-enums-lifetimes.html"><strong aria-hidden="true">2.</strong> Yapılar, Numaralandırmalar ve Eşleştirmeler</a></li><li class="chapter-item expanded "><a href="3-filesystem.html"><strong aria-hidden="true">3.</strong> Dosya Sistemi ve Süreçler</a></li><li class="chapter-item expanded "><a href="4-modules.html" class="active"><strong aria-hidden="true">4.</strong> Modüller ve Kargo</a></li><li class="chapter-item expanded "><a href="5-stdlib-containers.html"><strong aria-hidden="true">5.</strong> Standart Kütüphane Konteynırları</a></li><li class="chapter-item expanded "><a href="6-error-handling.html"><strong aria-hidden="true">6.</strong> Hataları Yönetmek</a></li><li class="chapter-item expanded "><a href="7-shared-and-networking.html"><strong aria-hidden="true">7.</strong> Sistem Süreçleri, Ağlar ve Paylaşım</a></li><li class="chapter-item expanded "><a href="object-orientation.html"><strong aria-hidden="true">8.</strong> Nesne Yönelimli Programlama</a></li><li class="chapter-item expanded "><a href="nom-intro.html"><strong aria-hidden="true">9.</strong> Yazıları Nom ile Ayrıştırmak</a></li><li class="chapter-item expanded "><a href="pain-points.html"><strong aria-hidden="true">10.</strong> Rust ve Çektirdiği Çile</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust&#x27;a Yumuşak Bir Başlangıç</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="modüller-ve-cargo"><a class="header" href="#modüller-ve-cargo">Modüller ve Cargo</a></h1>
+<h1 id="modüller"><a class="header" href="#modüller">Modüller</a></h1>
+<p>Programlar büyüdükçe onları bir dosyanın dışına taşımak ve fonksiyonlarla tipleri farklı <em>isim alanlarına (namespace)</em> taşımak gereklidir. Rust'ın bu iki şeye çözümü <em>modüllerdir. (modules)</em></p>
+<p>C ile başladı ama C ile bitmedi, bir süre sonra kendinizi <code>primitive_display_set_width</code> gibi rezilce isimler koyarken bulabilirsiniz. Sadece dosya isimlerini keyfinizce isimlendirebiliyorsunuz. </p>
+<p>Rust'ta aynı şeyi <code>primitive::display::set_width</code> şeklinde isimlendirebiliyorsunuz. Üstelik <code>use primitive::display</code> kullandıktan sonra bunu kısaca <code>display::set_width</code> olarak çağırabilirsiniz. Hatta <code>use primitive::display::set_width</code> dedikten sonra onu doğrudan <code>set_width</code> diye çağırabilirsiniz fakat nasıl kullandığınıza dikkat etmelisiniz. <code>rustc</code> tarafında sorun olmaz ancak sizin kafanız karışabilir. Ancak, bu sistemin çalışabilmesi için dosya isimlerinin basit bir kaç kurala bakması gereklidir.</p>
+<p>Yeni bir anahtar kelimemiz var, <code>mod</code>, bir bloğu içine yazılan tip ve fonksiyonlarla beraber topyekûn modül olarak ilan etmeye yarar.</p>
+<pre><pre class="playground"><code class="language-rust">mod foo {
+    #[derive(Debug)]
+    struct Foo {
+        s: &amp;'static str
+    }
+}
+
+fn main() {
+    let f = foo::Foo{s: &quot;hello&quot;};
+    println!(&quot;{:?}&quot;, f);
+}</code></pre></pre>
+<p>Ancak bu çalışmayacaktır - &quot;Foo yapısı gizlidir (struct Foo is private)&quot; diye bir hata alacağız. Bunu çözmek için <code>pub</code> anahtar kelimesi aracılığıyla <code>Foo</code>'yu görünür kılmalıyız. Sonra bu hata &quot;foo::Foo yapısının s alanı gizlidir (field s of struct foo::Foo is private)&quot; olacaktır, <code>pub</code> anahtar kelimesini alanın başına eklemeliyiz ki <code>Foo::s</code> de görünür olsun. Sonra güzelinden çalışacaktır.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    pub struct Foo {
+        pub s: &amp;'static str
+    }
+<span class="boring">}</span></code></pre></pre>
+<p>Bir alanı açıkça <code>pub</code> olarak belirmek bir modulün içerisinden neyin ulaşılabilir olduğunu <em>seçmek</em> demektir. Bir modülün içerisindeki erişebilen tiplere ve fonksiyonlara modulün <em>arayüzü (interface)</em> denir.</p>
+<p>Bir yapının içindekileri gizlemek ve erişimi metotlarla sağlamak çoğunlukla doğru bir tercihtir.</p>
+<pre><pre class="playground"><code class="language-rust">mod foo {
+    #[derive(Debug)]
+    pub struct Foo {
+        s: &amp;'static str
+    }
+
+    impl Foo {
+        pub fn new(s: &amp;'static str) -&gt; Foo {
+            Foo{s: s}
+        }
+    }
+}
+
+fn main() {
+    let f = foo::Foo::new(&quot;hello&quot;);
+    println!(&quot;{:?}&quot;, f);
+}</code></pre></pre>
+<p>Neden bu yapıları gizlemek daha iyidir? Çünkü arayüzün canına okumadan ve modüle erişen diğer parçaların ayrıntılarıyla boğuşmadan onu değişebilirsiniz. Geniş ölçekli bir programın en büyük belası kodun birbirine girmeye olan meyilidir ki kodun gerekli parçasını izole etmeyi imkansız hâle getirir bu.</p>
+<p>Cesur yeni dünyada modüller tek bir şeyi yapar ve kendi sırlarını kendilerine saklarlar.</p>
+<p>Peki ne zaman gizlememeliyiz? Stroustrup'ın dediği gibi arayüzün kendisi kullanıldığı zaman, mesela <code>struct Point{x: f32, y: f32}</code>. </p>
+<p>Bir modülün içinde bütün nesneler birbirine görünürler. Burada herkesin birbirini tanıdığı ve sırlarını bildiği bir mahalle yaşantısı vardır. </p>
+<p>Herkesin programı çeşitli dosyalara ayırmaya başladığı bir sınırı vardır. Ben mesela 500 satıra geldiğimde bunu düşünmeye başlıyorum ancak hepimiz 2000 satırdan sonra sıkılırız.</p>
+<p>Peki ya bir programı çeşitli dosyalara nasıl ayırırız?</p>
+<p><code>foo</code> kodunu <code>foo.rs</code> içine koyalım.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// foo.rs
+#[derive(Debug)]
+pub struct Foo {
+    s: &amp;'static str
+}
+
+impl Foo {
+    pub fn new(s: &amp;'static str) -&gt; Foo {
+        Foo{s: s}
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Ve sonra da ana dosyada <code>mod foo</code> deyimini bir blok olmadan kullanalım.</p>
+<pre><pre class="playground"><code class="language-rust">// mod3.rs
+mod foo;
+
+fn main() {
+    let f = foo::Foo::new(&quot;hello&quot;);
+    println!(&quot;{:?}&quot;, f);
+}</code></pre></pre>
+<p>Şimdi <code>rustc mod3.rs</code> komutu herhangi bir hata olmadan derlenecektir. &quot;Makefile&quot;lar ile boğuşmaya hiç ihtiyacımız yok!</p>
+<p>Ç.N: Makefile çoğunlukla C ve C++ ile kullanılan ancak Crystal, Go gibi yüksek seviye dillerde bile tercih edilen bir dosya. İşlevi birden çok kod dosyasını bir araya getirmek, onu yönetmektir. </p>
+<p>Derleyici aynı zamanda <code>MODULADI/mod.rs</code> içine de bakacaktır, mesela ben <code>boo</code> isminde bir dizin açıp içerisine <code>mod.rs</code> diye bir dosya yerleştirebilirim:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// boo/mod.rs
+pub fn answer()-&gt;u32 {
+    42
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Ana dosya bunu farklı bir dosyadaki farklı bir modül olarak tanımlayacaktır:</p>
+<pre><pre class="playground"><code class="language-rust">// mod3.rs
+mod foo;
+mod boo;
+
+fn main() {
+    let f = foo::Foo::new(&quot;hello&quot;);
+    let res = boo::answer();
+    println!(&quot;{:?} {}&quot;, f,res);
+}</code></pre></pre>
+<p>Şu ana kadar içinde <code>main</code>  fonksiyonu olan bir <code>mod3.rs</code> dosyamızla beraber <code>boo/mod.rs</code> dosyamız da vardır ki diğer modüller bunu <code>boo</code> olarak görür. Genel alışkanlık, <code>main</code> fonksiyonunu barındıran dosyanın adını <code>main.rs</code> yapmaktır.</p>
+<p>Neden bir şeyi yapmanın iki farklı yolu var? Çünkü <code>boo/mod.rs</code> aracılığıyla <code>boo</code> içerisinde yeni modüller tanımlayabilirsiniz. <code>boo/mod.rs</code>'yi değiştirelim ve yeni bir modül ekleyelim - bunu dışarıdan erişilebilir olmasına dikkat edin. (<code>pub</code> olmazsa <code>bar</code>a sadece <code>boo</code> modülü içerisinden erişebilirsiniz.)</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// boo/mod.rs
+pub fn answer()-&gt;u32 {
+    42
+}
+
+pub mod bar {
+    pub fn question() -&gt; &amp;'static str {
+        &quot;the meaning of everything&quot;
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Ç.N: Question: Soru, Answer: Cevap</p>
+<p>Şimdi, cevabımızı anlamlandıracak bir sorumuz var. (<code>bar</code> modülü, <code>boo</code>'nun içindedir.)</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let q = boo::bar::question();
+<span class="boring">}</span></code></pre></pre>
+<p>Dilersek modül bloğunu <code>boo/bar.rs</code> altına taşıyabiliriz.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// boo/bar.rs
+pub fn question() -&gt; &amp;'static str {
+    &quot;the meaning of everything&quot;
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Ve <code>boo/mod.rs</code> şuna dönüşür:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// boo/mod.rs
+pub fn answer()-&gt;u32 {
+    42
+}
+
+pub mod bar;
+<span class="boring">}</span></code></pre></pre>
+<p>Sonuç olarak modüller organizasyon ve erişilebilirlikle alakalı ve tercihen başka dosyalara erişebilir.</p>
+<p>Lütfen <code>use</code>'ın herhangi bir içe aktarma işleminde kullanılmadığını ve kısayol oluşturduğumuza not edin. Örneğin:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>{
+    use boo::bar;
+    let q = bar::question();
+    ...
+}
+{
+    use boo::bar::question();
+    let q = question();
+    ...
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Bir başka önemli nokta ise Rust'ta <em>parçalı derleme</em> işlemlerinin bulunmamasıdır. Ana program ve onun modül dosyaları sil baştan yeniden derlenir. Büyük programların derlenme süresini kayda değer bir sürede uzatır, <code>rustc</code> zaman içerisinde artımlı derlemede iyileşmesine rağmen.</p>
+<h1 id="sandıklar"><a class="header" href="#sandıklar">Sandıklar</a></h1>
+<blockquote>
+<p><em>Ç.N: Crate kelimesinin yaygınlığından ötürü &quot;sandık&quot; ya da &quot;crate&quot; arasında aklımda uzunca bir süre düşündüm. Çünkü bu genel programlamaya ait bir kelime değil, Rust terminolojisinin bir parçası ki bu da onu çevrilmemesi gereken bir özel isim yapar. Ancak &quot;Sandık&quot; kelimesi gerçekten mantığa uygun ve &quot;Sandık&quot; olarak düşünmenin hiçbir zararı yok. &quot;Crate&quot; diyerek geçseydim, İngilizce bilmeyen kişiler için bunu salt ezberlenmesi gereken, anlamsız bir kelimeye dönüştürürdüm.</em></p>
+</blockquote>
+<p>&quot;Her bir derleme parçasına&quot; <em>sandık (crate)</em> denir ki bu bir kütüphane veyahut çalıştırılabilir bir dosya olabilir. </p>
+<p>Geçen bölümdeki dosyaları hep birlikte değil de ayrıca derlemek için, önce <code>foo.rs</code>'ı bir <em>statik kütüphane sandığına</em> çevirelim.</p>
+<pre><code>src$ rustc foo.rs --crate-type=lib
+src$ ls -l libfoo.rlib
+-rw-rw-r-- 1 steve steve 7888 Jan  5 13:35 libfoo.rlib
+</code></pre>
+<p>Şimdi bunu bizim ana programımıza <em>ilişkilendirebiliriz. (linking)</em></p>
+<pre><code>src$ rustc mod4.rs --extern foo=libfoo.rlib
+</code></pre>
+<p>Ana programımızın bu yeni yapıya uyum sağlaması gerekmektedir, <code>extern</code> (Dışsal) ile kullandığımız isim ilişkilendirdiğimiz zaman kullandığımız isimle aynı olmalıdır. Yeni kütüphanemiz artık <code>foo</code> modülü aracılığıyla görünür olacaktır:</p>
+<pre><pre class="playground"><code class="language-rust">// mod4.rs
+extern crate foo;
+
+fn main() {
+    let f = foo::Foo::new(&quot;hello&quot;);
+    println!(&quot;{:?}&quot;, f);
+}</code></pre></pre>
+<p>İnsanlar &quot;Cargo! Cargo!&quot; diye zikre başlamadan önce Rust'ın inşa araçlarını neden bu kadar düşük seviyeden gösterdiğini anlatmam için bana izin verin. Ben &quot;Aletlerin Fıkhı&quot;na dahilim ve bunları bilmek sizin Cargo ile yeni projeler yönetirken daha az &quot;sinir&quot;le karşılaşmanızı sağlar. Modüller basit dil işlevleridir ve Cargo olmadan da kullabilirler.</p>
+<p>Şimdi, Rust'ın çalıştırılabilir dosyaları neden bu kadar büyük onu anlayalım:</p>
+<pre><code>src$ ls -lh mod4
+-rwxrwxr-x 1 steve steve 3,4M Jan  5 13:39 mod4
+
+</code></pre>
+<p>Yarım dünya olmuş! Aslında bu çalıştırılabilir dosyada <em>pek çok</em> hata ayıklama bilgisi bulunur. Eğer niyetiniz bir hata ayıklayıcı kullanmaksa ve program paniklediği zaman anlamlı geri dönüşler almak istiyorsanız bu kötü bir şey değildir.</p>
+<p>Hata ayıklama bilgisini silelim ve bir de böyle bakalım:</p>
+<pre><code>src$ strip mod4
+src$ ls -lh mod4
+-rwxrwxr-x 1 steve steve 300K Jan  5 13:49 mod4
+</code></pre>
+<p>Yine de basit bir şey için büyük bir dosya olduğunu düşünebilirsiniz ancak bu program Rust'ın standart kütüphanesine <em>statik</em> linklenmiştir. Bu iyi bir şey, bu programı doğru işletim sistemini kullanan herkesle paylaşabilirsiniz - Rust ile ilişkili hiçbir araca ihtiyaçları yoktur. (<code>rustup</code> sayesinde farklı işletim sistemlerine ve platformlara derleyebilirsiniz.)</p>
+<p>Rust'ın kütüphanelerine dinamik linkleyebiliriz ki bu koşulda gerçekten küçük çalıştırılabilir dosyalar elde ederiz.</p>
+<pre><code>src$ rustc -C prefer-dynamic mod4.rs --extern foo=libfoo.rlib
+src$ ls -lh mod4
+-rwxrwxr-x 1 steve steve 14K Jan  5 13:53 mod4
+src$ ldd mod4
+    linux-vdso.so.1 =&gt;  (0x00007fffa8746000)
+    libstd-b4054fae3db32020.so =&gt; not found
+    libc.so.6 =&gt; /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3cd47aa000)
+    /lib64/ld-linux-x86-64.so.2 (0x00007f3cd4d72000)
+</code></pre>
+<p>&quot;not found (bulunamadı)&quot; çıktısının sebebi <code>rustup</code>'ın dinamik kütüphanelerinin sistem çapında kurulamamış olması. En azından Unix'te şöyle bir şey yapabiliriz. (Sembolik bağların en iyi çözüm olduğunu ben de biliyorum.)</p>
+<pre><code>src$ export LD_LIBRARY_PATH=~/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib
+src$ ./mod4
+Foo { s: &quot;hello&quot; }
+</code></pre>
+<p><em>Teorik olarak</em> Rust'ın dinamik linklemeyle ilgili herhangi bir sorunu yok, tıpkı Go gibi. Sadece her altı haftada yeni bir stabil sürüm yayınlandığı için her şeyi tekrar tekrar derlemek biraz tuhaf kaçacaktır. Eğer her şeyin sizin için uygun olacağı bir stabil sürüm bulursanız, bunda sorun olmayacaktır. İşletim sistemlerinin paket yöneticileri Rust'ın standart kütüphanelerini sunmaya başlayacağı zaman dinamik linkleme daha popüler olacaktır.</p>
+<h1 id="cargo"><a class="header" href="#cargo">Cargo</a></h1>
+<p>Java veya Python ile kıyaslarsanız Rust'ın standart kütüphanesi o kadar da büyük değildir, tabii yine de çoğu şeyini işletim sistemi kütüphanelerinden alan C ve C++'dan daha fazla şey bulursunuz.</p>
+<p>Bu durumu telafi etmek için <strong>Cargo</strong> aracılığı ile <a href="https://crates.io">crates.io</a>'da yayınlanan topluluk kütüphanelerine ulaşabilirsiniz. Cargo sizin için doğru sürümü arayacak, kaynağı indirecek ve diğer bağımlılıkların kurulduğunu da kontrol edecektir. </p>
+<p>JSON okuyan basit bir program yapalım. Bu veri formatı yaygın olarak kullanılır ancak standart kütüphaneye eklenemeyecek kadar da karmaşıktır. Bundan ötürü yeni bir Cargo projesi açıyoruz, &quot;--bin&quot; de ekliyoruz ki çalıştırılabilir bir proje yapalım yoksa kütüphane projesi hazırlar.</p>
+<p>Ç.N: Hayır hazırlamaz. Çevrilen belgenin eskiliğinden dolayı böyle bahsetmiş. Varsayılan davranış çalıştırılabilir proje hazırlamaktır, kütüphanesi projesi başlatmak için <code>--lib</code> kullanmanız gerekir. Yine de <code>--bin</code> kullanabilirsiniz ancak buna gerek yoktur. Bu arada bahsi geçen JSON sandığı bu yazının yazıldığı tarihe (8 şubat 2022) iki yıldır güncellenmemiş görünmektedir. Rust'ta kullanılan esas JSON çözümü <a href="https://crates.io/crates/serde_json">serde_json sandığıdır.</a> Yazının devamını okuyabilirsiniz çünkü <code>serde_json</code> ve <code>json</code> sandıkları arasında pratikte pek fark yoktur. Kaldı ki bu bölümün ardından yazar <code>serde_json</code>'u inceliyor.</p>
+<pre><code>test$ cargo init --bin test-json
+     Created binary (application) project
+test$ cd test-json
+test$ cat Cargo.toml
+[package]
+name = &quot;test-json&quot;
+version = &quot;0.1.0&quot;
+authors = [&quot;Your Name &lt;you@example.org&gt;&quot;]
+
+[dependencies]
+</code></pre>
+<p><a href="https://github.com/maciejhirsz/json-rust">JSON sandığını</a> kullanan bir proje yapmak için &quot;Cargo.toml&quot; dosyasını düzenleyin:</p>
+<pre><code>[dependencies]
+json=&quot;0.11.4&quot;
+</code></pre>
+<p>Sonra Cargo ile ilk derlememizi yapalım:</p>
+<pre><code>test-json$ cargo build
+    Updating registry `https://github.com/rust-lang/crates.io-index`
+ Downloading json v0.11.4
+   Compiling json v0.11.4
+   Compiling test-json v0.1.0 (file:///home/steve/c/rust/test/test-json)
+    Finished debug [unoptimized + debuginfo] target(s) in 1.75 secs
+</code></pre>
+<p>Programımızın <code>main</code> dosyası hâlihazırda oluşturdu - &quot;src&quot; dizinindeki &quot;main.rs&quot; dosyasıdır. Şimdilik henüz &quot;hello world&quot; çıktısı vermekten başka bir şeye yaramıyor, hadi onu doğru düzgün bir test programına çevirelim.</p>
+<p>&quot;raw&quot; karakter dizesinin nasıl kullanıldığına da dikkat edin - eğer kullanmasaydık kaçış dizelerini kullanmamız gerekirdi ki bu bayağı bir çirkinliğe sebep olurdu:</p>
+<pre><pre class="playground"><code class="language-rust">// test-json/src/main.rs
+extern crate json;
+
+fn main() {
+    let doc = json::parse(r#&quot;
+    {
+        &quot;code&quot;: 200,
+        &quot;success&quot;: true,
+        &quot;payload&quot;: {
+            &quot;features&quot;: [
+                &quot;awesome&quot;,
+                &quot;easyAPI&quot;,
+                &quot;lowLearningCurve&quot;
+            ]
+        }
+    }
+    &quot;#).expect(&quot;parse failed&quot;);
+
+    println!(&quot;debug {:?}&quot;, doc);
+    println!(&quot;display {}&quot;, doc);
+}</code></pre></pre>
+<p>Ç.N: Cargo aracılığıyla kurduğunuz sandıkların &quot;extern crate <em>sandık_adı</em>&quot; şeklinde çağrılmasına gerek yoktur. </p>
+<p>Şimdi projeyi inşa edip çalıştırabilir - sadece <code>main.rs</code> değişti.</p>
+<pre><code>test-json$ cargo run
+   Compiling test-json v0.1.0 (file:///home/steve/c/rust/test/test-json)
+    Finished debug [unoptimized + debuginfo] target(s) in 0.21 secs
+     Running `target/debug/test-json`
+debug Object(Object { store: [(&quot;code&quot;, Number(Number { category: 1, exponent: 0, mantissa: 200 }),
+ 0, 1), (&quot;success&quot;, Boolean(true), 0, 2), (&quot;payload&quot;, Object(Object { store: [(&quot;features&quot;,
+ Array([Short(&quot;awesome&quot;), Short(&quot;easyAPI&quot;), Short(&quot;lowLearningCurve&quot;)]), 0, 0)] }), 0, 0)] })
+display {&quot;code&quot;:200,&quot;success&quot;:true,&quot;payload&quot;:{&quot;features&quot;:[&quot;awesome&quot;,&quot;easyAPI&quot;,&quot;lowLearningCurve&quot;]}}
+</code></pre>
+<p>Hata ayıklama çıktısı JSON belgesi hakkında bazı iç detayları sundu ancak <code>Display</code> özelliğini kullanan sade <code>{}</code> bizim için taranmış JSON'u döner.</p>
+<p>Şimdi JSON API'sini keşfe çıkalım. Eğer verileri dışarı çıkartamasaydık bunun pek anlamı olmazdı. <code>as_TİP</code> metotu bize <code>Option&lt;TİP&gt;</code> döner, bunun nedeni belirtilen alanın varlığı kesin değildir ve doğru tipe çevirmeyebiliriz.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let code = doc[&quot;code&quot;].as_u32().unwrap_or(0);
+    let success = doc[&quot;success&quot;].as_bool().unwrap_or(false);
+
+    assert_eq!(code, 200);
+    assert_eq!(success, true);
+
+    let features = &amp;doc[&quot;payload&quot;][&quot;features&quot;];
+    for v in features.members() {
+        println!(&quot;{}&quot;, v.as_str().unwrap()); // MIGHT explode
+    }
+    // awesome
+    // easyAPI
+    // lowLearningCurve
+<span class="boring">}</span></code></pre></pre>
+<p><code>features</code>, <code>JsonValue</code> tipine bir referanstır - referans olması gerekir çünkü <em>veriyi</em> JSON dökümanı dışına taşımış oluruz. Ayrıca bir tür dizi olduğunu bildiğimiz için <code>members()</code> bize <code>&amp;JsonValue</code> üzerinde çalışan dolu bir döngüleyici dönecektir. </p>
+<p>Ya eğer &quot;payload&quot;'ın &quot;features&quot; diye bir anahtarı olmasaydı? O zaman <code>features</code> bir <code>Null</code> olurdu, elimizde patlamazdı. Bu yaklaşım biraz serbestlik tanıyor ki bu JSON'un gevşek doğasına da pekâlâ uyuyor. Belgenin yapısını incelemek ve yapı uyuşmazsa hataları idare etmek size kalmış.</p>
+<p>Bu yapıları düzenleyebilirsiniz. Eğer <code>let mut doc</code> diye tanımlasaydık pekâlâ bunu yapabilirdik:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let features = &amp;mut doc[&quot;payload&quot;][&quot;features&quot;];
+    features.push(&quot;cargo!&quot;).expect(&quot;couldn't push&quot;);
+<span class="boring">}</span></code></pre></pre>
+<p><code>push</code> başarısız olabilir çünkü <code>features</code> bir dizi olmayabilir, bundan ötürü <code>Result&lt;()&gt;</code> döner.</p>
+<p><em>JSON kalıplarını</em> kullanmak için gerçekten şık bir makromuz da var:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let data = object!{
+        &quot;name&quot;    =&gt; &quot;John Doe&quot;,
+        &quot;age&quot;     =&gt; 30,
+        &quot;numbers&quot; =&gt; array![10,53,553]
+    };
+    assert_eq!(
+        data.dump(),
+        r#&quot;{&quot;name&quot;:&quot;John Doe&quot;,&quot;age&quot;:30,&quot;numbers&quot;:[10,53,553]}&quot;#
+    );
+<span class="boring">}</span></code></pre></pre>
+<p>Bunun çalışabilmesi için makroları JSON sandığından açıkça içe aktarmanız gerekir:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[macro_use]
+extern crate json;
+<span class="boring">}</span></code></pre></pre>
+<p>Bu sandığın kötü bir tarafı da var, o da JSON'un dengesiz ve dinamik tipli doğasını Rust'ın statik ve yapılandırmış doğası arasında uyumsuzluğu dengeleyememiş olması. (&quot;Readme&quot; dosyasında bu sürtüşmeden (&quot;friction&quot;) söz eder.) Eğer JSON'u Rust'ın veri yapılarına çevirmek isterseniz en sonunda pek çok düzenleme yapmanız gerekir çünkü elde ettiğiniz veriyi yapılarınıza uyacağınızdan emin olamazsınız! Bunun üstesinden gelebilmek için <a href="https://github.com/serde-rs/json">serde_json</a> kullanabilirsiniz, bununla Rust veri yapılarınızı JSON'a <em>serileştirebilir/çevirebilir (serialize)</em> ya da JSON'dan Rust'a <em>serisizleştirebilirsiniz/geri çevirebilirsiniz. (deserialize)</em></p>
+<p>Ç.N: &quot;Muvaffakiyetsizleştiricileştiriveremeyebileceklerimizdenmişsinizcesine&quot; gibi bir karmaşa yarattığımın farkındayım. Bundan dolayı bazı yerlerde <em>serialize</em> ve <em>deserialize</em> için <em>çevirmek</em> karşılığını kullanacağım. </p>
+<p>Bunun için <code>cargo new --bin test-serde-json</code> ile çalıştırılabilir bir Cargo projesi başlatalım ve <code>test-serde-json</code> dizinine girip <code>Cargo.toml'u</code> değiştirelim. Buna benzer bir şey yapabiliriz:</p>
+<pre><code>[dependencies]
+serde=&quot;0.9&quot;
+serde_derive=&quot;0.9&quot;
+serde_json=&quot;0.9&quot;
+</code></pre>
+<p><code>src/main.rs</code>'yi şu şekilde dolduralım:</p>
+<pre><pre class="playground"><code class="language-rust">#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Person {
+    name: String,
+    age: u8,
+    address: Address,
+    phones: Vec&lt;String&gt;,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Address {
+    street: String,
+    city: String,
+}
+
+fn main() {
+    let data = r#&quot; {
+     &quot;name&quot;: &quot;John Doe&quot;, &quot;age&quot;: 43,
+     &quot;address&quot;: {&quot;street&quot;: &quot;main&quot;, &quot;city&quot;:&quot;Downtown&quot;},
+     &quot;phones&quot;:[&quot;27726550023&quot;]
+    } &quot;#;
+    let p: Person = serde_json::from_str(data).expect(&quot;deserialize error&quot;);
+    println!(&quot;Please call {} at the number {}&quot;, p.name, p.phones[0]);
+
+    println!(&quot;{:#?}&quot;,p);
+}</code></pre></pre>
+<p><code>derive</code> özelliğini daha çok görünüz ancak <code>serde_derive</code> sandığı içerisinde <code>Serialize</code> ve <code>Deserialize</code> gibi önemli özellikleri içeren <code>derive</code>lar bulunmaktadır. Sonuç, oluşturulan Rust yapısını gösterecektir:</p>
+<pre><code>Please call John Doe at the number 27726550023
+Person {
+    name: &quot;John Doe&quot;,
+    age: 43,
+    address: Address {
+        street: &quot;main&quot;,
+        city: &quot;Downtown&quot;
+    },
+    phones: [
+        &quot;27726550023&quot;
+    ]
+}
+</code></pre>
+<p>Eğer bunu <code>json</code> sandığı ile yapsaydınız pek çok satırda çoğu hata yönetimiyle ilişkili birkaç yüz tanecik çeviri kodu yazmanız gerekecekti. Bunaltıcı, batırması bir hataya bakar ve bunun için oturup uğraşmak anlamsız. </p>
+<p>Eğer dışarıdan gelen iyi yapılandırılmış JSON'u işleyecekseniz (gerekirse alanları yeniden isimlendirebilirsiniz) ve başka programlarla ağ üzerinden veri paylaşacaksanız (Şu günlerde JSON'u herkes anlıyor) bu bariz en iyi çözümdür. <code>serde</code> (&quot;SERialization DEserialization&quot;) hakkındaki ilgi çeken bir nokta diğer dosya türlerini de desteklemesidir, mesela Cargo'da kullanılan yapılandırması kolay ve popüler <code>toml</code> da bunlardan birisidir. Eğer programınızın .toml dosyalarını yapılara çevirmesi gerekiyorsa bu tıpkı .json dosyalarında yaptığınız gibi bu yapıları hazırlayabilirsiniz.</p>
+<p>Serileştirme, Java ve Go'da da benzerleri bulunan önemli bir tekniktir - ancak büyük bir fark vardır. Bu dillerde verinin yapısı çalışma zamanında <em>yansıma (reflection)</em> kullanılarak bulunur. Ancak bu koşulda serileştirme işlemi <em>çalışma zamanında</em> oluşturulur - bu çok daha verimlidir.</p>
+<p>Cargo, Rust ekosisteminin ağır toplarından birisidir çünkü bizim için çok fazla işi halleder. Eğer o olmasaydı Github'dan tek tek kütüphaneleri indirmek, statik kütüphaneler olarak inşa etmek ve programa ilişkilendirmemiz gerekirdi. Bunu C++ projelerinde yapmak çiledir ve aynı çile Cargo olmasaydı Rust projelerinde de olacaktır. C++'ın çektirdiği çilenin eşi benzeri de yoktur bu arada, o yüzden diğer dillerin paket yöneticileriyle kıyaslamamız daha doğru olacaktır. (JavaScript için) npm, (Python için) pip sizin için bağımlılıkları kontrol eder ve indirir ancak programı dağıtmak zordur çünkü kullanıcının da sizin yerine NodeJS ve Python kurmuş olması gerekir. Ancak Rust programın bağımlılıkları statik linklenmiştir, ek bir bağımlılık gerekmeksizin istediğiniz kişiye yollayabilirsiniz.</p>
+<h1 id="vali-kebabı"><a class="header" href="#vali-kebabı">Vali Kebabı</a></h1>
+<p>Basit bir yazının dışında herhangi bir veriyi işleme alacaksanız düzenli ifadeler (<strong>reg</strong>ular <strong>ex</strong>pressions) hayatınızı kolaylaştıracaktır. Bunlar pek çok dilde vardır ve sizin temel regex kalıplarına aşina olduğunuzu varsayıyorum. <a href="https://github.com/rust-lang/regex">regex</a> sandığını kullanmak için Cargo.toml dosyasına &quot;[dependencies]&quot; altına 'regex = &quot;0.2.1&quot;' ifadesini koymanız yererlidir.</p>
+<p>Terk eğik çizgilerin özel anlamlar yaratmaması için &quot;çiğ/raw karakter dizilerini&quot; kullanacağım. İnsanın anlayacağı şekilde anlatırsak aşağıdaki düzenli ifade &quot; ':' karakterinden önce iki rakam, sonrasında da herhangi uzunluktaki bir rakamı alın&quot; anlamına gelmektedir:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>extern crate regex;
+use regex::Regex;
+
+let re = Regex::new(r&quot;(\d{2}):(\d+)&quot;).unwrap();
+println!(&quot;{:?}&quot;, re.captures(&quot;  10:230&quot;));
+println!(&quot;{:?}&quot;, re.captures(&quot;[22:2]&quot;));
+println!(&quot;{:?}&quot;, re.captures(&quot;10:x23&quot;));
+// Some(Captures({0: Some(&quot;10:230&quot;), 1: Some(&quot;10&quot;), 2: Some(&quot;230&quot;)}))
+// Some(Captures({0: Some(&quot;22:2&quot;), 1: Some(&quot;22&quot;), 2: Some(&quot;2&quot;)}))
+// None
+<span class="boring">}</span></code></pre></pre>
+<p>Başarılı bir çıktı üç parçadan oluşur - bütün eşleşme ile iki parça olarak sayılar. Düzenli ifadeler genel varsayılan olarak <em>mıhlanmamıştır (anchored)</em>, yani <strong>regex</strong> ifademiz ilk eşleşmeyi arayacak ve gerisine bakmayacaktır. (Eğer sadece &quot;()&quot; olarak bir düzenli ifade yazarsanız her şeyle eşleşecektir.)</p>
+<p>Bu eşleşmeleri <em>isimlendirebiliriz</em> ve düzenli ifadeleri birden fazla satır hâlinde yazabiliriz, satırları da içine alacak şekilde. Mesela burada sonucu ilişkisel bir dizi olarak kullanabiliriz ve eşleşmeleri isme göre arayabiliriz. </p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let re = Regex::new(r&quot;(?x)
+(?P&lt;year&gt;\d{4})  # the year
+-
+(?P&lt;month&gt;\d{2}) # the month
+-
+(?P&lt;day&gt;\d{2})   # the day
+&quot;).expect(&quot;bad regex&quot;);
+let caps = re.captures(&quot;2010-03-14&quot;).expect(&quot;match failed&quot;);
+
+assert_eq!(&quot;2010&quot;, &amp;caps[&quot;year&quot;]);
+assert_eq!(&quot;03&quot;, &amp;caps[&quot;month&quot;]);
+assert_eq!(&quot;14&quot;, &amp;caps[&quot;day&quot;]);
+<span class="boring">}</span></code></pre></pre>
+<p>Düzenli ifadeler karakter dizilerini örüntü eşleştirmelere göre bölebilir ancak ne anlama geldiğini anlayamaz. Mesela ISO-tarzı bir sözdizimini belirtip eşleşeyebilirsiniz, ancak <em>anlamsal</em> olarak saçma sapan şeylere işaret edebilirler. Mesela ki &quot;2014-24-52&quot;.</p>
+<p>Bu koşulda ayrıca tarih-zaman işlemeye ihtiyacınız olabilir, bu bize <a href="https://github.com/lifthrasiir/rust-chrono">chrono</a> tarafından sunulur. Tarihleri üretirken zaman dilimini belirtmeniz de gerekebilir:</p>
+<pre><pre class="playground"><code class="language-rust">extern crate chrono;
+use chrono::*;
+
+fn main() {
+    let date = Local.ymd(2010,3,14);
+    println!(&quot;date was {}&quot;, date);
+}
+// date was 2010-03-14+02:00</code></pre></pre>
+<p>Ancak bu tarz kullanımda kötü tarihler şuna sebep olabilir: panik! (Mesela sahte bir tarih kullanmayı deneyebilirsiniz.) Esas ihtiyacınız olan metot <code>ymd_opt</code>'dir ki size <code>LocalResult&lt;Date&gt;</code> döner.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let date = Local.ymd_opt(2010,3,14);
+    println!(&quot;date was {:?}&quot;, date);
+    // date was Single(2010-03-14+02:00)
+
+    let date = Local.ymd_opt(2014,24,52);
+    println!(&quot;date was {:?}&quot;, date);
+    // date was None
+<span class="boring">}</span></code></pre></pre>
+<p>Doğrudan tarihi ve zamanı tarayabilirsiniz, standart UTC biçiminde ya da farklı  <a href="https://lifthrasiir.github.io/rust-chrono/chrono/format/strftime/index.html#specifiers">biçimler</a>'da olabilir. Bu hemen hemen aynı formatlar istediğiniz tarzda biçimlendirmenize yardımcı olur.</p>
+<p>Bu iki sandıktan özellikle bahsettiğm çünkü normalde bunlar diğer dillerde standart kütüphanenin birer parçasıdır. Ve üstelik bu kütüphanelerin çok çok ilkel bir tipi aslında Rust'ın standart kütüphanesinin parçasıydı, ancak ayrıştırıldı. Bu bilinçli bir karardı, Rust takımı standart kütüphanenin kararlılığını oldukça ciddiye alıyor ve ekleyecekleri yeni özellikleri önce kararsız &quot;nightly&quot; yayınında sonra yarı kararlı &quot;beta&quot; yayınında test ederler ve en sonunda &quot;stable&quot; yayınına alırlar. Pek çok deneyim ve iyileştirme gereken kütüphaneleri bağımsız olarak geliştirmek ve Cargo ile erişilir kılmak çok daha iyidir. Sonuca bakarsak, bu iki sandık standart<em>tır</em> - tekrardan standart kütüphaneye alınmayacaktır ve ortadan kaybolmayacaklardır.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="3-filesystem.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="5-stdlib-containers.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="3-filesystem.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="5-stdlib-containers.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>

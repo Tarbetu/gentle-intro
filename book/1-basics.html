@@ -1,0 +1,1078 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Merhaba Dünya - Rust&#x27;a Yumuşak Bir Başlangıç</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="Rust diline, standart sistemine ve ekosistemine bir giriş.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="1-basics.html" class="active"><strong aria-hidden="true">1.</strong> Merhaba Dünya</a></li><li class="chapter-item expanded "><a href="2-structs-enums-lifetimes.html"><strong aria-hidden="true">2.</strong> Yapılar, Numaralandırmalar ve Eşleştirmeler</a></li><li class="chapter-item expanded "><a href="3-filesystem.html"><strong aria-hidden="true">3.</strong> Dosya Sistemi ve Süreçler</a></li><li class="chapter-item expanded "><a href="4-modules.html"><strong aria-hidden="true">4.</strong> Modüller ve Kargo</a></li><li class="chapter-item expanded "><a href="5-stdlib-containers.html"><strong aria-hidden="true">5.</strong> Standart Kütüphane Konteynırları</a></li><li class="chapter-item expanded "><a href="6-error-handling.html"><strong aria-hidden="true">6.</strong> Hataları Yönetmek</a></li><li class="chapter-item expanded "><a href="7-shared-and-networking.html"><strong aria-hidden="true">7.</strong> Sistem Süreçleri, Ağlar ve Paylaşım</a></li><li class="chapter-item expanded "><a href="object-orientation.html"><strong aria-hidden="true">8.</strong> Nesne Yönelimli Programlama</a></li><li class="chapter-item expanded "><a href="nom-intro.html"><strong aria-hidden="true">9.</strong> Yazıları Nom ile Ayrıştırmak</a></li><li class="chapter-item expanded "><a href="pain-points.html"><strong aria-hidden="true">10.</strong> Rust ve Çektirdiği Çile</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust&#x27;a Yumuşak Bir Başlangıç</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="merhaba-dünya"><a class="header" href="#merhaba-dünya">Merhaba Dünya</a></h1>
+<p>&quot;Merhaba Dünya&quot;'nın esas amacı, C'nin ilk versiyonu yazıldığından beri, derleyiciyi test etmek ve gerçek bir program çalıştırmaktır.</p>
+<pre><pre class="playground"><code class="language-rust">// hello.rs
+fn main() {
+    println!(&quot;Hello, World!&quot;);
+}</code></pre></pre>
+<pre><code class="language-bash">$ rustc hello.rs
+$ ./hello
+Hello, World!
+</code></pre>
+<p>Rust'ta süslü ayraçlar ve noktalı virgül vardır, C++ tarzı yorum satırları bulunur ve bir de <code>main</code> fonksiyonu bulunur. Şimdiye kadar bu kısmı tanıyorsunuz. Ünlem işareti, bunun bir <em>makro</em> çağrısı olduğunu gösterir. C++ programcıları için bu biraz caydırıcı olabilir, çünkü onların tek bildiği makrolar o abuk subuk C makrolarıdır - ama bu makroların çok daha yetenekli ve kabul edilebilir olduğunu rahatlıkla söyleyebilirim.</p>
+<p>&quot;Güzel de bu ünlem işaretini nereye sıkıştıracağımı nereden bileyim&quot; diye aklından geçirenler olmuştur. Ancak derleyici beklemediğiniz kadar yardımsever; eğer ünlem işaretini unutursanız şunu görürsünüz:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>error[E0425]: unresolved name `println`
+ --&gt; hello2.rs:2:5
+  |
+2 |     println(&quot;Hello, World!&quot;);
+  |     ^^^^^^^ did you mean the macro `println!`?
+<span class="boring">}</span></code></pre></pre>
+<p>Bir dili öğrenmek o dilin hatalarıyla barışık olmak demektir. Derleyiciyi sizi <em>azarlayan</em> bir bilgisayar olarak görmek yerine katı ama dostane davranan bir yardımcı olarak görmeye çalışın, çünkü başlangıçta epeyce kırmızı yazılar göreceksiniz. Derleyicinin sizin hatalarınızı yüzünüze vurması, insanların sizin yüzünüze vurmasından kat kat daha iyidir.</p>
+<p>Bir sonraki aşama <em>değişken</em> atamaktır.</p>
+<pre><pre class="playground"><code class="language-rust">// let1.rs
+fn main() {
+    let answer = 42;
+    println!(&quot;Hello {}&quot;, answer);
+}</code></pre></pre>
+<p>Yazım hataları <em>derleme</em> zamanında anlaşılır, Python ya da JavaScript gibi çalışma zamanını beklemenize gerek yoktur. Bu, sizi daha sonra pek çok stresten kurtaracak! Eğer &quot;answer&quot; yerine &quot;answr&quot; yazarsam, derleyici bu konuda epey kibar davranır:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>4 |     println!(&quot;Hello {}&quot;, answr);
+  |                         ^^^^^ did you mean `answer`?
+<span class="boring">}</span></code></pre></pre>
+<p><code>println!</code> makrosu bir <a href="https://doc.rust-lang.org/std/fmt/index.html">format karakter dizesi</a> alır; Python3'te kullanılan formatlama stiline epey benzerdir.</p>
+<p>Bir başka kullanışlı makro ise <code>assert_eq!</code>. Bu Rust testlerinin direğidir, iki şeyin birbirine eşit olduğu <em>varsayarsınız. (assert = varsaymak)</em> Eğer eşit değillerse, <em>panik</em>.</p>
+<pre><pre class="playground"><code class="language-rust">// let2.rs
+fn main() {
+    let answer = 42;
+    assert_eq!(answer,42);
+}</code></pre></pre>
+<p>Herhangi bir çıktı olmayacaktır. Ancak 42'yi 40 ile değiştirirseniz:</p>
+<pre><code class="language-shell">thread 'main' panicked at
+'assertion failed: `(left == right)` (left: `42`, right: `40`)',
+let2.rs:4
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+</code></pre>
+<p>Ve bu bizim Rust'taki karşımıza çıkan ilk <em>çalışma zamanı hatası</em>.</p>
+<h1 id="döngüler-ve-koşullamalar"><a class="header" href="#döngüler-ve-koşullamalar">Döngüler ve Koşullamalar</a></h1>
+<p>Enteresan olan her şey tekrar tekrar yapılabilir:</p>
+<pre><pre class="playground"><code class="language-rust">// for1.rs
+fn main() {
+    for i in 0..5 {
+        println!(&quot;Hello {}&quot;, i);
+    }
+}</code></pre></pre>
+<p><em>Aralık (Range)</em> kapsayıcı değildir, bundan dolayı <code>i</code>'nin değeri 0 ila 4 arasında değişir.  Dizilerin indekslerinin sıfırdan başladığı bir dilde pek de olağandışı değildir.</p>
+<p>Enteresan şeyler de <em>koşula bağlı olarak</em> da gerçekleştirilebilir.</p>
+<pre><pre class="playground"><code class="language-rust">// for2.rs
+fn main() {
+    for i in 0..5 {
+        if i % 2 == 0 {
+            println!(&quot;even {}&quot;, i);
+        } else {
+            println!(&quot;odd {}&quot;, i);
+        }
+    }
+}</code></pre></pre>
+<pre><code>even 0
+odd 1
+even 2
+odd 3
+even 4
+</code></pre>
+<p><code>i % 2</code> eğer i, 2'ye tam olarak bölünebiliyorsa sıfır olur; Rust C-tarzı operatörler kullanır. Koşulların etrafında parantez yoktur, tıpkı Go'daki gibi, ama blokların etrafında süslü parantezlerin kullanımı <em>zorunludur.</em></p>
+<p>Aynı şey, daha da ilginç bir yoldan yapılabilir:</p>
+<pre><pre class="playground"><code class="language-rust">// for3.rs
+fn main() {
+    for i in 0..5 {
+        let even_odd = if i % 2 == 0 {&quot;even&quot;} else {&quot;odd&quot;};
+        println!(&quot;{} {}&quot;, even_odd, i);
+    }
+}</code></pre></pre>
+<p>Klasik olarak, programlama dillerinde <em>deyimler (statement)</em> (<code>If</code> gibi) ve <em>ifadeler (expression)</em> (<code>1+i</code> gibi) bulunur. Rust'ta, her şeyin değeri olabilir ve bunlar bir ifade olabilir. C'nin o garabet &quot;ternary/üçlü operatörüne&quot; burada ihtiyacımız yok.</p>
+<p>Aynı zamanda bloklarda noktalı virgül olmadığına da dikkat edin!</p>
+<h1 id="Şeyleri-Şeylere-eklemek"><a class="header" href="#Şeyleri-Şeylere-eklemek">Şeyleri Şeylere Eklemek</a></h1>
+<p>Bilgisayarlar aritmatik konusunda epey iyidir. 0'dan 4'e kadar bütün sayıları toplamayı deneyelim.</p>
+<pre><pre class="playground"><code class="language-rust">// add1.rs
+fn main() {
+    let sum = 0;
+    for i in 0..5 {
+        sum += i;
+    }
+    println!(&quot;sum is {}&quot;, sum);
+}
+</code></pre></pre>
+<p>Ama derlenirken hata verecektir:</p>
+<pre><code class="language-shell">error[E0384]: re-assignment of immutable variable `sum`
+ --&gt; add1.rs:5:9
+3 |     let sum = 0;
+  |         --- first assignment to `sum`
+4 |     for i in 0..5 {
+5 |         sum += i;
+  |         ^^^^^^^^ re-assignment of immutable variable
+
+</code></pre>
+<p>&quot;Immutable&quot;? Değişemeyen değişen mi? <code>let</code> değişkenlerinin değeri sadece atanırken belirtilebilir. <code>mut</code> ismindeki sihirli sözlük (<em>nolur</em> bu değişkeni değişebilir yap) işi halledecektir:</p>
+<pre><pre class="playground"><code class="language-rust">// add2.rs
+fn main() {
+    let mut sum = 0;
+    for i in 0..5 {
+        sum += i;
+    }
+    println!(&quot;sum is {}&quot;, sum);
+}</code></pre></pre>
+<p>Değişkenlerin varsayılan olarak yeniden yazılabilir olduğu dillerden geçerken bu biraz kafa karıştırıcı olabilir. Bir şeyi <em>değişken</em> yapan şey onun değerinin çalışma zamanında atanmasıdır, sabitlerin (constant) aksine. Bu kavramlar matematikte de kullanılır, mesela &quot;let n be the largest number in set S (N'i S kümesi içerisindeki en büyük değer yap)&quot; derken.</p>
+<p>Değişkenlerin varsayılan olarak <em>salt okunur</em> olmasının ardında bir neden vardır. Büyük bir programda, değerlerin nerede atandığını bulmak oldukça güçleşebilir. Bundan dolayı Rust, değişimlerin bildirilmesini ister. Dilde zekice epey şey var ancak dil hiçbir şeyin örtük kalmamasına ayrıca özen gösteriyor.</p>
+<p>Rust hem statik hem de güçlü tiplenen bir dildir - bu kavramlar genelde karıştırılır, ama C (statik ama zayıf tiplenen) ve Python'u (dinamik ama güçlü tiplenen) göz önüne getirin. Statik tiplemede tip derleme zamanında bilinir, dinamik tiplemede ise çalışma zamanında.</p>
+<p>Tam da bu anda, Rust'ın sizden tipleri gizlediğini sezebilirsiniz. Mesela <code>i</code>'nin tam değeri nedir? Derleyici için bu sorun değildir, 0'dan başlarken, tip çıkarımı ile (<em>type referance</em>) bu sayılar <code>i32</code> (Dört bitlik işaretli tam sayı) oluverir.</p>
+<p>Hadi net bir değişim yapalım, 0'ı 0.0 ile değiştirip hataları görelim:</p>
+<pre><code class="language-shell">error[E0277]: the trait bound `{float}: std::ops::AddAssign&lt;{integer}&gt;` is not satisfied
+ --&gt; add3.rs:5:9
+  |
+5 |         sum += i;
+  |         ^^^^^^^^ the trait `std::ops::AddAssign&lt;{integer}&gt;` is not implemented for `{float}`
+  |
+
+</code></pre>
+<p>Pekâlâ, şimdi güldük eğlendik ama bu da nesi? Bütün operatörler (Mesela <code>+=</code>) bir özelliğe (trait) denk gelir ki özellik (trait) somut tiplere yeni özellikler ekleyen soyut arabirimlerdir. Özelliklerle daha sonra ilgileneceğiz, ama burada bilmeniz gereken bütün şey <code>AddAssign</code>, <code>+=</code> operatörünü sağlayan özelliğin adı olduğudur ve hata mesajının demek istediği şey bu özelliğin noktalı sayılara bu operatör tam sayılarla işlem yapmak için uygulanmadığıdır. (Operatör özelliklerinin tam listesi <a href="https://doc.rust-lang.org/std/ops/index.html">burada</a>.)</p>
+<p>Rust'ta her şey bellidir - sırf sizin gönlünüz olsun diye tam sayıyı noktalı sayıya gizlice çevirmeyecektir.</p>
+<pre><pre class="playground"><code class="language-rust">// add3.rs
+fn main() {
+    let mut sum = 0.0;
+    for i in 0..5 {
+        sum += i as f64;
+    }
+    println!(&quot;sum is {}&quot;, sum);
+}</code></pre></pre>
+<h1 id="fonksiyonların-tipleri-de-apaçık-ortadadır"><a class="header" href="#fonksiyonların-tipleri-de-apaçık-ortadadır">Fonksiyonların Tipleri de Apaçık Ortadadır</a></h1>
+<p>Fonksiyonlar da derleyicinin sizin için tipleri tahmin etmekle uğraşmayacağı yerlerden birisidir. Aslında bu üzerinde düşünülerek alınmış bir karardır çünkü Haskell gibi güçlü tip çıkarımlarına sahip dillerde tip isimleri nadiren yazılır. Aslında Haskell için tipleri açıkça yazmak iyi yaklaşımdır. Rust ise her zaman bunu mecbur tutar.</p>
+<p>İşte tanımladığımız basit bir fonksiyon:</p>
+<pre><pre class="playground"><code class="language-rust">// fun1.rs
+
+fn sqr(x: f64) -&gt; f64 {
+    return x * x;
+}
+
+fn main() {
+    let res = sqr(2.0);
+    println!(&quot;square is {}&quot;, res);
+}</code></pre></pre>
+<p>Rust biraz eski bir argüman bildirimi tarzı kullanmakta, tip isimden sonra gelir. Bu, Pascal gibi Algol'dan türemiş dillerde kullanılan tarzdır.</p>
+<p>Hatırlatalım, tam sayı noktalı sayıya dönüşmez - eğer <code>2.0</code>'ı <code>2</code> ile değiştirirseniz nurtopu gibi bir hatanız olmuş olur:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>8 |     let res = sqr(2);
+  |                   ^ expected f64, found integral variable
+  |
+<span class="boring">}</span></code></pre></pre>
+<p>Rust'da fonksiyonlarda çok az <code>return</code> deyiminin kullanıldığının görürsünüz. Daha çok, şuna benzer ifadeler vardır:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn sqr(x: f64) -&gt; f64 {
+    x * x
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Fonksiyonun gövdesi (<code>{ }</code> içi) tıpkı &quot;ifade olarak kullanılan if&quot;teki gibi son ifadenin değerini alır.</p>
+<p>Noktalı virgülleri refleks olarak kazara ekleyebilirsiniz ve o zaman şöyle bir hata alırsınız:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>  |
+3 | fn sqr(x: f64) -&gt; f64 {
+  |                       ^ expected f64, found ()
+  |
+  = note: expected type `f64`
+  = note:    found type `()`
+help: consider removing this semicolon:
+ --&gt; fun2.rs:4:8
+  |
+4 |     x * x;
+  |       ^
+
+<span class="boring">}</span></code></pre></pre>
+<p><code>()</code> tipi boş tiptir, yokluktur, <code>void</code>dir, &quot;nothing&quot;dir, tasavvuftaki fakrdır. Rust'ta her şeyin değeri vardır, ama bazen sadece yoktur. Derleyici bunun sıkça karşılaşılan bir durum olduğunu bilir, ve size aslında <em>yardım</em> eder. (C++ derleyicileriyle vakit harcamış zavallı ruhlar bunun ne kadar faydalı olduğunun farkındadır.)</p>
+<p><code>Return</code> kullanılmayan ifadelere biraz daha örnek verelim: </p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// absolute value of a floating-point number
+fn abs(x: f64) -&gt; f64 {
+    if x &gt; 0.0 {
+        x
+    } else {
+        -x
+    }
+}
+
+// ensure the number always falls in the given range
+fn clamp(x: f64, x1: f64, x2: f64) -&gt; f64 {
+    if x &lt; x1 {
+        x1
+    } else if x &gt; x2 {
+        x2
+    } else {
+        x
+    }
+<span class="boring">}</span></code></pre></pre>
+<p><code>Return</code> kullanmak yanlış değil, ama kod onsuz daha temiz. Yine de, bir fonksiyondan <em>erken dönmek</em> için <code>return</code> kullanabilirsiniz. </p>
+<p>Bazı işlemler zarif bir yoldan özyinelemeli olarak yazılabilir:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn factorial(n: u64) -&gt; u64 {
+    if n == 0 {
+        1
+    } else {
+        n * factorial(n-1)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Başta tuhaf görünebilir ve en iyisi kağıt kalemle örnekler üzerinde düşünmektir. Ancak, bir işlemi yapmanın en etkili yolu değildir.</p>
+<p>Değerler aynı zamanda <em>referans</em> olarak da iletilebilir. <code>&amp;</code> ile yaratılmış bir referans <code>*</code> <em>dereferans</em> edilebilir. (Ç.N: De- olumsuzlaştırma öneki)</p>
+<pre><pre class="playground"><code class="language-rust">fn by_ref(x: &amp;i32) -&gt; i32{
+    *x + 1
+}
+
+fn main() {
+    let i = 10;
+    let res1 = by_ref(&amp;i);
+    let res2 = by_ref(&amp;41);
+    println!(&quot;{} {}&quot;, res1,res2);
+}
+// 11 42</code></pre></pre>
+<p>Bir fonksiyonun argümanlarını değiştirebilmesini mi istiyorsunuz? <em>Değişebilir referans (Mutable referance)</em> kullanın:</p>
+<pre><pre class="playground"><code class="language-rust">// fun4.rs
+
+fn modifies(x: &amp;mut f64) {
+    *x = 1.0;
+}
+
+fn main() {
+    let mut res = 0.0;
+    modifies(&amp;mut res);
+    println!(&quot;res is {}&quot;, res);
+}</code></pre></pre>
+<p>Bu C++'dan çok C'ye benzedi. Açıkça referansı (<code>&amp;</code> ile) belirtmelisiniz ve aynı şekilde <code>*</code> ile deferans etmelisiniz. Sonra da <code>mut</code>'u ekleyin çünkü varsayılan değişebilir değiller. (Bana hep C++ referansları C'ye göre gözden kaçırılmaya daha müsaitmiş gibi gelir.)</p>
+<p>Temel olarak, Rust burada biraz bizi <em>yoruyor</em> ve fonksiyonlardan değer döndürmeye zorluyor.  Neyse ki, Rust'ın &quot;işlem başarılı, bu da sonucu&quot; gibi güçlü ifadeleri olduğundan <code>&amp;mut</code>'u sıklıkla kullanmayız. Referans kullanmak, büyük bir nesnemiz olduğunda ve onu kopyalamak istemediğimizde dikkate değerdir. </p>
+<p>&quot;Değişkenden sonra tip gelir&quot; tarzı <code>let</code> için de gayet uyuyor, bir değişkenin türünü belirtmek istersek eğer:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let bigint: i64 = 0;
+<span class="boring">}</span></code></pre></pre>
+<h1 id="yolumuzu-yordamımızı-bilmek"><a class="header" href="#yolumuzu-yordamımızı-bilmek">Yolumuzu Yordamımızı Bilmek</a></h1>
+<p>Şimdi belgelendirmeye bakmanın tam zamanı. Belgeler makinenize yüklenmiş olmalı ve onu <code>rustup doc --std</code> komutu ile tarayıcınızda açabilir olmalısınız.</p>
+<p>Arama kutucuğunun en üstte olduğuna dikkat edin, zira bu sizin en yakın dostunuz olacak; çalışmak için İnternet'e gerek duymaz.</p>
+<p>Diyelim ki matematiksel fonksiyonların nerede olduğunu merak ediyorsunuz, &quot;cos&quot; diye aratmanız yeterli. Klavyede dokunduğunuz ilk iki tuş her iki noktalı sayı tipi için de var olduğunu gösterir. Aradığımız işlem, değerin kendisinde metot olarak tanımlıdır, mesela şöyle:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let pi: f64 = 3.1416;
+let x = pi/2.0;
+let cosine = x.cos();
+<span class="boring">}</span></code></pre></pre>
+<p>Sonuç sıfıra epey yakın çıkacaktır, belli ki tahmini değere değil gerçek PI sayısına ihtiyacımız var.</p>
+<p>(Sahi, neden <code>f64</code> diye belirtmemize gerek var ki? Aslına bakarsanız o olmadan değerimiz <code>f32</code> veya <code>f64</code> olabilir ki bunlar epey farklı şeyler.)
+(Ç.N: Noktalı sayı tutan)</p>
+<p><code>Cos</code> için verilen örneğe bakalım, bunu çalışabilir bir programa çevirdik. (<code>assert!</code> de <code>assert_eq!</code>'in amcaoğlu oluyor, verilen ifade kesinlikle doğru olmalıdır.)</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    let x = 2.0 * std::f64::consts::PI;
+
+    let abs_difference = (x.cos() - 1.0).abs();
+
+    assert!(abs_difference &lt; 1e-10);
+}</code></pre></pre>
+<p><code>std::f64::consts::PI</code> şu güzel ortamı iyice bozdu! <code>::</code> C++'daki anlamıyla aynı şeye denk geliyor, (Bazı dillerde yerine <code>.</code> kullanılır) - bu <em>tam yolu belirtilmiş bir isim</em>. Bu tam adı, <code>PI</code> için yaptığımız aramayı yaparken ikinci klavye tuşlamasında alıyoruz. </p>
+<p>Şimdiye dek, bizim ufak Rust programımıza &quot;Merhaba Dünya&quot; tartışmalarında gündemi meşgul eden <code>import</code> ya da <code>include</code> gibi şeyleri eklemedik. Hadi, programımızı bir <code>use</code> deyimi ile şenlendirelim:</p>
+<pre><pre class="playground"><code class="language-rust">use std::f64::consts;
+
+fn main() {
+    let x = 2.0 * consts::PI;
+
+    let abs_difference = (x.cos() - 1.0).abs();
+
+    assert!(abs_difference &lt; 1e-10);
+}</code></pre></pre>
+<p>Tamam da buna neden şimdiye dek ihtiyaç duymadık? Çünkü Rust <em>prelude</em> aracılığıyla, <code>use</code> deyimini kullanmaya gerek bırakmadan pek çok temel işlevi görünür kılar (ama siz kullanana kadar yüklemez).</p>
+<h1 id="diziler-ve-dilimler"><a class="header" href="#diziler-ve-dilimler">Diziler ve Dilimler</a></h1>
+<p>Bütün statik tiplenen dillerde <em>diziler (array)</em> bulunur, bu birden çok veriyi bellek içerisinde baştan sona kontrol eder. Diziler, sıfırdan itibaren <em>indekslenir</em>.</p>
+<pre><pre class="playground"><code class="language-rust">// array1.rs
+fn main() {
+    let arr = [10, 20, 30, 40];
+    let first = arr[0];
+    println!(&quot;first {}&quot;, first);
+
+    for i in 0..4 {
+        println!(&quot;[{}] = {}&quot;, i,arr[i]);
+    }
+    println!(&quot;length {}&quot;, arr.len());
+}</code></pre></pre>
+<p>Ve çıktı:</p>
+<pre><code>first 10
+[0] = 10
+[1] = 20
+[2] = 30
+[3] = 40
+length 4
+</code></pre>
+<p>Burada Rust dizinin büyüklüğünü net olarak bilir ve eğer <code>arr[4]</code>'e erişmeye çalışırsanız derleme hatası alırsınız. </p>
+<p>Yeni bir dil öğrenmek aynı zamanda diğer dillerden edindiğiniz alışkanlıkları da <em>terk etmek</em> demektir; eğer bir Pythonista iseniz bu köşeli parantezleri <code>List</code> diye isimlendirebilirsiniz. Rust'taki <code>List</code>'in muadiline daha sonra bakacağız, ancak diziler düşündüğünüz işi yapmıyor; <em>sabit</em> bir büyüklükleri vardır. (Eğer yalvarırsak) <em>değişebilir</em>ler ancak yeni değerler ekleyemeyiz.</p>
+<p>Diziler Rust'ta o kadar çok kullanılmaz, çünkü her dizi tipi uzunluğunun bilgisini de taşır. Mesela <code>[i32; 4]</code> dizi tipine bakabilirsiniz; aynı zamanda <code>[10, 20]</code> olan bir dizinin tipi de <code>[i32; 2]</code> olacaktır vs, hepsinin farklı tipi vardır. Yani bunlar aslında fonksiyon argümanı olmaktan başka şeye yaramayan başıboş serserilerdir.</p>
+<p>Esas sık kullanılan<em>lar</em> <em>dilimlerdir</em>. Bunları bir dizinin <em>parçalanmış hâli<sup class="footnote-reference"><a href="#slice">1</a></sup></em> olarak düşünebilirsiniz. Tıpkı dizilerin davrandığı gibi davranırlar ve <em>uzunluklarını bilirler</em>, C'deki <em>gösterici (pointer)</em> denen korkunç yaratıkların tam tersi olarak.</p>
+<p>İki önemli noktaya dikkat edin - bir dilimin tipi nasıl yazıldığına ve fonksiyona ne zaman <code>&amp;</code> eklemeniz gerektiğine.</p>
+<div class="footnote-definition" id="slice"><sup class="footnote-definition-label">1</sup>
+<p>Ç.N: Esas çeviride &quot;parçalanmış hâl&quot; yerine &quot;görünüm (view)&quot; kelimesi kullanılıyor. İngilizce için cümle gayet geçerli, ancak Türkçe'de tuhaf duruyor.</p>
+</div>
+<pre><pre class="playground"><code class="language-rust">// array2.rs
+// read as: slice of i32
+fn sum(values: &amp;[i32]) -&gt; i32 {
+    let mut res = 0;
+    for i in 0..values.len() {
+        res += values[i]
+    }
+    res
+}
+
+fn main() {
+    let arr = [10,20,30,40];
+    // look at that &amp;
+    let res = sum(&amp;arr);
+    println!(&quot;sum {}&quot;, res);
+}</code></pre></pre>
+<p><code>Sum</code>'da kodu bir saniyeliğine görmezden gelin ve <code>&amp;[i32]</code>'ye bakın. Rust dizileri ve dilimleri arasındaki ilişki C'deki diziler ve göstericiler arasındaki ilişkiye benzer, iki detay hariç - Rust dilimleri kendi uzunluğunun takibini yaparlar (ve eğer bu uzunluğun dışına çıkarlarsa paniklerler) sonra da <code>&amp;</code> 'ı operatörünü kullanarak dilim olarak kullanmak istediğinizi açıkça belirtmeniz gereklidir.</p>
+<p>Bir C programcısı <code>&amp;</code>'ı gördüğü zaman &quot;falancanın adresi&quot; diye okur, Rust programcısı ise &quot;ödünç (borrow)&quot; olarak. Bu, Rust öğrenirken dikkat etmeniz gereken kilit sözcüktür. Ödünç alma, esasında programlamada kullanılan genel bir terimdir ve (Dinamik dillerde her zaman olduğu gibi) referans olarak bir veriyi ya da C'de bir gösterici (pointer) yollamanıza denir. Ödünç alınan her şey esas sahibinde kalır.</p>
+<h1 id="dilimleme-ve-biçme"><a class="header" href="#dilimleme-ve-biçme">Dilimleme ve Biçme</a></h1>
+<p>Bir diziyi <code>{}</code> yolu ile ekrana yazamazsınız fakat <em>hata ayıklama (debug)</em> yani <code>{:?}</code> ile ekrana yazdırabilirsiniz.</p>
+<p>Bu: </p>
+<pre><pre class="playground"><code class="language-rust">// array3.rs
+fn main() {
+    let ints = [1, 2, 3];
+    let floats = [1.1, 2.1, 3.1];
+    let strings = [&quot;hello&quot;, &quot;world&quot;];
+    let ints_ints = [[1, 2], [10, 20]];
+    println!(&quot;ints {:?}&quot;, ints);
+    println!(&quot;floats {:?}&quot;, floats);
+    println!(&quot;strings {:?}&quot;, strings);
+    println!(&quot;ints_ints {:?}&quot;, ints_ints);
+}</code></pre></pre>
+<p>Bunu yazdırır:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>ints [1, 2, 3]
+floats [1.1, 2.1, 3.1]
+strings [&quot;hello&quot;, &quot;world&quot;]
+ints_ints [[1, 2], [10, 20]]
+<span class="boring">}</span></code></pre></pre>
+<p>Bu arada, dizilerin dizileri de olabilir ancak dizide sadece bir tipten değerler bulunmalıdır. Dizideki değerler verimlilikten dolayı bellekte yanyana bulunurlar ki bu erişim için oldukça faydalıdır.</p>
+<p>Eğer bir değişkenin gerçek tipini merak ediyorsanız, size bir hile gösterebilirim. Bir değişkeni, geçersiz olduğunu bildiğiniz bir tiple bildirin:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let var: () = [1.1, 1.2];
+<span class="boring">}</span></code></pre></pre>
+<p>İşte aradığınız şeyi gösteren hata:</p>
+<pre><code>3 |     let var: () = [1.1, 1.2];
+  |                   ^^^^^^^^^^ expected (), found array of 2 elements
+  |
+  = note: expected type `()`
+  = note:    found type `[{float}; 2]`
+</code></pre>
+<p>(<code>{float}</code>, &quot;bir nevi noktalı sayı ama tam tipi henüz belirtilmedi.&quot; demektir.)</p>
+<p>Dilimler size aynı dizinin farklı <em>parçalarını</em> sunar:</p>
+<pre><pre class="playground"><code class="language-rust">// slice1.rs
+fn main() {
+    let ints = [1, 2, 3, 4, 5];
+    let slice1 = &amp;ints[0..2];
+    let slice2 = &amp;ints[1..];  // open range!
+
+    println!(&quot;ints {:?}&quot;, ints);
+    println!(&quot;slice1 {:?}&quot;, slice1);
+    println!(&quot;slice2 {:?}&quot;, slice2);
+}</code></pre></pre>
+<p>Bu, Python'daki dilim anlayışına epey yakındır ancak arada büyük bir fark vardır: Veri asla kopyalanmadı. Bu dilimler, bütün verilerini dizilerden <em>ödünç</em> alırlar. Dilimlerin dizilerle epey sıkı bir bağ vardır ve Rust bu bağın kopmaması için elinden gelen her şeyi kuvvetle yapar.</p>
+<h1 id="opsiyonel-değerler-optional-values"><a class="header" href="#opsiyonel-değerler-optional-values">Opsiyonel Değerler (Optional Values)</a></h1>
+<p>Dilimler, diziler gibi, indekslenebilir. Rust, derleme zamanında dizinin değerini bilir, ama bir dilimin değeri ancak çalışma zamanında bilinebilir. Bundan dolayı, <code>s[i]</code> kullanımı belleğin yanlış bir yerine erişmeye sebep olabilir ve bu durumda program <em>panikleyecektir.</em> Bu gerçekten de olmasını istediğiniz şey değildir - aradaki fark Florida'dan atılacak çok pahalı bir uydunun gökyüzünde parçalanması ile atışın güvenlice iptal edilmesine kadar varabilir. Ve burada <em>hata yakalama mekanizmaları (exceptions)</em> yok.</p>
+<p>Şimdi hazır olun zira gelecek şey sizi şok edecek. Burada panikleyebilecek kodları try-bloğu ve hatayı yakala (try - catch) yapısı yok - en azından her gün kullandığınız şekliyle yok. Peki, Rust nasıl güvenli kalabiliyor?</p>
+<p>İşte size bir paniklemeyen <code>get</code> metotu. İyi de, bu ne dönüyor?</p>
+<pre><pre class="playground"><code class="language-rust">// slice2.rs
+fn main() {
+    let ints = [1, 2, 3, 4, 5];
+    let slice = &amp;ints;
+    let first = slice.get(0);
+    let last = slice.get(5);
+
+    println!(&quot;first {:?}&quot;, first);
+    println!(&quot;last {:?}&quot;, last);
+}
+// first Some(1)
+// last None</code></pre></pre>
+<p><code>last</code> çuvalladı. (Sıfır temelli indekslemeyi unuttuk.) Ama <code>None</code> diye bir şey döndü. <code>first</code> için sorun yok, ama <code>Some</code> diye bir şey dönüverdi. <code>Option</code> tipini selamlayın! Bu tip <code>Some</code> <em>olabilir</em>, <code>None</code> <em>olabilir</em>.</p>
+<p><code>Option</code> tipinin gayet faydalı metotları vardır:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    println!(&quot;first {} {}&quot;, first.is_some(), first.is_none());
+    println!(&quot;last {} {}&quot;, last.is_some(), last.is_none());
+    println!(&quot;first value {}&quot;, first.unwrap());
+
+// first true false
+// last false true
+// first value 1
+<span class="boring">}</span></code></pre></pre>
+<p>Eğer <code>last</code> üzerinde <em>unwrap</em> kullanırsanız nurtopu gibi bir paniğiniz olur. Bunun yerine en azından <code>is_some</code> kullanabilirsiniz - varsayılan bir değeriniz varsa gayet faydalıdır:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let maybe_last = slice.get(5);
+    let last = if maybe_last.is_some() {
+        *maybe_last.unwrap()
+    } else {
+        -1
+    };
+<span class="boring">}</span></code></pre></pre>
+<p><code>*</code> operatörünün kullanıldığına dikkat edin - <code>Some</code> içindeki esas tip bir referans olan <code>&amp;i32</code>'dir. <code>i32</code> verisini almak için veriyi deferans ediyoruz.</p>
+<p>Bu biraz işi uzatıyor, onun yerine bir kısayol kullanabiliriz - <code>unwrap_or</code> metodu <code>Option</code> <code>None</code> ise yerine bir değer atayabilir. Tipler muhakkak uyuşmalı -<code>get</code> referans dönecek. Bundan ötürü bir <code>&amp;i32</code> olan <code>&amp;-1</code>'ı kullanmamız gereklidir. Şimdi tekrar  <code>*</code> operatörünü <code>i32</code> değeri almak için kullanalım.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let last = *slice.get(5).unwrap_or(&amp;-1);
+<span class="boring">}</span></code></pre></pre>
+<p><code>&amp;</code>'ı unutmak gayet olası ama derleyici arkanızı toplayacaktır. <code>-1</code> yazsaydık, <code>rustc</code> şuna benzer bir hata verecekti: &quot;&amp;{integer} bekleniyordu ancak tam sayı alındı&quot; ve eklerdi ki: &quot;yardım: <code>&amp;-1</code>'ı deneyin&quot; *</p>
+<p>* &quot;expected &amp;{integer}, found integral variable&quot;, &quot;help: try with <code>&amp;-1</code>&quot;</p>
+<p><code>Option</code> tipini veri taşıyan bir paket olarak zihninizde canlandırabilirsiniz, ya da hiçbir şey ifade etmeyen bir değer (<code>None</code>). (Haskell'deki karşılığı <code>Maybe</code>dir.) Bu tip tipi belirtilebilen herhangi bir veriyi barındırabilir. Bizim örneğimizde üzerinde çalıştığımız tip <code>Option&lt;&amp;i32&gt;</code>'dir, C++'ın &quot;Genellemeler (generics)&quot; yazılımı ile gösterirsek. Paketi açmak bir patlamaya sebep olabilir ancak bu mevzu Schrödinger'in kedisi kadar karmaşık değil ve önceden paketin içinde ne var bilebiliriz.</p>
+<p>Rust fonksiyonlarının ve metotların bu tür paketleri döndürmesi gayet olağandır ve üzerinde uzmanlaşana kadar nasıl kullanıldığını öğrenin.</p>
+<h1 id="vektörler"><a class="header" href="#vektörler">Vektörler</a></h1>
+<p>Ç.N: Doğrusunu isterseniz ilk gördüğümde bu vektörleri geometrideki vektörlerle ilişkili zannetmiştim. Yüzde yüz programlama deyimi, aklınıza farklı şeyler gelmesin. :)</p>
+<p>Tekrar dilim metotlarına döneceğiz ancak vektörleri gözden geçirelim. Bunlar <em>yeniden biçimlendirilebilen</em> dizilerdir ve Python'un <code>List</code>ine ve C++'ın <code>std::vector</code>'üne epey benzerler. Rust'ın <code>Vec</code> tipi (&quot;vektör&quot; olarak okunur.) dilimlere çok benzerler; esas farklılıkları ise vektöre yeni bir veri ekleyebiliyor olmanız - <em>değişebilir (mutable)</em> olarak değişkenin bildirilmesi kaydı ile.</p>
+<pre><pre class="playground"><code class="language-rust">// vec1.rs
+fn main() {
+    let mut v = Vec::new();
+    v.push(10);
+    v.push(20);
+    v.push(30);
+
+    let first = v[0];  // will panic if out-of-range
+    let maybe_first = v.get(0);
+
+    println!(&quot;v is {:?}&quot;, v);
+    println!(&quot;first is {}&quot;, first);
+    println!(&quot;maybe_first is {:?}&quot;, maybe_first);
+}
+// v is [10, 20, 30]
+// first is 10
+// maybe_first is Some(10)</code></pre></pre>
+<p>Yeni başlayanların başına sıklıkla gelen şey <code>mut</code> eklemeyi unutmalarıdır; bunu yaparsanız dostça uyarılırsınız.</p>
+<pre><code>3 |     let v = Vec::new();
+  |         - use `mut v` here to make mutable
+4 |     v.push(10);
+  |     ^ cannot borrow mutably
+</code></pre>
+<p>Vektörler ve dilimler arasında çok yakın bir bağ vardır.</p>
+<pre><pre class="playground"><code class="language-rust">// vec2.rs
+fn dump(arr: &amp;[i32]) {
+    println!(&quot;arr is {:?}&quot;, arr);
+}
+
+fn main() {
+    let mut v = Vec::new();
+    v.push(10);
+    v.push(20);
+    v.push(30);
+
+    dump(&amp;v);
+
+    let slice = &amp;v[1..];
+    println!(&quot;slice is {:?}&quot;, slice);
+}</code></pre></pre>
+<p>Ufak ama önemli ödünç alma operatörümüz <code>&amp;</code>, vektörü dilime çevirmeye <em>zorluyor. (coercing)</em>. Ve bu pek mantıksız değil çünkü vektörler bellekte <em>dinamik</em> bir yer tutarlar ve dizi gibi çalışırlar.</p>
+<p>Eğer dinamik tipli bir dilden geliyorsanız, sizinle bazı şeyleri konuşmanın vakti geldi. Sistem programlama dillerinde iki farklı bellek yönetim tarzı vardır:  Yığıt (Stack) ve Öbek (Heap).<sup class="footnote-reference"><a href="#heapstack">2</a></sup> Stack bellek üzerinde oldukça hızlı bir şekilde alan tahsis ederler ancak yapıları ancak bir kaç megabaytla çıkabilecek kadar sınırlıdır. Heap ise gigabaytlara kadar çıkabilir ancak alan tahsis etme süreci biraz meşakkatlidir ve bu bellek alanının sonradan temizlemesi gereklidir. Bazı sözüm ona &quot;yönetilen (managed)&quot; dillerde (Bunlar Java olur, Go olur, bazı sözde betik dilleri olur) bu tarz detaylar sizden gizlenir ve belediyemizin <em>çöp toplayıcıları (garbage collector)</em> tarafından bu pis işler halledilir. Sistem, bir verinin başka bir veriye referans gösterilmediğine emin olunca kullanılabilir bellek alanına geri döner.</p>
+<div class="footnote-definition" id="heapstack"><sup class="footnote-definition-label">2</sup>
+<p>Yığıt ve Öbek, benim çeviri standartlarıma göre bile aşırı yapay kalıyor. Bundan ötürü kafa karışıklığını ortadan kaldırmak için Heap ve Stack kelimelerinden devam ettim. </p>
+</div>
+<p>İşin özü bu durumun faydaları olsa da bazı sorunları da vardır. Stack ile oynamanın bazı tehlikeleri var ve içinde bulunduğunuz fonksiyonun dönüş adresini bozabilirsiniz, sonra da iğrenç bir şekilde can verirsiniz. Ya da daha da kötüsü, Hacker Okan'ın elini öpmek zorunda kalabilirsiniz.</p>
+<p>İlk C programım (DOS'ta yazmıştım) tüm bilgisayarı çökertmişti. Unix sistemleri bu tarz şeylere karşı daha iyi tavır alırdı ve <em>segfault</em> mekanizması ile kontrolden çıkan süreçler &quot;öldürülür&quot;. Peki, bu neden Rust'ın (ya da Go'nun) paniklemesinden daha kötüdür? Çünkü panik sorunun olduğu yerde meydana gelir, bütün program birbirine girdiğinde ve ev ödevlerine dadandığında değil. Panikler <em>bellek için emniyetlidir (memory safe)</em> çünkü belleğin canına okunmadan hemen önce gerçekleşirler. Bu, C'deki güvenlik sorunlarının yaygın bir nedenidir çünkü bütün bellek erişimleri emniyetsizdir ve işi bilen bir saldırgan bu güvensizlikten faydalanabilir.</p>
+<p>Panikler kulağınıza korkunç ve plansız gelebilir ama Rust'ın panikleri bile yapılandırılmıştır - stack tek tek serbest bırakılır. Bellekte tahsis edilmiş alanı olan bütün veriler boşatılır ve geriye dönük bir rapor oluşturulur.</p>
+<p>Peki çöp toplayıcıların (garbage collector) dezavantajları nedir? Birincisi belleği çok hoyratça kullanıyorlar, sizin için önemli olmayabilir ama gömülü mikroçiplerde bu çok fena bir sorun oluşturur. İkincisi, en olur olmaz zamanlarda belleği temizlemeye başlamasıdır. (Odanızda uzanmış telefonda sevgilinizle hassas bir konuşma yaparken birden odanızı temizlemeye kalkışan annenizi düşünün.) Gömülü sistemlerin olaylara <em>gerçekleştiği anda</em> yanıt vermesi gerekir ve planlanmamış bir temizliğe hiç tahammütleri yoktur. Roberto Lerusalimsch, Lua gibi çok zarif bir dinamik dilin baş tasarımcısı, çöp toplayıcılı bir yazılımın kullanıldığı uçakta asla uçmak isteyemeyeceğini söylemiştir.</p>
+<p>Vektörlere geri dönelim, bir vektör yaratıldığı ya da düzenlendiğinde heap içerisinden alan tahsis eder ve bu tahsis edilen alanın sahibi olur. Vektör öldüğünde ya da bellekten temizlendiğinde, bellek de serbest bırakılır.</p>
+<h1 id="döngüleyiciler-iterators"><a class="header" href="#döngüleyiciler-iterators">Döngüleyiciler (Iterators)</a></h1>
+<p>Rust bilinmezinin en temel noktasından henüz bahsetmedik - döngüleyiciler. Bir aralık (range) üzerinde kullanılan for döngüsü bir döngüleyici (iterator) kullanır. (<code>0..n</code> Python3'teki <code>range</code> fonksiyonuna benzer.)</p>
+<p>Bir döngüleyiciyi fark etmek oldukça kolaydır. <code>Option</code> değerini bize dönen <code>next</code> metotuna sahip bir &quot;objeye&quot; döngüleyici deriz. <code>None</code> dönene kadar, <code>next</code> kullanabiliriz.</p>
+<pre><pre class="playground"><code class="language-rust">// iter1.rs
+fn main() {
+    let mut iter = 0..3;
+    assert_eq!(iter.next(), Some(0));
+    assert_eq!(iter.next(), Some(1));
+    assert_eq!(iter.next(), Some(2));
+    assert_eq!(iter.next(), None);
+}</code></pre></pre>
+<p><code>for var in iter {}</code> 'in yaptığı da tam olarak budur.</p>
+<p>Bu size for döngüsü tanımlamanın faydasız bir yolu gibi görünebilir ancak <code>rustc</code>'nin yapacağı akıl almaz optimizasyonların sonucunda While döngüsü kadar hızlı çalışacaktır.</p>
+<p>Bir dizi üzerinde döngü kurmayı deneyelim:</p>
+<pre><pre class="playground"><code class="language-rust">// iter2.rs
+fn main() {
+    let arr = [10, 20, 30];
+    for i in arr {
+        println!(&quot;{}&quot;, i);
+    }
+}</code></pre></pre>
+<p>Elbette ki hata dönecek. Ama çıktıya bakınca:</p>
+<pre><code>4 |     for i in arr {
+  |     ^ the trait `std::iter::Iterator` is not implemented for `[{integer}; 3]`
+  |
+  = note: `[{integer}; 3]` is not an iterator; maybe try calling
+   `.iter()` or a similar method
+  = note: required by `std::iter::IntoIterator::into_iter`
+</code></pre>
+<p><code>Rustc</code>'nin tavsiyesiyle programımız bir kez daha çalıştı:</p>
+<pre><pre class="playground"><code class="language-rust">`// iter3.rs
+fn main() {
+    let arr = [10, 20, 30];
+    for i in arr.iter() {
+        println!(&quot;{}&quot;, i);
+    }
+
+    // slices will be converted implicitly to iterators...
+    let slice = &amp;arr;
+    for i in slice {
+        println!(&quot;{}&quot;, i);
+    }
+}</code></pre></pre>
+<p>Aslında, dizi üzerinde <code>for i in 0..slice.len() {}</code> gibi bir kullanımdansa bu yöntem çok daha verimlidir çünkü Rust'ı obsesifçe her indeks operasyonunda bir ton şeyi kontrol etmeye yönlendirmemiş oluyoruz.</p>
+<p>Bir de bir aralığın hepsini hızlıca toplamanın bir başka örneğine bakalım. Daha önce bir döngü ve <code>mut</code> değişkenini kullanıyordum. Burada ise toplamanın &quot;<em>idiomatic</em>&quot; ve profesyonelce bir yolu var:</p>
+<pre><pre class="playground"><code class="language-rust">// sum1.rs
+fn main() {
+    let sum: i32  = (0..5).sum();
+    println!(&quot;sum was {}&quot;, sum);
+
+    let sum: i64 = [10, 20, 30].iter().sum();
+    println!(&quot;sum was {}&quot;, sum);
+}</code></pre></pre>
+<p>Rust'ta tiplerin önceden bildirilmiş olması gereken durumlardan birisi olduğuna dikkat edin, aksi taktirde Rust tam olarak ne yapması gerektiğini bilemeyecektir. Burada farklı tam sayı tipleriyle çalışmaktayız ki bu sorun teşkil etmez. (Aynı zamanda, isim sıkıntısı çektiğiniz zamanlarda aynı ismi tekrar kullanmanız da sorun teşkil etmez.)</p>
+<p>Bu bilgiyle birlikte, <a href="https://doc.rust-lang.org/std/primitive.slice.html">dilim metotları</a> gözünüze biraz daha anlamlı gelecektir. (Belgelendirme hakkında bir bilgi; her belgenin sağ tarafında '[-]' işareti bulunur ve bu butona tıklayınca metot listesini kapatabilirsiniz. İlginizi çeken şeylerin detaylarını da genişletebilirsiniz. Şimdilik biraz tuhaf görünüyor, görmezden geliverin.)</p>
+<p><code>windows</code> metotu size dilimlerin döngüleyicisini verir - birbiriyle örtüşen pencereler olarak değerler (Ç.N: Burada ne demek istediği benim için bile bir bilinmez.)</p>
+<pre><pre class="playground"><code class="language-rust">
+// slice4.rs
+fn main() {
+    let ints = [1, 2, 3, 4, 5];
+    let slice = &amp;ints;
+
+    for s in slice.windows(2) {
+        println!(&quot;window {:?}&quot;, s);
+    }
+}
+// window [1, 2]
+// window [2, 3]
+// window [3, 4]
+// window [4, 5]</code></pre></pre>
+<p><code>Chunks</code> da benzer işlevi yapabilir.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span> for s in slice.chunks(2) {
+        println!(&quot;chunks {:?}&quot;, s);
+    }
+// chunks [1, 2]
+// chunks [3, 4]
+// chunks [5]
+<span class="boring">}</span></code></pre></pre>
+<h1 id="vektörler-Üzerine-biraz-daha-konuşalım"><a class="header" href="#vektörler-Üzerine-biraz-daha-konuşalım">Vektörler Üzerine Biraz Daha Konuşalım</a></h1>
+<p>Bir vektör kurmak için <code>vec!</code> isminde oldukça kullanışlı bir makromuz var. Bununla birlikte vektörün sonundaki verileri <code>pop</code> ile <em>silebiliriz</em> ve vektörü bir başka vektörle <em>genişletebiliriz (extend).</em></p>
+<pre><pre class="playground"><code class="language-rust">// vec3.rs
+fn main() {
+    let mut v1 = vec![10, 20, 30, 40];
+    v1.pop();
+
+    let mut v2 = Vec::new();
+    v2.push(10);
+    v2.push(20);
+    v2.push(30);
+
+    assert_eq!(v1, v2);
+
+    v2.extend(0..2);
+    assert_eq!(v2, &amp;[10, 20, 30, 0, 1]);
+}</code></pre></pre>
+<p>Vektörler birbirleriyle kıyaslanacağı zaman dilim olarak karşılaştırılır.</p>
+<p>Vektörün belirli noktalarına <code>insert</code> kullanarak verileri yerleştirebilirsiniz, <code>remove</code> ile de silebilirsiniz. Bu vektörün sonuna veri eklemekten (<em>push</em>) ya da veri çıkartmaktan (<em>pop</em>) daha verimsizdir çünkü veriler yeni yer yaratmak için taşınır, büyük boyutlu vektörlerle çalışırken bu duruma dikkat etmeniz gerekir.</p>
+<p>Vektörlerin bir büyüklüğü ve <em>kapasitesi</em> vardır. Eğer bir vektörü <code>clear</code> ile temizlerseniz, büyüklüğü sıfır olur ama eski kapasitesini korur. Bu durumda <code>push</code> vs ile yeni veriler eklerken yeniden bellek alanı tahsis edilmesi yalnızca eski kapasitenin aşımıyla gerekli olur.</p>
+<p>Vektörler sıralanabilir ve içinde tekrarlayan veriler temizlenebilir - bu işlemler vektörü değiştirir. (Eğer önce vektörü kopyalamak isterseniz, <code>clone</code> kullanın.)</p>
+<pre><pre class="playground"><code class="language-rust">// vec4.rs
+fn main() {
+    let mut v1 = vec![1, 10, 5, 1, 2, 11, 2, 40];
+    v1.sort();
+    v1.dedup();
+    assert_eq!(v1, &amp;[1, 2, 5, 10, 11, 40]);
+}</code></pre></pre>
+<h1 id="karakter-dizileri-string"><a class="header" href="#karakter-dizileri-string">Karakter Dizileri (String)</a></h1>
+<p>Rust'taki karakter dizileri diğer dillerden biraz daha gelişkindir. <code>String</code> tipi, <code>Vec</code> gibi, belleği dinamik olarak tahsis eder ve yeniden boyutlandırılabilir. (C++'ın <code>std::string</code> tipine çok benzer ancak Java'nın ve Python'nun değişemez karakter dizileri gibi değildir.) Ancak bir program, pek çok <code>string</code> kalıbı <em>(string literal)</em> de barındırabilir (&quot;merhaba&quot; gibi) ve bir sistem programlama dili bunları çıktı dosyasının içinde barındırabilmelidir. Gömülü mikroçiplerde bunun anlamı, bunları pahalı RAM yerine ucuz ROM'a yerleştirmektir. (Düşük seviyeli cihazlar için, RAM'ın pahalılığı aynı zamanda enerji üretimi pahalılığıdır.) Bir sistem programlama dilinde iki tür karakter dizisi bulunmalıdır, statik ya da bellekte yeri tahsis edilmiş.</p>
+<p>Yani &quot;merhaba&quot; bir <code>String</code> değildir. Onun tipi <code>&amp;str</code>'dir. (&quot;Karakter dizisi dilimi <em>String Slice</em> olarak okunur.&quot;) Bu ayrım, C++'daki <code>const char*</code> ve <code>std::string</code> arasındaki fark gibidir ancak <code>&amp;str</code> biraz daha kullanışlıdır. Doğrusu, <code>&amp;str</code> ve <code>String</code> ilişki <code>&amp;[T]</code> ile <code>Vec&lt;T&gt;</code> arasındaki ilişkiye çok benzer.</p>
+<pre><pre class="playground"><code class="language-rust">// string1.rs
+fn dump(s: &amp;str) {
+    println!(&quot;str '{}'&quot;, s);
+}
+
+fn main() {
+    let text = &quot;hello dolly&quot;;  // the string slice
+    let s = text.to_string();  // it's now an allocated string
+
+    dump(text);
+    dump(&amp;s);
+}</code></pre></pre>
+<p>Tekrar edelim, ödünç alma operatörü tıpkı <code>Vec&lt;T&gt;</code>'yi <code>&amp;[T]</code>'ye çevirmesi gibi <code>String</code>'i de <code>&amp;str</code>'ye çevirir.</p>
+<p>Aslında içten içe, <code>String</code> aslında bir <code>Vec&lt;u8&gt;</code>'dir ve <code>&amp;str</code> de bir <code>&amp;[u8]</code>'dir, ancak bu baytlar UTF-8'e <em>kesinlikle</em> uygun olmalıdır.</p>
+<p>Vektör gibi, bir karakteri <code>push</code>layabilirsiniz veyahut sonundaki karakteri <code>pop</code>layabilirsiniz.</p>
+<pre><pre class="playground"><code class="language-rust">// string5.rs
+fn main() {
+    let mut s = String::new();
+    // initially empty!
+    s.push('H');
+    s.push_str(&quot;ello&quot;);
+    s.push(' ');
+    s += &quot;World!&quot;; // short for `push_str`
+    // remove the last char
+    s.pop();
+
+    assert_eq!(s, &quot;Hello World&quot;);
+}</code></pre></pre>
+<p>Pek çok tipi String'e <code>to_string</code> diyerek çevirebilirsiniz. (Eğer onları &quot;{}&quot; ile ekranda gösterebiliyorsanız, çevrilebilirler.) <code>format!</code> makrosu da tıpkı <code>println!</code> gibi karmaşık karakter dizileri üretmek için kullanılabilir.</p>
+<pre><pre class="playground"><code class="language-rust">// string6.rs
+fn array_to_str(arr: &amp;[i32]) -&gt; String {
+    let mut res = '['.to_string();
+    for v in arr {
+        res += &amp;v.to_string();
+        res.push(',');
+    }
+    res.pop();
+    res.push(']');
+    res
+}
+
+fn main() {
+    let arr = array_to_str(&amp;[10, 20, 30]);
+    let res = format!(&quot;hello {}&quot;, arr);
+
+    assert_eq!(res, &quot;hello [10,20,30]&quot;);
+}</code></pre></pre>
+<p><code>v.to_string()</code>'in önündeki <code>&amp;</code> operatörüne dikkat edin - operatör bir karakter dizesi dilimi üzerinde tanımlanmış, <code>String</code>'in kendisine değil, uyuşması için bazı detaylar eklememiz gerekiyor.</p>
+<p>Dilimlerde kullanılan ifade şekli karakter dizilerinde de gösterilebilir:</p>
+<pre><pre class="playground"><code class="language-rust">// string2.rs
+fn main() {
+    let text = &quot;static&quot;;
+    let string = &quot;dynamic&quot;.to_string();
+
+    let text_s = &amp;text[1..];
+    let string_s = &amp;string[2..4];
+
+    println!(&quot;slices {:?} {:?}&quot;, text_s, string_s);
+}
+// slices &quot;tatic&quot; &quot;na&quot;</code></pre></pre>
+<p>Ancak karakter dizilerini indeksleyemezsiniz. Çünkü onlar tek ve gerçek kodlama olan UTF-8'i kullanırlar ki bu kodlamada bazı &quot;karakterler&quot; sadece baytların sayısı olabilir.</p>
+<pre><pre class="playground"><code class="language-rust">// string3.rs
+fn main() {
+    let multilingual = &quot;Hi! ¡Hola! привет!&quot;;
+    for ch in multilingual.chars() {
+        print!(&quot;'{}' &quot;, ch);
+    }
+    println!(&quot;&quot;);
+    println!(&quot;len {}&quot;, multilingual.len());
+    println!(&quot;count {}&quot;, multilingual.chars().count());
+
+    let maybe = multilingual.find('п');
+    if maybe.is_some() {
+        let hi = &amp;multilingual[maybe.unwrap()..];
+        println!(&quot;Russian hi {}&quot;, hi);
+    }
+}
+// 'H' 'i' '!' ' ' '¡' 'H' 'o' 'l' 'a' '!' ' ' 'п' 'р' 'и' 'в' 'е' 'т' '!'
+// len 25
+// count 18
+// Russian hi привет!</code></pre></pre>
+<p>Şimdi şuna bakalım - 25 baytımız var ama sadece 18 kataktere sahibiz! Fakat, eğer <code>find</code> gibi bir metot kullanırsak (bulunması hâlinde) geçerli bir indeks elde alırsınız ve herhangi bir dilimleme doğru çalışacaktır. </p>
+<p>(Rust'ın <code>char</code> tipi 4-baytlık Unicode karakteridir. Karakter dizileri ise <code>char</code>ların dizisi değildir!)</p>
+<p>Karakter dizelerini dilimlemek vektör dilimlemek gibi riskli bir iştir, çünkü bayt &quot;aralıkları&quot; kullanılır. Alttaki koşulda karakter dizesi iki bayttan oluşur, bunun ilk baytını almaya çalışmak bir Unicode hatasıdır. Bundan dolayı karakter dizisi metotlarından gelen uygun aralıkları kullanmaya dikkat edin.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let s = &quot;¡&quot;;
+    println!(&quot;{}&quot;, &amp;s[0..1]); &lt;-- bad, first byte of a multibyte character
+<span class="boring">}</span></code></pre></pre>
+<p>Karakter dizilerini parçalamak popüler ve faydalı bir meşgaledir.  <code>split_whitespace</code> metotu bir döngüleyici döner ve bunun ne yapacağımızı biz belirleriz. Genelde bir karakter dizisini daha ufak karakter dizilerinin vektörünü kurmak için buna ihtiyaç duyarız.</p>
+<p><code>collect</code> ise çok geneldir ve <em>neyi</em> topladığımız (collect) hakkında bir ipucu ister - bundan dolayı açıkça tip belirtilir.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let text = &quot;the red fox and the lazy dog&quot;;
+    let words: Vec&lt;&amp;str&gt; = text.split_whitespace().collect();
+    // [&quot;the&quot;, &quot;red&quot;, &quot;fox&quot;, &quot;and&quot;, &quot;the&quot;, &quot;lazy&quot;, &quot;dog&quot;]
+<span class="boring">}</span></code></pre></pre>
+<p>Döngüleyicilerin <code>extend</code> metotuyla da aynı işi yapabilirdiniz.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let mut words = Vec::new();
+    words.extend(text.split_whitespace());
+<span class="boring">}</span></code></pre></pre>
+<p>Pek çok dilde bunları yapmak için <em>bellekte ayrıca alanı tahsis edilmiş karakter dizilerine</em> ihtiyacımız olurdu, oysa burada sadece bir ödünç alma olayı var. Tek tahsis edilen alan, dilimleri bellekte tutacak alandır.</p>
+<p>Şu şirin çift-satıra bir bakınız; karakterler üzerine bir döngüleyici kuruyoruz ve boşluk olmayan karakterleri alıyoruz. Hatırlatalım, <code>collect</code> ipucu ister. (Ve biz de karakterler vektörü istemiş olabiliriz)</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>	let stripped: String = text.chars()
+        .filter(|ch| ! ch.is_whitespace()).collect();
+    // theredfoxandthelazydog
+<span class="boring">}</span></code></pre></pre>
+<p><code>filter</code> metotu ise argüman olarak <em>kapama (closure)</em> alır, kapama dediğimiz de Rust'ın dilinde lambdalara veya anonim fonksiyonlara verdiğimiz isim. Argüman, işlevsel olarak çalışmayı bozmadığı için apaçık tip belirtme kuralını genişletebiliyoruz.</p>
+<p>Tabii bunca şeyi apaçık bir döngü ile değişebilir bir vektöre karakter dizilerini iterek de yapabilirsiniz, ama şimdi yaptığımız daha kısa, daha okunaklı (<em>alışınca</em> tabii) ve denk bir hızda. Bir döngü kullanmak elbet ayıp değildir ama bu şekilde yazmanızı şiddetle tavsiye ederim.</p>
+<h1 id="reklam-arası-komut-satırından-argümanları-almak"><a class="header" href="#reklam-arası-komut-satırından-argümanları-almak">Reklam Arası: Komut Satırından Argümanları Almak</a></h1>
+<p>Şimdiye kadar programlarımız neyin ne olduğundan habersiz bir şekilde kendi kendilerine yaşayıp gittiler. Artık onları gerçek dünya ile tanıştırmalıyız.</p>
+<p><code>std::env::args</code> ile komut satırındaki argümanlara ulaşabilirsiniz; size bütün argümanları, programın ismi de dahil olmak üzere, birer karakter dizisi olarak döner.</p>
+<pre><pre class="playground"><code class="language-rust">// args0.rs
+fn main() {
+    for arg in std::env::args() {
+        println!(&quot;'{}'&quot;, arg);
+    }
+} </code></pre></pre>
+<pre><code>src$ rustc args0.rs
+src$ ./args0 42 'hello dolly' frodo
+'./args0'
+'42'
+'hello dolly'
+'frodo'
+</code></pre>
+<p>Bir <code>Vec</code> dönse daha iyi olmaz mıydı? Bunu <code>collect</code> ile bir vektöre çevirmek de pek zor değildir, hatta döngüleyicilerin <code>skip</code> metotu ile programın adını atlayabilirsiniz.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let args: Vec&lt;String&gt; = std::env::args().skip(1).collect();
+    if args.len() &gt; 0 { // we have args!
+        ...
+    }
+<span class="boring">}</span></code></pre></pre>
+<p>İşin en iyi tarafı, bütün dillerde bunu bu şekilde kullanıyor olmanız.</p>
+<p>Biraz daha Rustça yaklaşım ise tek bir argümanı okumak. (Ve aynı zamanda bir tam sayı verisini okumak):</p>
+<pre><pre class="playground"><code class="language-rust">// args1.rs
+use std::env;
+
+fn main() {
+    let first = env::args().nth(1).expect(&quot;please supply an argument&quot;);
+    let n: i32 = first.parse().expect(&quot;not an integer!&quot;);
+    // do your magic
+}</code></pre></pre>
+<p><code>nth(1)</code> size bir döngüleyicinin ikinci verisini döner, <code>expect</code> ise <code>unwrap</code> gibi çalışır ancak bir de mesaj belirtmenize izin verir.</p>
+<p>Bir karakter dizisini bir sayıya çevirmenin yolu gayet bariz, ancak dönüştürülecek tipi açıkça belirtmeniz gerekmekte - yoksa <code>parse</code> bunu nereden bilecek?</p>
+<h1 id="Örüntü-eşleştirme-matching"><a class="header" href="#Örüntü-eşleştirme-matching">Örüntü Eşleştirme (Matching)</a></h1>
+<p><code>string3.rs</code> dosyasındaki Rusça selamlamayı kullandığımız kodda aslında bu tarz durumları o şekilde çözmeyiz. <code>Match</code> ile deneyelim:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    match multilingual.find('п') {
+        Some(idx) =&gt; {
+            let hi = &amp;multilingual[idx..];
+            println!(&quot;Russian hi {}&quot;, hi);
+        },
+        None =&gt; println!(&quot;couldn't find the greeting, Товарищ&quot;)
+    };
+<span class="boring">}</span></code></pre></pre>
+<p><code>Match</code> şu kızılderili okunu barındıran, virgüllerle ayrılmış pek çok örüntü tanımından oluşur. Bu ifade, çok rahat bir şekilde <code>Option</code> içerisinden ifadeyi ayıklayabilir ve <code>idx</code>'e bağlayabilir. Bütün koşulların <em>muhakkak</em> karşılanması gerektiği için <code>None</code>'u da ele alıyoruz. </p>
+<p>Buna bir kere alışınca (yani, bir kaç kez yazınca) size ayrıca <code>Option</code> tutacak ek bir değişken gerektiren <code>is_some</code> yazmaktan çok daha rahat gelecek.</p>
+<p>Ancak hatalarla ilgilenmiyorsanız, mahalleden <code>if let</code>'i çağırabiliriz:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    if let Some(idx) = multilingual.find('п') {
+        println!(&quot;Russian hi {}&quot;, &amp;multilingual[idx..]);
+    }
+<span class="boring">}</span></code></pre></pre>
+<p><code>Match</code> C'deki <code>switch</code> gibi de çalışabilir ve diğer Rust kurucuları gibi veri de dönebilir:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let text = match n {
+        0 =&gt; &quot;zero&quot;,
+        1 =&gt; &quot;one&quot;,
+        2 =&gt; &quot;two&quot;,
+        _ =&gt; &quot;many&quot;,
+    };
+<span class="boring">}</span></code></pre></pre>
+<p><code>_</code>'ı C'deki <code>default</code> olarak düşünebilirsiniz - varsayılan değer ifadesidir kendileri. Eğer bunu belirtmezseniz <code>rustc</code> bunun bir hata olduğunu düşünür. (C++'da bekleyebileceğiniz ilgili koşullar hakkında pek çok şeyi belirtilen bir uyarıyı almak olur.)</p>
+<p>Rust'ın <code>match</code> deyimleri aralıkları da eşleştirebilir. Bu aralıkların üç noktalı olduğuna dikkat edin, bunlar kapsayan aralıklardır, mesela ilk koşul &quot;3&quot; sayısıyla eşleşecektir.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let text = match n {
+        0...3 =&gt; &quot;small&quot;,
+        4...6 =&gt; &quot;medium&quot;,
+        _ =&gt; &quot;large&quot;,
+     };
+<span class="boring">}</span></code></pre></pre>
+<h1 id="dosyaları-okumak"><a class="header" href="#dosyaları-okumak">Dosyaları Okumak</a></h1>
+<p>Bizim programlarımızı dünyaya açacak olan bir sonraki adımımız ise <em>dosyaları okumaktır.</em></p>
+<p><code>expect</code>'in <code>unwrap</code> gibi çalıştığını ancak fazladan bir hata mesajı girmemize izin verdiğini aklınızda tutun. Şimdi birden çok hata hortlatacağız:</p>
+<pre><pre class="playground"><code class="language-rust">// file1.rs
+use std::env;
+use std::fs::File;
+use std::io::Read;
+
+fn main() {
+    let first = env::args().nth(1).expect(&quot;please supply a filename&quot;);
+
+    let mut file = File::open(&amp;first).expect(&quot;can't open the file&quot;);
+
+    let mut text = String::new();
+    file.read_to_string(&amp;mut text).expect(&quot;can't read the file&quot;);
+
+    println!(&quot;file had {} bytes&quot;, text.len());
+
+}</code></pre></pre>
+<pre><code>src$ file1 file1.rs
+file had 366 bytes
+src$ ./file1 frodo.txt
+thread 'main' panicked at 'can't open the file: Error { repr: Os { code: 2, message: &quot;No such file or directory&quot; } }', ../src/libcore/result.rs:837
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+src$ file1 file1
+thread 'main' panicked at 'can't read the file: Error { repr: Custom(Custom { kind: InvalidData, error: StringError(&quot;stream did not contain valid UTF-8&quot;) }) }', ../src/libcore/result.rs:837
+note: Run with `RUST_BACKTRACE=1` for a backtrace.
+</code></pre>
+<p>Dosyanın var olmadığı veyahut okunmasına izin olmadığı durumlarda <code>open</code> hata dönebilir, <code>read_to_string</code> ise dosya içeriğinin UTF-8 olmaması durumunda hata döner. (Tabii, bu koşulda yerine <code>read_to_end</code> kullanıp içeriği bayt vektörlerine koymak da bir seçenek.) Çok da büyük olmayan dosyaları tek hamlede okumak daha faydalı ve basittir.</p>
+<p>Eğer diğer dillerde dosya işleme nasıl olur bir fikriniz varsa dosyanın ne zaman kapatılması gerektiğini düşünüyor olabilirsiniz. Eğer dosyaya bir şeyler yazdırsaydık kapatmamak veri kaybına sebebiyet verebilirdi ancak burada dosya kendiliğinden kapatılıyor ve fonksiyon sona erdiği zaman da <code>file</code> değişkeni <em>düşürülüyor.</em></p>
+<p>Bu &quot;hata hortlatma işi&quot;ne biraz fazla alıştık galiba. Bütün programı böyle çökertebilen bir kodu kendi fonksiyonlarınıza yerleştirmek istemezsiniz. O zaman <code>File::open</code>'ın ne döndüğüne bakalım. Eğer <code>Option</code> bir şeyin varlığını ya da yokluğunu işaret ediyorsa <code>Result</code> da bir şeyin olup olmadığını gösterir. İkisi de <code>unwrap</code>'i bilir (ve amcaoğlu <code>expect</code>i de) ancak biraz farklıdırlar. <code>Result</code>, <code>Ok</code> ve <code>Err</code> için iki farklı tür parametre içerir. <code>Result</code> &quot;paketi&quot; iki farklı kompartmana sahiptir, birisi <code>Ok</code> ve diğeri de <code>Err</code>.</p>
+<pre><pre class="playground"><code class="language-rust">fn good_or_bad(good: bool) -&gt; Result&lt;i32,String&gt; {
+    if good {
+        Ok(42)
+    } else {
+        Err(&quot;bad&quot;.to_string())
+    }
+}
+
+fn main() {
+    println!(&quot;{:?}&quot;,good_or_bad(true));
+    //Ok(42)
+    println!(&quot;{:?}&quot;,good_or_bad(false));
+    //Err(&quot;bad&quot;)
+
+    match good_or_bad(true) {
+        Ok(n) =&gt; println!(&quot;Cool, I got {}&quot;,n),
+        Err(e) =&gt; println!(&quot;Huh, I just got {}&quot;,e)
+    }
+    // Cool, I got 42
+
+}</code></pre></pre>
+<p>(Aslında &quot;hata (error)&quot; için seçtiğimiz tip biraz gereksiz - pek çok insan <code>Rust</code>'ın hata tiplerine alışana kadar karakter dizelerini tercih eder.) Bu, bir veriyi ya da başka bir veriyi döndürmenin gayet uygun bir yoludur.</p>
+<p>Dosya okumamızın bu şekli çökmez. <code>Result</code> döner ve onu <em>çağırana</em> gelen verinin nasıl işlenmesi gerektiğini seçtirir.</p>
+<pre><pre class="playground"><code class="language-rust">// file2.rs
+use std::env;
+use std::fs::File;
+use std::io::Read;
+use std::io;
+
+fn read_to_string(filename: &amp;str) -&gt; Result&lt;String,io::Error&gt; {
+    let mut file = match File::open(&amp;filename) {
+        Ok(f) =&gt; f,
+        Err(e) =&gt; return Err(e),
+    };
+    let mut text = String::new();
+    match file.read_to_string(&amp;mut text) {
+        Ok(_) =&gt; Ok(text),
+        Err(e) =&gt; Err(e),
+    }
+}
+
+fn main() {
+    let file = env::args().nth(1).expect(&quot;please supply a filename&quot;);
+
+    let text = read_to_string(&amp;file).expect(&quot;bad file man!&quot;);
+
+    println!(&quot;file had {} bytes&quot;, text.len());
+}</code></pre></pre>
+<p>Birinci eşleşme <code>Ok</code> içindeki veriyi güvenli bir şekilde dışarı çıkartır ve eşleşmenin değeri yapar. Eğer bir <code>Err</code> verisi ise, hatayı döner ve onu tekrar <code>Err</code> içerisine paketler.</p>
+<p>İkinci eşleşme ise <code>Ok</code> içerisine paketlenmiş bir karakter dizesi döner ya da hatayı tekrar eder. <code>Ok</code> içindeki esas veriye ihtiyacımız yok ondan dolayı <code>_</code> ile yok sayıyoruz.</p>
+<p>Bu biraz sıkıcı, yazdığımız kodu büyük kısmı hatayı işlemekten ibaret olunca &quot;işin ruhunu&quot; kaybediyoruz. Mesela Go'da bunu hissedersiniz, düzinesiyle erken dönen hataları kontrol etmeniz gerekir ya da sadece <em>görmezden gelirsiniz</em>. (Rust evreninde bu tuvalette ekmek çiğnemek kadar kötü bir şeydir.)</p>
+<p>Neyse ki, bir kısayolumuz var.</p>
+<p><code>std::io</code> modülü <code>io::Result&lt;T&gt;</code> diye bir tipe sahiptir ki bu <code>Result&lt;T, io::Error&gt;</code> ile aynı şeydir ve daha kolay yazılabilir.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
+    let mut file = File::open(&amp;filename)?;
+    let mut text = String::new();
+    file.read_to_string(&amp;mut text)?;
+    Ok(text)
+}
+<span class="boring">}</span></code></pre></pre>
+<p><code>?</code> operatörü <code>File::open</code> üzerinde denediğimiz eşleştirmelerle birebir aynı şeyi yapıyor; eğer sonuç hataysa hemen fonksiyonu döndürüyor. Değilse, <code>Ok</code> sonucunu dönüyor. Sonuç olarak hâlâ daha karakter dizisini paketlememiz gerekiyor.</p>
+<p>2017 senesi Rust için iyi bir yıldı ve <code>?</code> gibi karizmatik şeyler kararlı hâle geldi. Eski kodlarda <code>try!</code> diye bir makroyu görebilirsiniz:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn read_to_string(filename: &amp;str) -&gt; io::Result&lt;String&gt; {
+    let mut file = try!(File::open(&amp;filename));
+    let mut text = String::new();
+    try!(file.read_to_string(&amp;mut text));
+    Ok(text)
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Sonuç olarak, tek tek hataları bildirmeden güvenli Rust kodu yazmak düşündüğünüz kadar çirkin değil.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="2-structs-enums-lifetimes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="2-structs-enums-lifetimes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>
