@@ -13,6 +13,18 @@
             "state": {
               "type": "markdown",
               "state": {
+                "file": "src/SUMMARY.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "3a62820b5b0eb76e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
                 "file": "src/pain-points.md",
                 "mode": "source",
                 "source": false
@@ -69,8 +81,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "8c934807429577fa",
@@ -86,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "src/pain-points.md",
+                "file": "src/SUMMARY.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,7 +114,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "src/pain-points.md",
+                "file": "src/SUMMARY.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -126,7 +137,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "src/pain-points.md"
+                "file": "src/SUMMARY.md"
               }
             }
           }
@@ -149,15 +160,15 @@
   },
   "active": "b9a21273c74a5cc4",
   "lastOpenFiles": [
-    "src/nom-intro.md",
-    "src/PPrustS.png",
-    "src/SUMMARY.md",
     "src/pain-points.md",
-    "4-modules.html.md",
-    "src/object-orientation.md",
+    "src/nom-intro.md",
+    "src/SUMMARY.md",
     "src/7-shared-and-networking.md",
+    "src/6-error-handling.md",
+    "src/5-stdlib-containers.md",
+    "src/4-modules.md",
+    "src/3-filesystem.md",
     "src/1-basics.md",
-    "src/2-structs-enums-lifetimes.md",
-    "src/6-error-handling.md"
+    "src/PPrustS.png"
   ]
 }
