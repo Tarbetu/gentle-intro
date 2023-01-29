@@ -1,6 +1,6 @@
 # Summary
 
-[Introduction](./readme.md)
+[Giriş](./readme.md)
 - [Merhaba Dünya](./1-basics.md)
 - [Yapılar, Numaralandırmalar ve Eşleştirmeler](./2-structs-enums-lifetimes.md)
 - [Dosya Sistemi ve Süreçler](./3-filesystem.md)
