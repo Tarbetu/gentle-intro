@@ -73,7 +73,7 @@ Doğrusu Regex göze daha *sade* görünüyor! Sadece parantez içine `|` koyduk
 
 Fakat bu basit bir regex olsa bile bir anda herkes karmaşıklaşabilir. İşin ilginci metinlerde sıkça kullanılan `*` ve `(` gibi karakterlerden kaçınmanız gerekir ve `(hi)` veya `(bye)` ile eşleşen bir regex ifadesi yazmak isterseniz sevimli regeximix `\s*((hi | bye))\s*` gibi ucube bir hâl alacaktır. Bunun Nom muadili, gayet anlaşılır bir biçimde `alt!(tag_s!("(hi)") | tag_s!("(bye)"))` şeklindedir.
 
-İşin kötüsü `regex` kütüphanesi ağır bir bağımlılıktır. Ananıza babanıza ancak verebileceğiniz bu i5 işlemcili laptota "Merhaba Dünya" seviyesi Nom örneklerinin derlenmesi sadece 0.55 saniye sürüyor. Fakat aynı şey regex için 0.90 saniye sürüyor. Aynı şekilde `strip` komutu uygulanmış ikili programın boyutu 0.3Mb tutarken (Statik linklenmiş bir Rust programının tutabileceği en küçük boyut) Regex örneği için 0.3Mb tutmaktadır. (Ç.N: Gözünüze bunlar anlamsız salt istatiksel veriler gibi görünebilir, ancak program büyüdükçe bu kütüphaneler kullanıldıkça bu farkın nasıl da katlanarak artacağını gözünüzde canlandırın.)
+İşin kötüsü `regex` kütüphanesi ağır bir bağımlılıktır. Ananıza babanıza ancak verebileceğiniz bu i5 işlemcili laptota "Merhaba Dünya" seviyesi Nom örneklerinin derlenmesi sadece 0.55 saniye sürüyor. Fakat aynı şey regex için 0.90 saniye sürüyor. Aynı şekilde `strip` komutu uygulanmış ikili programın boyutu 0.3Mb tutarken (Statik linklenmiş bir Rust programının tutabileceği en küçük boyut) Regex örneği için 0.8Mb tutmaktadır. (Ç.N: Gözünüze bunlar anlamsız salt istatiksel veriler gibi görünebilir, ancak program büyüdükçe bu kütüphaneler kullanıldıkça bu farkın nasıl da katlanarak artacağını gözünüzde canlandırın.)
 
 ## Nom Ayrıştırıcısı Bize Ne Döner?
 
