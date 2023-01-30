@@ -4,8 +4,11 @@
 [David Marino'ya teşekkürlerle!](https://leftoversalad.com/c/015_programmingpeople/)
 
 >Karikatürün çevirisi:
-  Rust: Bu gece şöförlük yapacağım.
+>
+>Rust: Bu gece şöförlük yapacağım.
+>
 >Dış ses: Biliyoruz.
+>
 >Rust: Konuşurken yemek yeme çünkü boğazına takılırsa ölürsün. Haha.
 
 Bu rehberin amacı [kutsal kitabımız gibi](https://doc.rust-lang.org/stable/book/) İnternet'te bulabileceğiniz çeşitli kaynakları anlayacak kadar Rust okuryazarlığı aşılamaktır. Rehberi, bu programlama dilinin gücünü tonla şeyin arasına girmeden gücünü anlamak ve denemek için bir fırsat olarak düşünebilirsiniz.
