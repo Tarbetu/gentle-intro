@@ -1,0 +1,511 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Hataları Yönetmek - Rust&#x27;a Yumuşak Bir Başlangıç</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="Rust diline, standart sistemine ve ekosistemine bir giriş.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Giriş</a></li><li class="chapter-item expanded "><a href="1-basics.html"><strong aria-hidden="true">1.</strong> Merhaba Dünya</a></li><li class="chapter-item expanded "><a href="2-structs-enums-lifetimes.html"><strong aria-hidden="true">2.</strong> Yapılar, Numaralandırmalar ve Eşleştirmeler</a></li><li class="chapter-item expanded "><a href="3-filesystem.html"><strong aria-hidden="true">3.</strong> Dosya Sistemi ve Süreçler</a></li><li class="chapter-item expanded "><a href="4-modules.html"><strong aria-hidden="true">4.</strong> Modüller ve Kargo</a></li><li class="chapter-item expanded "><a href="5-stdlib-containers.html"><strong aria-hidden="true">5.</strong> Standart Kütüphane Konteynırları</a></li><li class="chapter-item expanded "><a href="6-error-handling.html" class="active"><strong aria-hidden="true">6.</strong> Hataları Yönetmek</a></li><li class="chapter-item expanded "><a href="7-shared-and-networking.html"><strong aria-hidden="true">7.</strong> Sistem Süreçleri, Ağlar ve Paylaşım</a></li><li class="chapter-item expanded "><a href="object-orientation.html"><strong aria-hidden="true">8.</strong> Nesne Yönelimli Programlama</a></li><li class="chapter-item expanded "><a href="nom-intro.html"><strong aria-hidden="true">9.</strong> Yazıları Nom ile Ayrıştırmak</a></li><li class="chapter-item expanded "><a href="pain-points.html"><strong aria-hidden="true">10.</strong> Rust ve Çektirdiği Çile</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust&#x27;a Yumuşak Bir Başlangıç</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="hataları-yönetmek"><a class="header" href="#hataları-yönetmek">Hataları Yönetmek</a></h1>
+<h1 id="hataları-yönetmenin-temelleri"><a class="header" href="#hataları-yönetmenin-temelleri">Hataları Yönetmenin Temelleri</a></h1>
+<p>Eğer soru işareti operatörünü kullanmazsanız Rust'ta hata yönetimi epey sıkıcı olabilir. Ancak bunu yapabilmek için bazen herhangi bir hatayı barındırabilecek bir <code>Result</code> tipi oluşturabilmemiz gerekir. Bütün hatalar <code>std::error::Error</code> dönebildiğine göre herhangi bir hatayı <code>Box&lt;Error&gt;</code> ile gösterebiliriz. </p>
+<p>Düşünün ki hem girdi/çıktı işlemlerinden gelen hatayı hem de karakter dizisini sayıya çevirmekten gelen hatayı aynı fonksiyon içinde dönmek istiyoruz:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// box-error.rs
+use std::fs::File;
+use std::io::prelude::*;
+use std::error::Error;
+
+fn run(file: &amp;str) -&gt; Result&lt;i32,Box&lt;Error&gt;&gt; {
+    let mut file = File::open(file)?;
+    let mut contents = String::new();
+    file.read_to_string(&amp;mut contents)?;
+    Ok(contents.trim().parse()?)
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Burada girdi/çıktı işlemleri için iki farklı soru işareti operatörü kullanılıyor (Ya dosya açılamazsa? Ya <code>String</code>e çevrilemezse?) ve bir de çeviri için ayrıca bir soru işareti operatörü kullanıyoruz. En sonunda da sonucu <code>Ok</code> ile dönüyoruz. Rust, <code>parse</code> üzerinden dönen <code>i32</code> tipi ile çalışabilir. </p>
+<p><code>Result</code> tipi için bir kısayolu oluşturmak da oldukça olaydır:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>type BoxResult&lt;T&gt; = Result&lt;T,Box&lt;Error&gt;&gt;;
+<span class="boring">}
+</span></code></pre></pre>
+<p>Ancak bizim programımızın kendisine özgü hata tipleri olacağı için kendi hata tiplerimizi hazırlamamız gerekecek. Bunun için gereken malzemeler:</p>
+<ul>
+<li>Tercihen <code>Debug</code></li>
+<li>Bir tutam <code>Display</code></li>
+<li>Ve son olarak, olmazsa olmazımız <code>Error</code></li>
+</ul>
+<p>Eğer bunlar olmazsa hata tipiniz kafası nasıl eserse öyle çalışabilir.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// error1.rs
+use std::error::Error;
+use std::fmt;
+
+#[derive(Debug)]
+struct MyError {
+    details: String
+}
+
+impl MyError {
+    fn new(msg: &amp;str) -&gt; MyError {
+        MyError{details: msg.to_string()}
+    }
+}
+
+impl fmt::Display for MyError {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
+        write!(f,&quot;{}&quot;,self.details)
+    }
+}
+
+impl Error for MyError {
+    fn description(&amp;self) -&gt; &amp;str {
+        &amp;self.details
+    }
+}
+
+// a test function that returns our error result
+fn raises_my_error(yes: bool) -&gt; Result&lt;(),MyError&gt; {
+    if yes {
+        Err(MyError::new(&quot;borked&quot;))
+    } else {
+        Ok(())
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>Sürekli sürekli <code>Result&lt;T, MyError&gt;</code> yazmak biraz yorucu olduğu için çeşitli Rust modüllerinin kendi <code>Result</code> tipleri vardır. Mesela <code>Result&lt;T,io::Error&gt;</code> yazmak yerine <code>io::Result&lt;T&gt;</code> yazabilirsiniz.</p>
+<p>Sonraki örneğimizde çevrilemeyecek bir karakter dizisini ondalıklı sayıya çevirirken karşımıza çıkan hatayı kontrol etmemiz gerekecek.</p>
+<p>Şimdiye kadar <code>?</code> ile elimizdeki ifadenin bir hata dönüp dönemeyeceğine bakarak çalıştı. Bunu belirleyen özellik (trait), <code>From</code> özelliğidir. <code>Box&lt;Error&gt;</code> ise <code>From</code>'a sahip bütün <code>Error</code> tiplerini kabul eder. </p>
+<p>Devam etmeden önce kendi yarattığınız <code>BoxResult</code> isimlendirmesini kullanabilir ve her şeyi tek elde toplayabilirsiniz, bu kendi yarattığımız hata tipini <code>Box&lt;Error&gt;</code>'a döndürecektir. Ufak uygulamalar için pekâlâ iyi bir tercih olabilir. Ancak ben size diğer hata türlerini kendi hata türümüze dâhil edebileceğiniz daha iyi bir örnek göstereceğim.</p>
+<p><code>ParseFloatError</code>, <code>Error</code>'u içerdiğinden dolayı kendi içinde <code>description()</code>'un da tanımlanmış olması gerek.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::num::ParseFloatError;
+
+impl From&lt;ParseFloatError&gt; for MyError {
+    fn from(err: ParseFloatError) -&gt; Self {
+        MyError::new(err.description())
+    }
+}
+
+// and test!
+fn parse_f64(s: &amp;str, yes: bool) -&gt; Result&lt;f64,MyError&gt; {
+    raises_my_error(yes)?;
+    let x: f64 = s.parse()?;
+    Ok(x)
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>İlk <code>?</code> için pek bir olay yok. (<code>From</code> ile her tip kendisine dönüştürülür.) İkinci <code>?</code> ise <code>ParseFloatError</code> hatasını <code>MyError</code>'a çevirir.</p>
+<p>Ve sonuç:</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    println!(&quot; {:?}&quot;, parse_f64(&quot;42&quot;,false));
+    println!(&quot; {:?}&quot;, parse_f64(&quot;42&quot;,true));
+    println!(&quot; {:?}&quot;, parse_f64(&quot;?42&quot;,false));
+}
+//  Ok(42)
+//  Err(MyError { details: &quot;borked&quot; })
+//  Err(MyError { details: &quot;invalid float literal&quot; })
+</code></pre></pre>
+<p>Birazcık işi yokuşa sürse de hiç de karmaşık değil. İşin tadını kaçıran kısım yazdığımız <code>From</code> dönüşümleri yazdığımız hataların bizim <code>MyError</code> ile iyi anlaşması gerektiği - ya da bunları hiç düşünmeyin <code>Box&lt;Error&gt;</code> kullanın olsun bitsin. Yeni başlayanlar tek bir şeyi birden fazla yapabilmenin yolunu görünce kafaları karışır. Bir avakadoyu soymanın (ya da yeterince manyaksanız bir kediyi yüzmenin) her zaman başka bir yolu vardır. Bu esnekliğin bedeli birden çok seçeneğe sahip olmaktır. Hata kontrolü 200 satırlık bir program için büyük bir programdan daha basit olabilir. Ve eğer bu kıymetli kod atıklarınızı bir Cargo paketine dönüştürmek isterseniz hata işleme çok daha kıymetli bir hâle gelir.</p>
+<p>Şu an için soru işareti operatörü yalnızca <code>Result</code> için çalışmakta, <code>Option</code> için değil, ve bu bir özelliktir, bir kısıtlama değil. <code>Option</code> tipinin <code>ok_or_else</code> isminde kendisini <code>Result</code>'a dönüştüren bir metotu vardır. Mesela, düşünün ki bir <code>HashMap</code>'ta aradığımız anahtar bulunmuyor:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let val = map.get(&quot;my_key&quot;).ok_or_else(|| MyError::new(&quot;my_key not defined&quot;))?;
+<span class="boring">}
+</span></code></pre></pre>
+<p>Şimdi hatamız gayet anlaşılır bir şekilde dönmüş oldu! (Bu form içerisinde bir kapama kullanılıyor, böylece buradaki hata ancak gerekirse yaratılırsa olacak.) </p>
+<p><strong>Çeviri Notu:</strong> Yazarın dediğine karşın, daha sonra soru işareti operatörü <code>Option</code> tipine dönüşebilir bir şekilde güncellendi. Yani artık şu kullanım geçerlidir:</p>
+<pre><code class="language-Rust">let val = map.get(&quot;my_key&quot;)?
+</code></pre>
+<p><code>get</code> metotundan dönen <code>None</code> değerini olduğu gibi ya da bir hata dönmek size kalmış. İki durumunda kendince artıları ve eksileri var. Yazarın bahsettiği gibi, Rust'ta bir şeyi yapmanın birden fazla yolu var. Daha fazla bilgi için Rust'ın <a href="https://doc.rust-lang.org/reference/expressions/operator-expr.html#the-question-mark-operator">referans kitabını</a> ya da <a href="https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html">kutsal kitabı</a> inceleyebilirsiniz.</p>
+<h1 id="error-chain-ve-hatalarla-baş-etme-sanatı"><a class="header" href="#error-chain-ve-hatalarla-baş-etme-sanatı">error-chain ve hatalarla baş etme sanatı</a></h1>
+<p><strong>Çeviri notu</strong>: Acı bir şekilde bahsetmeliyim ki, error-chain isimli sandık <a href="https://users.rust-lang.org/t/error-chain-is-no-longer-maintained/27561/2">2019 gibi</a> tedavülden kaldırıldı. Bunun yerine <code>failure</code> isminde alternatif bir sandığa kişiler yönlendirilmiş ancak o da <a href="https://github.com/rust-lang-deprecated/failure/pull/347">2020 yılı gibi</a> tedavülden kaldırılmış. Benzer konseptleri sağlayan iki sandık var:</p>
+<ul>
+<li><a href="https://github.com/dtolnay/anyhow">Anyhow</a>: Kabaca hataların tipi ne olursa olsun yönlendirebileceğiniz bir tip sunuyor.</li>
+<li><a href="https://github.com/dtolnay/thiserror">thiserror</a>: Bir yapıyı <code>derive(Error)</code> gibi basit bir şekilde hata tipine dönüştürmeye yarar.</li>
+</ul>
+<p>Yazının gerisini hem orijinal metni korumak hem belli başlı konseptleri tanıtmak hem de hata yönetiminin geçmişini göstermek için çeviriyorum.</p>
+<p>Önemsiz olmayan uygulamalar için <a href="http://brson.github.io/2016/11/30/starting-with-error-chain"><code>error_chain</code></a> sandığına göz atmalısınız. Minik bir makro bu kadar faydalı olabilir.</p>
+<p><code>cargo new test-error-chain</code> komutuyla çalıştırılabilir bir sandık oluşturun ve oluşturulan dizinin içine girin. <code>Cargo.toml</code>'un sonuna <code>error-chain=&quot;0.8.1&quot;</code>'i ekleyin.</p>
+<p><code>error-chain</code>'in olayı elle tek tek yazmanız gereken hata tiplerinin tanımlarını sizin yerinize yazmaktır; yapılar oluşturmak ve <code>Display</code>, <code>Debug</code>, <code>Error</code> gibi bir hata tipi yaratmak için kullanılan özellikleri eklemek. Aynı zamanda öntanımlı olarak <code>From</code> özelliği de dâhil edilir ki normal karakter dizileri de hatalara dönüştürülebilirler.</p>
+<p>İlk <code>src/main.rs</code> dosyamız alttakine benzeyecektir. <code>Main</code> içerisinden <code>run</code> fonksiyonu çağrılıyor, hataları satır satır yazıyor ve programı sıfır olmayan bir çıkış kodu ile program sonlandırılıyor. Hepsi bu. <code>error_chain</code> makrosu ile bütün gerekli tanımlar üretilmiş olacaktır, <code>errors</code> modülünü gerekirse daha büyük programlarda kendi dosyasına yerleştirebilirsiniz. <code>errors</code> modülünü global kapsama dağıtmamız gerekti çünkü kodumuzun üretilmiş özellikleri (trait) görebilmesi gerekliydi. Varsayılan olarak, bir adet <code>Error</code> yapısı ve bu hatayla birlikte <code>Result</code> tanımlanacaktır.</p>
+<p>Burada <code>foreign_links</code> kullanarak <code>std::io::Error</code>'ün <code>From</code> kullanarak bizim istediğimiz hata tipine dönüşmesini sağlıyoruz</p>
+<pre><pre class="playground"><code class="language-rust">#[macro_use]
+extern crate error_chain;
+
+mod errors {
+    error_chain!{
+        foreign_links {
+            Io(::std::io::Error);
+        }
+    }
+}
+use errors::*;
+
+fn run() -&gt; Result&lt;()&gt; {
+    use std::fs::File;
+
+    File::open(&quot;file&quot;)?;
+
+    Ok(())
+}
+
+
+fn main() {
+    if let Err(e) = run() {
+        println!(&quot;error: {}&quot;, e);
+
+        std::process::exit(1);
+    }
+}
+// error: No such file or directory (os error 2)
+</code></pre></pre>
+<p><code>foreign_links</code> hayatımızı oldukça kolaylaştırdı zira soru işareti operatörü artık <code>std::io::Error</code>'u nasıl <code>error::Error</code>'a dönüştüreceğini biliyor. (Kaputun altında tam da gerektiği gibi makromuz <code>Form&lt;std::io::Error&gt;</code> dönüşümü tanımlıyor.)</p>
+<p>Bütün olay <code>run</code> içerisinde dönüyor; şimdi programa ilk argüman olarak verilen dosyanın ilk on satırını yazdırmayı deneyelim. Ortada verilmiş herhangi bir argüman olmayabilir, bunu bilemeyiz. Tek gereken şey <code>Option&lt;String&gt;</code>'i bir <code>Result&lt;String&gt;</code>'e dönüştürebilmek. Bunu yapabilmek için iki <code>Option</code> metotumuz var ve ben en basit olanını seçtim. <code>Error</code> tipimiz <code>&amp;str</code> için <code>From</code>'u içerdiğinden basitçe bir karakter dizisiyle yeni bir hata oluşturabiliriz.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn run() -&gt; Result&lt;()&gt; {
+    use std::env::args;
+    use std::fs::File;
+    use std::io::BufReader;
+    use std::io::prelude::*;
+
+    let file = args().skip(1).next()
+        .ok_or(Error::from(&quot;provide a file&quot;))?;
+
+    let f = File::open(&amp;file)?;
+    let mut l = 0;
+    for line in BufReader::new(f).lines() {
+        let line = line?;
+        println!(&quot;{}&quot;, line);
+        l += 1;
+        if l == 10 {
+            break;
+        }
+    }
+
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>bail!</code> isminde hata &quot;fırlatmak&quot; için kullanılan küçük ama etkili makromuzu da görelim. Bunun yerine <code>ok_or</code> kullanabilirdiniz:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>   let file = match args().skip(1).next() {
+       Some(s) =&gt; s,
+       None =&gt; bail!(&quot;provide a file&quot;)
+   };
+<span class="boring">}
+</span></code></pre></pre>
+<p>Tıpkı <code>?</code> gibi <em>fonksiyondan erken döner. (early return)</em></p>
+<p>Dönen hata içeriğinde <code>ErrorKind</code> isimli bir enum barındırır, bu bizi farklı türlü hataları seçebilmemizi sağlar. (<code>Error::from(str)</code> şeklinde oluşturduğunuz) her hata <code>Msg</code> isimli varyantla eşleşir. <code>Foreign_links</code> ile tanımladığımız <code>Io</code> ise Girdi/Çıktı hatalarıyla eşleşir:</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    if let Err(e) = run() {
+        match e.kind() {
+            &amp;ErrorKind::Msg(ref s) =&gt; println!(&quot;msg {}&quot;,s),
+            &amp;ErrorKind::Io(ref s) =&gt; println!(&quot;io {}&quot;,s),
+        }
+        std::process::exit(1);
+    }
+}
+// $ cargo run
+// msg provide a file
+// $ cargo run foo
+// io No such file or directory (os error 2)
+</code></pre></pre>
+<p>Yeni tür hatalar eklemek de oldukça basittir. <code>error_chain</code> içerisine <code>errors</code> isimli bir kısım ekleyin:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    error_chain!{
+        foreign_links {
+            Io(::std::io::Error);
+        }
+
+        errors {
+            NoArgument(t: String) {
+                display(&quot;no argument provided: '{}'&quot;, t)
+            }
+        }
+
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>Bu oluşturduğumuz yeni tür hata için <code>Display</code>'ın nasıl çalışacağını tanımlar. Ve şimdi &quot;argüman yok&quot; tarzı hataları daha spesifik bir şekilde tanımlamış olduk, <code>ErrorKind::NoArgument</code>'e bir <code>String</code> değeri verebiliriz:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let file = args().skip(1).next()
+        .ok_or(ErrorKind::NoArgument(&quot;filename needed&quot;.to_string()))?;
+<span class="boring">}
+</span></code></pre></pre>
+<p>Şimdi eşleştirmeniz gereken yeni bir <code>ErrorKind</code> daha var:</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    if let Err(e) = run() {
+        println!(&quot;error {}&quot;,e);
+        match e.kind() {
+            &amp;ErrorKind::Msg(ref s) =&gt; println!(&quot;msg {}&quot;, s),
+            &amp;ErrorKind::Io(ref s) =&gt; println!(&quot;io {}&quot;, s),
+            &amp;ErrorKind::NoArgument(ref s) =&gt; println!(&quot;no argument {:?}&quot;, s),
+        }
+        std::process::exit(1);
+    }
+}
+// cargo run
+// error no argument provided: 'filename needed'
+// no argument &quot;filename needed&quot;
+</code></pre></pre>
+<p>Genellikle mümkün olduğunca hataları spesifikleştirmek daha kullanışlıdır, <em>bilhassa</em> bu bir kütüphane fonksiyonuysa! Bu türe göre eşleştirme tekniği geleneksel hata yönetimine oldukça benzer, sadece burada <code>except</code> ya da <code>catch</code> blokları yerine eşleştirme yöntemlerini kullanıyoruz.</p>
+<p>Sonuç olarak, <strong>error-chain</strong> sizin yerinize bir <code>Error</code> tipi oluşturur ve <code>Result&lt;T&gt;</code>'i <code>std::result::Result&lt;T, Error&gt;</code> olarak tanımlar. <code>Error</code> ise içeriğinde <code>ErrorKind</code> isimli bir enum barındırır ve varsayılan olarak karakter dizilerinden oluşan hatalarla eşleşen <code>Msg</code>'i barındırır. Harici hataları da iki farklı iş yapan <code>foregin_links</code> ile tanımlayabilirsiniz. Birincisi, yeni bir <code>ErrorKind</code> varyantı oluşturabilirsiniz. İkincisi dış hataları kendi hatamıza çeviren <code>From</code> tanımlarını hazırlar. Böylece kolaylıkla çeşitli hata türleri eklenebilir hâle gelir. Böylece artık kalıplaşmış olan pek çok koddan kurtulmuş oluyoruz.</p>
+<h1 id="hataları-zincirlemek"><a class="header" href="#hataları-zincirlemek">Hataları Zincirlemek</a></h1>
+<p>Bu sandığın esas güzelliği <em>hataları zincirlemek</em>.</p>
+<p>Bir <em>kütüphane kullanıcısı</em> olarak sadece gelişigüzel bir girdi/çıktı almak biraz can sıkar. Tamam, bir dosyayı açamadık. Ama hangi dosya? En basitinden, benim için önemli olan nokta nedir?</p>
+<p><code>error_chain</code> (Tr: Hata zinciri) bu tarz aşırı genelleme sorununa karşı <em>hata zincirleme</em> çözümünü sunar. Dosyayı açmak istediğimiz zaman tembelce <code>?</code> kullanma alışkanlığımıza devam edebilir ve <code>io::Error</code>'a dönüştürebiliriz, ya da hatayı <em>zincirleyebiliriz.</em></p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// non-specific error
+let f = File::open(&amp;file)?;
+
+// a specific chained error
+let f = File::open(&amp;file).chain_err(|| &quot;unable to read the damn file&quot;)?;
+<span class="boring">}
+</span></code></pre></pre>
+<p>Şimdi programımızın <code>foreign_links</code> kullanmadan yazılan yeni bir versiyonuna bakalım.</p>
+<pre><pre class="playground"><code class="language-rust">#[macro_use]
+extern crate error_chain;
+
+mod errors {
+    error_chain!{
+    }
+
+}
+use errors::*;
+
+fn run() -&gt; Result&lt;()&gt; {
+    use std::env::args;
+    use std::fs::File;
+    use std::io::BufReader;
+    use std::io::prelude::*;
+
+    let file = args().skip(1).next()
+        .ok_or(Error::from(&quot;filename needed&quot;))?;
+
+    ///////// chain explicitly! ///////////
+    let f = File::open(&amp;file).chain_err(|| &quot;unable to read the damn file&quot;)?;
+
+    let mut l = 0;
+    for line in BufReader::new(f).lines() {
+        let line = line.chain_err(|| &quot;cannot read a line&quot;)?;
+        println!(&quot;{}&quot;, line);
+        l += 1;
+        if l == 10 {
+            break;
+        }
+    }
+
+    Ok(())
+}
+
+
+fn main() {
+    if let Err(e) = run() {
+        println!(&quot;error {}&quot;, e);
+
+        /////// look at the chain of errors... ///////
+        for e in e.iter().skip(1) {
+            println!(&quot;caused by: {}&quot;, e);
+        }
+
+        std::process::exit(1);
+    }
+}
+// $ cargo run foo
+// error unable to read the damn file
+// caused by: No such file or directory (os error 2)
+</code></pre></pre>
+<p>Görmüş olduğunuz üzere <code>chain_err</code> metotu orijinal hatayı alıyor ve orijinal hatayı barındıran yeni bir hata yaratıyor - bu böyle sonsuza kadar gider. İlgili kapamalar hataya <em>dönüştürülebilen</em> herhangi bir veri dönebilir.</p>
+<p>Rust makroları sizi pek çok şey yazmaktan kurtarabilir. <code>error-chain</code>'in <code>main</code> yerine geçebilecek ayrı bir makrosu bile vardır:</p>
+<pre><pre class="playground"><code class="language-rust">quick_main!(run);
+</code></pre></pre>
+<p>(Zaten <code>run</code>  bütün olayın gerçekleştiği yerdir.)</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="5-stdlib-containers.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="7-shared-and-networking.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="5-stdlib-containers.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="7-shared-and-networking.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

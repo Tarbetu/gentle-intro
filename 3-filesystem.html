@@ -1,0 +1,566 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Dosya Sistemi ve Süreçler - Rust&#x27;a Yumuşak Bir Başlangıç</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="Rust diline, standart sistemine ve ekosistemine bir giriş.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Giriş</a></li><li class="chapter-item expanded "><a href="1-basics.html"><strong aria-hidden="true">1.</strong> Merhaba Dünya</a></li><li class="chapter-item expanded "><a href="2-structs-enums-lifetimes.html"><strong aria-hidden="true">2.</strong> Yapılar, Numaralandırmalar ve Eşleştirmeler</a></li><li class="chapter-item expanded "><a href="3-filesystem.html" class="active"><strong aria-hidden="true">3.</strong> Dosya Sistemi ve Süreçler</a></li><li class="chapter-item expanded "><a href="4-modules.html"><strong aria-hidden="true">4.</strong> Modüller ve Kargo</a></li><li class="chapter-item expanded "><a href="5-stdlib-containers.html"><strong aria-hidden="true">5.</strong> Standart Kütüphane Konteynırları</a></li><li class="chapter-item expanded "><a href="6-error-handling.html"><strong aria-hidden="true">6.</strong> Hataları Yönetmek</a></li><li class="chapter-item expanded "><a href="7-shared-and-networking.html"><strong aria-hidden="true">7.</strong> Sistem Süreçleri, Ağlar ve Paylaşım</a></li><li class="chapter-item expanded "><a href="object-orientation.html"><strong aria-hidden="true">8.</strong> Nesne Yönelimli Programlama</a></li><li class="chapter-item expanded "><a href="nom-intro.html"><strong aria-hidden="true">9.</strong> Yazıları Nom ile Ayrıştırmak</a></li><li class="chapter-item expanded "><a href="pain-points.html"><strong aria-hidden="true">10.</strong> Rust ve Çektirdiği Çile</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust&#x27;a Yumuşak Bir Başlangıç</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="dosya-sistemi-ve-süreçler"><a class="header" href="#dosya-sistemi-ve-süreçler">Dosya Sistemi ve Süreçler</a></h1>
+<h1 id="dosya-okumaya-farklı-bir-bakış"><a class="header" href="#dosya-okumaya-farklı-bir-bakış">Dosya Okumaya Farklı Bir Bakış</a></h1>
+<p>Birinci bölümün sonunda bütün dosyayı bir karakter dizisi içerisine aktarmayı göstermiştim. Doğal olarak bu her zaman iyi bir fikir olmayabilir, bu yüzden bir dosyayı satır satır okumayı göstereceğim.</p>
+<p><code>fs::File</code>, <code>io::Read</code>'ı tanımlar ki bu okunabilen her şeyin özelliğidir. (trait) Bu özellik, <code>u8</code> ile bayt içeren bir dilimi dolduran <code>read</code> metotunu tanımlar - bu özelliğin <em>gerekli</em> tek metotudur ve <em>beraberinde gelen</em> pek çok metotu bedavaya kapmış olursunuz, <code>Iterator</code> gibi. Bir bayt vektörünü doldurmak için <code>read_to_end</code>'u veya bir karakter dizisini doldurmak için <code>read_to_string</code>'i kullanabilirsiniz - UTF-8 ile kodlanmış olması bir zorunluluktur.</p>
+<p>Bu arabellek kullanılmayan (buffering) &quot;saf&quot; bir okumadır. Arabellekli okuma için <code>read_line</code> ve <code>lines</code> döngüleyicisini sunan <code>io::BufRead</code> özelliğini kullanabilirsiniz. <code>io::BufReader</code>, <code>io::BufRead</code>'ın kullanımlarını okunabilir <em>herhangi</em> bir şey için sunacaktır.</p>
+<p><code>fs::File</code> ise aynı zamanda <code>io::Write</code>'ı da barındırır.</p>
+<p>Bütün bu özelliklerin kullanılabilir olduğunu görmenin en kolay yolu <code>use std::io::prelude::*</code> kullanmaktır.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::fs::File;
+use std::io;
+use std::io::prelude::*;
+
+fn read_all_lines(filename: &amp;str) -&gt; io::Result&lt;()&gt; {
+    let file = File::open(&amp;filename)?;
+
+    let reader = io::BufReader::new(file);
+
+    for line in reader.lines() {
+        let line = line?;
+        println!(&quot;{}&quot;, line);
+    }
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>let line = line?</code> gözünüze biraz tuhaf görünebilir. Döngüleyiciden dönen <code>line</code>  aslında <code>io::Result&lt;String&gt;</code> tipidir ve <code>?</code> ile onu paketinden dışarı çıkartıyoruz. Bunu yapmamızın sebebi döngü esnasında bir şeylerin yanlış gide<em>bile</em>ceğidir. - Girdi/çıktı hataları, UTF-8 olmayan bir bayt serisini almak gibi şeyler.</p>
+<p>Bir döngüleyici olarak <code>lines</code>'i <code>collect</code> ile bir vektöre kolayca çevirebiliriz ya da <code>enumerate</code> döngüleyicisi ile her satırın sırasını öğrenebiliriz.</p>
+<p>Yine de bütün satırları okumak için en iyi tercih bu değildir çünkü her satır için yeni bir <code>String</code> tahsis edilir. En iyi yöntem <code>read_line</code> kullanmaktır, biraz daha acayip görünse de. Satırın bir satır sonu karakteri içerdiğine dikkat edin ki bunu <code>trim_right</code> ile siliyoruz.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let mut reader = io::BufReader::new(file);
+    let mut buf = String::new();
+    while reader.read_line(&amp;mut buf)? &gt; 0 {
+        {
+            let line = buf.trim_right();
+            println!(&quot;{}&quot;, line);
+        }
+        buf.clear();
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>Sonuçta çok daha az tahsis etme işlemimiz oluyor çünkü bir karakter dizisini <em>temizlemek</em> onun tahsis edilmiş alanını boşaltmıyor, bu alanı işgal eden yeni tahsis işlemleriyle uğraşmıyoruz.</p>
+<p>Bu arada ödünç alma işlemini bozmamak için blok kullandığımız durumlardan birisiyle karşı karşıyayız. <code>line</code>, <code>buf</code> tarafından ödünç alınıyor ve bu ödünç <code>buf</code>'ı tekrardan düzenlemeden önce belleği terk etmelidir. Yine Rust bizi aptalca bir şey yapmaktan alıkoymaya çalışıyor, ara belleği boşalttıktan <em>sonra</em> <code>line</code>'a ulaşmak gibi. (Ödünç alma mekanizması bazen sizi darlayabilir. Rust bu kodu inceleyecek ve <code>line</code>'ın, <code>buf.clear()</code>'dan sonra kullanılmadığını görecektir, bu &quot;sözcüksel olmayan yaşam sürelerini (non-lexical lifetimes)&quot; ayıklamasından kaynaklanır.</p>
+<p>Bu pek şık görünmüyor. Belki size arabelleğe referanslar dönen bir döngüleyici veremem ama en azından döngüleyiciye <em>benzeyen</em> bir şeyler verebilirim.</p>
+<p>Şimdi jenerik bir yapı tanımlayalım; <code>R</code> ismindeki tip parametremiz <code>Read</code> içeren her tipi kabul edebilir. Bu yapının içeriğinde okuyucu (reader) ve referansını alabileceğimiz bir arabelleğimiz (buffer, ya da kısaca buf) olacak.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// file5.rs
+use std::fs::File;
+use std::io;
+use std::io::prelude::*;
+
+struct Lines&lt;R&gt; {
+    reader: io::BufReader&lt;R&gt;,
+    buf: String
+}
+
+impl &lt;R: Read&gt; Lines&lt;R&gt; {
+    fn new(r: R) -&gt; Lines&lt;R&gt; {
+        Lines{reader: io::BufReader::new(r), buf: String::new()}
+    }
+    ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Şimdi <code>next</code> metotunu kullanalım. Tıpkı bir döngüleyici gibi <code>Option</code> dönecek, <code>None</code> döndüğü zaman döngüleyici başa dönmüş olacak. İçerisinden dönen tip <code>Result</code> olacak çünkü <code>read_line</code> başarısız olabilir ve <em>asla hataları görmezden gelmiyoruz</em>. Eğer başarısız olursa hatayı <code>Some&lt;Result&gt;</code> olarak dönebiliriz. Eğer dosyanın doğal sınırı olan &quot;sıfır baytları&quot; okunursa bu bir hata değildir, sadece <code>None</code>'dur.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    fn next&lt;'a&gt;(&amp;'a mut self) -&gt; Option&lt;io::Result&lt;&amp;'a str&gt;&gt;{
+        self.buf.clear();
+        match self.reader.read_line(&amp;mut self.buf) {
+            Ok(nbytes) =&gt; if nbytes == 0 {
+                None // no more lines!
+            } else {
+                let line = self.buf.trim_right();
+                Some(Ok(line))
+            },
+            Err(e) =&gt; Some(Err(e))
+        }
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>Şimdi, yaşam sürelerinin nasıl çalıştığına dikkat edin. Açık bir yaşam süresi belirtmemiz gerekti çünkü Rust hiçbir zaman karakter dizelerini yaşam sürelerini belirtmeden ödünç almaya izin vermeyecektir ve burada ödünç alınan karakter dizisinin yaşam süresini <code>self</code> ile birlikte belirtiyoruz.</p>
+<p>Bu yaşam süresiyle birlikte bu tanım <code>Iterator</code> özelliği ile uyumsuz. Ancak uyumlu olsaydı sorunları kolayca görebilirdik, <code>collect</code>'in karakter dizileririnden vektör yapmaya çalıştığını düşünün. Bu mümkün değil zira hepsi aynı değişebilir (mutable) karakter dizisini ödünç almış olurdu! (Eğer <em>bütün</em> dosyayı bir karakter dizesine çevirmek isteseydiniz karakter dizelerinin <code>lines</code> metotu karakter dizeleri dönebilirdi çünkü hepsi esas karakter dizilerinden ödünç alınmıştır.)</p>
+<p>Neticedeki döngü çok daha temizdir ve ara belleğe alma işlemi pek çok kullanıcı tarafından görünmez.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn read_all_lines(filename: &amp;str) -&gt; io::Result&lt;()&gt; {
+    let file = File::open(&amp;filename)?;
+
+    let mut lines = Lines::new(file);
+    while let Some(line) = lines.next() {
+        let line = line?;
+        println!(&quot;{}&quot;, line);
+    }
+
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Hatta eşleştirme karakter dizisi dilimini dışarı çıkartacağından, döngüyü bu şekilde de yazabilirsiniz:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    while let Some(Ok(line)) = lines.next() {
+        println!(&quot;{}&quot;, line)?;
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>Bunu yapmak isteyebilirsiniz ancak muhtemel hataları halının altına süpürmüş olursunuz; döngü bir hata söz konusu olduğu zaman sessizce duracaktır. Daha da ötesi, Rust'ın <code>UTF-8</code>'e çeviremediği ilk yerde duracaktır. Gündelik kodlar için kabul edilebilir ancak kodu yayına aldığınız zaman kötüdür.</p>
+<h1 id="dosyalara-yazmak"><a class="header" href="#dosyalara-yazmak">Dosyalara Yazmak</a></h1>
+<p><code>Debug</code>'u kullanırken <code>write!</code> ile tanışmıştık - <code>Write</code>'ın kullanıldığı her yerde aynı zamanda <code>write!</code> kullanabiliriz. <code>print!</code> demenin farklı bir yoluna bakalım:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let mut stdout = io::stdout();
+    ...
+    write!(stdout,&quot;answer is {}\n&quot;, 42).expect(&quot;write failed&quot;);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Eğer bir hata <em>söz konusu olabilirse</em> bunu idare edebilirsiniz. Bu <em>genellikle</em> gerçekleşmez ancak yine de söz konusu olabilir. Eğer bir girdi/çıktı işlemi yapıyor Bu genellikle kabul edilebilir çünkü bir dosyayla oynaşıyorsanız <code>?</code> eklemeniz gereken bazı yerler olabilir. </p>
+<p>Ancak bir fark var; <code>print!</code>, <code>stdout</code>'u her yazım için kitler. Çoğu zaman istediğiniz şey budur çünkü çoklu süreçlerin yazıldığı programlarda <code>stdout</code>'u kitlemezseniz çıktınız tuhaf bir şekilde karmaşıklaşabilir. Ancak çok fazla metin yolluyorsanız <code>write!</code> çok daha hızlı davranacaktır.</p>
+<p>Çeşitli dosyalar için <code>write!</code> kullanmamız gerekiyor. <code>out</code>,  <code>write_out</code>'un sonunda düşürüldüğü zaman dosya kapanır ki bu hem istenen şeydir hem de önemlidir.</p>
+<pre><pre class="playground"><code class="language-rust">// file6.rs
+use std::fs::File;
+use std::io;
+use std::io::prelude::*;
+
+fn write_out(f: &amp;str) -&gt; io::Result&lt;()&gt; {
+    let mut out = File::create(f)?;
+    write!(out,&quot;answer is {}\n&quot;, 42)?;
+    Ok(())
+}
+
+fn main() {
+  write_out(&quot;test.txt&quot;).expect(&quot;write failed&quot;);
+}
+</code></pre></pre>
+<p>Eğer performansı önemsiyorsanız Rust'ın varsayılan olarak önbelleğe alınmadığını bilmeniz gerekir. Her bir yazma talebi doğrudan işletim sistemine gönderilir ki bu işleri oldukça yavaşlatır. Bundan bahsediyorum çünkü diğer programlama dillerinde varsayılan davranış farklıdır ve Rust'ın betik dilleri tarafından geride bırakıldığını görmek sizi epeyce şaşırtabilir! Nasıl ki <code>Read</code>'ın <code>io::BufReader</code>'ı varsa <code>io::BufWriter</code>ın da <code>Write</code>'ı var.</p>
+<h1 id="dosyalar-konumlar-ve-dizinler"><a class="header" href="#dosyalar-konumlar-ve-dizinler">Dosyalar, Konumlar ve Dizinler</a></h1>
+<p>Şimdi makinedeki Cargo dizinini bulan bir program yazalım. En basit yöntem <code>~/.cargo</code> altına bakmaktır. Ancak bu Unix kabuğu için geçerlidir, çoklu ortam desteği için <code>env::home_dir</code> fonksiyonunu kullanacağız. (Başarısız olabilir ancak ev dizini olmayan bir bilgisayar da Rust araçlarını barındırmaz.)</p>
+<p>Ç.N: <a href="https://doc.rust-lang.org/std/env/fn.home_dir.html"><code>env::home_dir</code></a> fonksiyonu beklenildiği gibi çalışmadığı için <code>1.29.0</code>'dan itibaren tedavülden kaldırılmıştır. Bu fonksiyonu kullanmayın, Windows ve Unix ortamları için ev dizinlerini kendi yöntemlerinizle bulmanızı veya bir <a href="https://crates.io">crates.io</a>'yu karıştırmanızı tavsiye ederim.</p>
+<p>Sonra bir <code>PathBuf</code> yaratalım ve <code>push</code> metotunu <em>parçalardan</em> tam bir dosya konumu inşa etmek için kullanalım. (Bu <code>/</code> gibi bir şeyle ile debelenmekten çok daha kolaydır.)</p>
+<pre><pre class="playground"><code class="language-rust">// file7.rs
+use std::env;
+use std::path::PathBuf;
+
+fn main() {
+    let home = env::home_dir().expect(&quot;no home!&quot;);
+    let mut path = PathBuf::new();
+    path.push(home);
+    path.push(&quot;.cargo&quot;);
+
+    if path.is_dir() {
+        println!(&quot;{}&quot;, path.display());
+    }
+}
+</code></pre></pre>
+<p><code>PathBuf</code>, <code>String</code> gibi çalışır - karakterlerin büyüyebilen bir paketidir ancak konum inşa etmek için kendi araçlarını kullanır. Ancak özelliklerinin çoğunluğu <code>Path</code>'ın referans versiyonundan gelir, tıpkı <code>&amp;str</code> gibi. Yani, mesela, <code>is_dir</code> bir <code>Path</code> metotudur.</p>
+<p>Bu kulağınıza şüphe uyandıran bir miras alma (inheritance) tarzı gibi gelebilir, ancak bu <a href="https://doc.rust-lang.org/book/deref-coercions.html">Deref</a> özelliğinin maharetidir. Gözünüze tıpkı <code>String/&amp;str</code> gibi görünebilir - bir <code>PathBuf</code> referansı bir  <code>Path</code> referansına <em>dönüşür/zorlanır. (coerced)</em> (&quot;Zorlamak (Coerce)&quot; kelimesi biraz ağır kaçmış olabilir ancak bu Rust sizin için dönüşüm uyguladığı nadir yerlerden birisidir.)</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn foo(p: &amp;Path) {...}
+...
+let path = PathBuf::from(home);
+foo(&amp;path);
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>PathBuf</code>'un en yakın arkadaşı <code>OsString</code>'tir, kendisi sistemden doğrudan aldığımız karakter dizilerini gösterir. (Aynı şekilde buna karşılık <code>OsString/&amp;OsStr</code> ilişkisi de vardır.)</p>
+<p>Bu tarz karakter dizilerinin UTF-8 olacağını <em>garanti edilmemiştir!</em> Gerçek hayatta her şey <a href="https://news.ycombinator.com/item?id=10519932">karmaşıktır</a>, özellikle &quot;Her şey neden bu kadar zor&quot; diye düşünürken. Sadede gelelim. Birincisi antik ASCII kodlamanın ve diğer diller için özel kodlamanın kullanıldığı yıllar oldu. İkincisi kendi aramızda konuştuğumuz dillerin kendisi de epey karmaşıktır. Mesela &quot;noël&quot; kelimesi <em>beş</em> Unikod kodu kadar yer tutar.</p>
+<p>Modern işletim sistemlerinin dosya adlarının çoğu zaman Unikod olabileceği doğrudur. (Unix tarafı için UTF-8, Windows için UTF-16) Ama olmadığı zamanlar da vardır! Ve Rust bu olasılığı dikkatlice ele almalıdır. Örneğin <code>Path</code>, <code>as_os_str</code> diye <code>&amp;OsStr</code> dönen bir metota sahiptir. Ancak <code>to_str</code>, bazen <code>Option&lt;&amp;str&gt;</code> döner. Yani her zaman mümkün değildir!</p>
+<p>İnsanlar genelde bu konuda biraz takılır çünkü &quot;karakter&quot; ve &quot;karakter dizesi&quot;ne fazlasıyla alıştılar. Einstein'ın dediği gibi programlama dilleri sade olmalı, basit değil. Bir sistem programlama dilinin <code>String/&amp;str</code> ayrımına ihtiyacı vardır (ödünç alınmışa karşılık sahiplenmiş: kafaya epeyce yatıyor) ve Unikod karakter dizilerini standartlaştırmak için Unikod olmayan stilleri de kapsamalıdırlar - işte <code>OsString/&amp;OsStr</code> kardeşlerin doğuşu. Bunların içeriğinde <code>String</code> benzeri enteresan metotlar bulunmadığına dikkat edin, çünkü tiplemelerinden tam olarak emin değiliz. </p>
+<p>Ancak, insanlar dosya isimlerini olağan karakter dizileriymiş gibi işlemeye alışkınlardır ki kolayca dosya konumlarını kullanmak ve değiştirmek için Rust'ta <code>PathBuf</code> vardır.</p>
+<p>Bir konumun adresinin parçalarını temizleyebilmek için <code>pop</code> kullanabilirsiniz. Mesela bulunduğumuz dizinden başlayalım.</p>
+<pre><pre class="playground"><code class="language-rust">// file8.rs
+use std::env;
+
+fn main() {
+    let mut path = env::current_dir().expect(&quot;can't access current dir&quot;);
+    loop {
+        println!(&quot;{}&quot;, path.display());
+        if ! path.pop() {
+            break;
+        }
+    }
+}
+// /home/steve/rust/gentle-intro/code
+// /home/steve/rust/gentle-intro
+// /home/steve/rust
+// /home/steve
+// /home
+// /
+</code></pre></pre>
+<p>Bu da daha kullanışlı bir hâli. Bir konfigrasyon dosyasını aramak için bir program yazdık ve bütün altdizinleri bu dosya için arıyoruz. Bunun için <code>/home/steve/rust/config.txt</code> diye bir dosya yazdık ve program <code>/home/steve/rust/gentle-intro/code</code> içerisinden başlıyor:</p>
+<pre><pre class="playground"><code class="language-rust">// file9.rs
+use std::env;
+
+fn main() {
+    let mut path = env::current_dir().expect(&quot;can't access current dir&quot;);
+    loop {
+        path.push(&quot;config.txt&quot;);
+        if path.is_file() {
+            println!(&quot;gotcha {}&quot;, path.display());
+            break;
+        } else {
+            path.pop();
+        }
+        if !path.pop() {
+            break;
+        }
+    }
+}
+// gotcha /home/steve/rust/config.txt
+</code></pre></pre>
+<p>Bu <strong>git</strong>'in nasıl çalıştığı depoyu nasıl bulduğunun yöntemidir de aynı zamanda. </p>
+<p>Bir dosya hakkındaki bilgiler <em>metaveri (metadata)</em> olarak geçer. Her zaman olduğu gibi bir hata olabilir - &quot;Bulunamadı&quot; dışında mesela dosyayı okumamız için gerekli izinlere sahip olamayabiliriz.</p>
+<pre><pre class="playground"><code class="language-rust">// file10.rs
+use std::env;
+use std::path::Path;
+
+fn main() {
+    let file = env::args().skip(1).next().unwrap_or(&quot;file10.rs&quot;.to_string());
+    let path = Path::new(&amp;file);
+    match path.metadata() {
+        Ok(data) =&gt; {
+            println!(&quot;type {:?}&quot;, data.file_type());
+            println!(&quot;len {}&quot;, data.len());
+            println!(&quot;perm {:?}&quot;, data.permissions());
+            println!(&quot;modified {:?}&quot;, data.modified());
+        },
+        Err(e) =&gt; println!(&quot;error {:?}&quot;, e)
+    }
+}
+// type FileType(FileType { mode: 33204 })
+// len 488
+// perm Permissions(FilePermissions { mode: 436 })
+// modified Ok(SystemTime { tv_sec: 1483866529, tv_nsec: 600495644 })
+</code></pre></pre>
+<p>Bir dosyanın (bayt cinsinden) uzunluğu ve son değiştirilme tarihini bulmak oldukça kolaydır. (Ancak bunu yapamayacağımız zamanlar da vardır.) <code>File</code> tipinin ilgili metotları <code>is_dir</code> (Ç.N: Dizin midir?), <code>is_file</code> (Ç.N: Dosya mıdır?) ve <code>is_symlink</code>'dir. (Ç.N: &quot;Sembolik bağ mıdır?&quot;)</p>
+<p><code>permissions</code> da ilginç bir metottur. Rust platformlar arası geçerli olmaya özen gösterir ve bu da bir &quot;en düşük ortak paydaya erişme&quot; durumudur. Genel olarak, dosya salt okunur ise onu sorgulayabilirsiniz - &quot;yetkiler (permissions) konsepti Unix'te oldukça geniştir ve kullanıcı/grup/diğerleri için okuma/yazma/çalıştırma yetkilerini barındırır. </p>
+<p>Ancak Windows ile çalışmıyorsanız en azından yetki bitlerini öğrenmek için platforma yönelik özellikleri (trait) kapsama çağırabilirsiniz. (Genelde olduğu gibi özellikler kapsama çağrıldığı zaman etkinleşirler.) Sonrasında da programın dosyasını şöyle değiştirebiliriz:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::os::unix::fs::PermissionsExt;
+...
+println!(&quot;perm {:o}&quot;,data.permissions().mode());
+// perm 755
+<span class="boring">}
+</span></code></pre></pre>
+<p>(&quot;{:o}&quot; sekizli (octal) sayı sistemine göre biçimlendirir.)</p>
+<p>(Windows'ta bir dosyanın çalıştırılıp çalıştırılamayacağı dosyanın uzantısından tanımlanır. Çalıştırılabilir dosya uzantıları <code>PATHEXT</code> çevre değişkeninden öğrenilebilir - &quot;.exe&quot;, &quot;.bat&quot; vs.)</p>
+<p>Dosyalarla çalışmak için <code>std::fs</code> bize pek çok faydalı fonksiyonlar sunar, bir dosyayı kopyalayıp taşımak, sembolik bağ kurmak ve dizin oluşturmak gibi.</p>
+<p>Bir dizinin içeriğini öğrenmek için bir döngüleyici sunan <code>std::fs::read_dir</code>'i kullanabilirsiniz. İşte karşınızda boyutları 1024 bayttan büyük olan ve uzantısı <code>.rs</code> ile biten bütün dosyalar!</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn dump_dir(dir: &amp;str) -&gt; io::Result&lt;()&gt; {
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let data = entry.metadata()?;
+        let path = entry.path();
+        if data.is_file() {
+            if let Some(ex) = path.extension() {
+                if ex == &quot;rs&quot; &amp;&amp; data.len() &gt; 1024 {
+                    println!(&quot;{} length {}&quot;, path.display(),data.len());
+                }
+            }
+        }
+    }
+    Ok(())
+}
+// ./enum4.rs length 2401
+// ./struct7.rs length 1151
+// ./sexpr.rs length 7483
+// ./struct6.rs length 1359
+// ./new-sexpr.rs length 7719
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>read_dir</code>'in başarısız olabileceği aşikar (&quot;bulunamadı&quot; ya da &quot;yetki yok&quot; gibi bir hata çıkarabilir) ancak aynı zamanda her yeni bir girdiye erişmek de başarısız olabilir. (Okunmuş veriyi arabelleğe alan <code>lines</code> döngüleyicini düşünün.) Ek olarak, ilgili girdi için uygun metaveriye ulaşamayabiliriz de. Bir dosyanın uzantısı da pekala olmayabilir, bunu ayrıca kontrol etmemiz gerekir.</p>
+<p>Neden konumların üzerinde bir döngüleyici kullanmıyoruz? Unix'te <code>opendir</code> sistem çağrısı bu şekilde çalışır ancak Windows'ta dosyaların metaverisini almadan üzerinde bir döngü kuramazsınız. Dolayısıyla platformlar arasındaki kodun en verimli çalışmasının en zarif yoludur. </p>
+<p>Bu noktada &quot;hatalarla boğuştuğunuz&quot; için kendinizi bitkin hissedebilirsiniz. Ancak <em>hatalar her zaman</em> vardı - Rust sizin için yeni hatalar icat etmedi. Sadece hataları görmezden gelmemeniz için elinden geleni yapıyor. Herhangi bir işletim sistemi çağrısı başarısız olabilir. </p>
+<p>Java ve Python gibi dillerde hata atarsınız (throw exceptions); Go ve Lua gibi diller ise size iki veri döner ve birincisi sonuç ikincisi de hata olur, Rust'ta kitaplık fonksiyonlarının hata oluşturması kötü bir davranış olarak kabul edilir. Bu nedenle pek çok hata denetimi vardır ve fonksiyonlar erkenden dönebilir.</p>
+<p>Ya hata alırsınız ya da almazsınız, Rust bu yüzden <code>Result</code> kullanır: hem hata hem de sonuç elde edemezsiniz. Ve soru işareti operatörü kontrol oldukça kolaylaştırır.</p>
+<h1 id="süreçler"><a class="header" href="#süreçler">Süreçler</a></h1>
+<p>Esas ihtiyaç duyduğumuz şeylerden bir şey programların başka bir programı çalıştırması ya da <em>süreç başlatmaktır</em>. Programınız pek çok alt süreç çalıştırabilir ve alt süreçler üst süreçlerle pek çok ilişkide bulunabilir.</p>
+<p>Bir programı, argümanları da beraberinde kullanmanızı sağlayan <code>Command</code> yapısı ile çalıştırabilirsiniz. </p>
+<pre><pre class="playground"><code class="language-rust">use std::process::Command;
+
+fn main() {
+    let status = Command::new(&quot;rustc&quot;)
+        .arg(&quot;-V&quot;)
+        .status()
+        .expect(&quot;no rustc?&quot;);
+
+    println!(&quot;cool {} code {}&quot;, status.success(), status.code().unwrap());
+}
+// rustc 1.15.0-nightly (8f02c429a 2016-12-15)
+// cool true code 0
+</code></pre></pre>
+<p><code>new</code> programın adını alır (Eğer kesin bir dosya konumu değilse <code>PATH</code> içinde arar), <code>arg</code> yeni argümanlar ekler ve <code>status</code> programın çalışmasını tetikler. Program çalışınca bir <code>Result</code> alırsınız, <code>Ok</code> programın çalıştığını belirtir ki içeriğinde <code>ExitStatus</code> bulunur. Bizim örneğimizde programımız başarıyla çalıştı ve çıkış değeri olarak 0 döndü. (<code>unwrap</code> kullanmamızın sebebi eğer program bir sinyal ile &quot;öldürülürse&quot; her zaman çıkış değerini öğrenemeyecek olmamız.)</p>
+<p>Eğer <code>-V</code>'yi <code>-v</code> ile değiştirirsek <code>rustc</code> başarısız olur.</p>
+<pre><code>error: no input filename given
+
+cool false code 101
+</code></pre>
+<p>Üç farklı koşul gerçekleşebilir:</p>
+<ul>
+<li>Program var olmayabilir, çalıştırma iznimiz olmayabilir ya da kullanılamaz hâlde olabilir</li>
+<li>Program çalışmış ancak başarısız olmamış olabilir - sıfır olmayan çıkış değeri</li>
+<li>Program sıfır olan çıkış değeri ile sonuçlanmış olabilir. Yani başarılıdır!</li>
+</ul>
+<p>Varsayılan olarak programın standart çıktısı (stdout/Standart output) ve standart hata çıktısı (stderr/Standart Error) terminale yönlendirilir.</p>
+<p>Bazen çıktıyı yakalamakla da ilgilenebiliriz ki <code>output</code> metotu bu işe yarar.</p>
+<pre><pre class="playground"><code class="language-rust">// process2.rs
+use std::process::Command;
+
+fn main() {
+    let output = Command::new(&quot;rustc&quot;)
+        .arg(&quot;-V&quot;)
+        .output()
+        .expect(&quot;no rustc?&quot;);
+
+    if output.status.success() {
+        println!(&quot;ok!&quot;);
+    }
+    println!(&quot;len stdout {} stderr {}&quot;, output.stdout.len(), output.stderr.len());
+}
+// ok!
+// len stdout 44 stderr 0
+</code></pre></pre>
+<p><code>status</code> ile alt süreçler sonuçlanana dek programımız durduruluyordu ve üç şey alıyorduk - sonuç (Önceden olduğu gibi), <code>stdout</code>'un ve <code>stderr</code>'un içeriği.</p>
+<p>Şimdi ise yakaladığımız çıktı <code>Vec&lt;u8&gt;</code> içerisinde tutuluyor - sadece bayt olarak. İşletim sisteminden aldığımız şeylerin her zaman geçerli bir UTF-8 karakter dizisi olamayacağını hatırlayın. Aslında, bunun bir karakter dizisi <em>bile</em> olamayacağını bilmemiz gerekiyor - programlar tuhaf ikili veriler dönebilirler.</p>
+<p>Eğer çıktının UTF-8 olacağından eminsek bu vektörü ya da baytları <code>String::from_utf8</code> ile dönüştürebiliriz. Sonuç <code>Result</code> dönecektir çünkü dönüşümün gerçekleşeceğinden emin değiliz. İşi biraz daha gevşekçe yapan başka bir fonksiyonumuz var, <code>String::from_utf8_lossy</code>, bununla çeviriyi deneyebilir ve dönüştürülemeyen karakterlerin yerlerine � koyabilirsiniz. </p>
+<p>Aşağıda kabukta programda çalıştıran kullanışlı bir fonksiyon görmektesiniz. Programımız <code>stderr</code> ile <code>stdout</code>'u birleştirmek için sıradan bir kabuk tekniği kullanıyor. Kabuğun ismi Windows'ta biraz farklı ancak diğerleriyle de sorunsuz çalışacaktır.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn shell(cmd: &amp;str) -&gt; (String,bool) {
+    let cmd = format!(&quot;{} 2&gt;&amp;1&quot;,cmd);
+    let shell = if cfg!(windows) {&quot;cmd.exe&quot;} else {&quot;/bin/sh&quot;};
+    let flag = if cfg!(windows) {&quot;/c&quot;} else {&quot;-c&quot;};
+    let output = Command::new(shell)
+        .arg(flag)
+        .arg(&amp;cmd)
+        .output()
+        .expect(&quot;no shell?&quot;);
+    (
+        String::from_utf8_lossy(&amp;output.stdout).trim_right().to_string(),
+        output.status.success()
+    )
+}
+
+
+fn shell_success(cmd: &amp;str) -&gt; Option&lt;String&gt; {
+    let (output,success) = shell(cmd);
+    if success {Some(output)} else {None}
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Sağ taraftaki boşlukları biraz törpülüyorum ve böylece <code>shell(&quot;which rustc&quot;)</code> dediğimiz zaman doğrudan konumu alabiliyoruz. </p>
+<p><code>Process</code> ile çalıştırılmış bir programın <code>current_dir</code> ile çalışma dizinini, <code>env</code> ile çevre değişkenlerini belirleyerek çalışma şeklini kontrol edebilirsiniz.</p>
+<p>Şimdiye kadar programımız alt süreçlerin tamamlanmasını bekledi. Eğer <code>spawn</code> metotunu kullanırsanız program size hemen döner ve programın basitçe bitişini bekler ki bu esnada gidip başka şeyler yapabiliriz. Aşağıdaki örnek <code>stdout</code> ve <code>stderr</code>in de aynı zamanda susturulmasına da örnektir. </p>
+<pre><pre class="playground"><code class="language-rust">// process5.rs
+use std::process::{Command,Stdio};
+
+fn main() {
+    let mut child = Command::new(&quot;rustc&quot;)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .expect(&quot;no rustc?&quot;);
+
+    let res = child.wait();
+    println!(&quot;res {:?}&quot;, res);
+}
+</code></pre></pre>
+<p>Varsayılan olarak alt süreç üst sürecin standart girdisini ve çıktısını &quot;miras alır&quot;. Ancak bu örnekte alt sürecin çıktısını &quot;hiçliğe&quot; yönlendirmiş olduk. Unix kabuğunda <code>&gt; /dev/null 2&gt; /dev/null</code> demekle aynı şey yani.</p>
+<p>Rustta yaptığımız bu şeyleri sistem kabuğu (<code>sh</code> veya <code>cmd</code>) ile de yapabilirdik. Ancak bu yolla tamamen programatik bir şekilde süreç oluşturmayı kontrol etmiş oldunuz.</p>
+<p>Bu örnekte eğer sadece <code>.stdout(Stdio::piped())</code> kullanmış olsaydık alt sürecin çıktısını bir izole etmiş olurduk. Sonra da <code>child.stdout</code> üzerinden izole ettiğimiz çıktıyı doğrudan okuyabilirdik. (<code>Read</code> özelliğini kullanıyor). Aynı şekilde doğrudan <code>child.stdin</code>'e yazabilmek için de <code>.stdout(Stdio::piped())</code> kullanabilirsiniz.</p>
+<p>Ancak <code>wait</code> yerine <code>wait_with_output</code>'u kullansaydık bize <code>Result&lt;Output&gt;</code> dönerdi ve alt sürecin çıktısı <code>Output</code>'un <code>stdout</code> alanında daha önce olduğu gibi <code>Vec&lt;u8&gt;</code> olarak sunulurdu.</p>
+<p><code>Child</code> yapısında aynı zamanda aleni bir şekilde <code>kill</code> (öldür) metotu da bulunur.</p>
+<p>Ç.N: Alt süreç İngilizce'de &quot;çocuk süreç&quot; anlamına gelen &quot;Child process&quot; olarak bahsedilir.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="2-structs-enums-lifetimes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="4-modules.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="2-structs-enums-lifetimes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="4-modules.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

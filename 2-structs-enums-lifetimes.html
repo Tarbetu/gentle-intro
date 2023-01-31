@@ -1,0 +1,1697 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Yapılar, Numaralandırmalar ve Eşleştirmeler - Rust&#x27;a Yumuşak Bir Başlangıç</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="Rust diline, standart sistemine ve ekosistemine bir giriş.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Giriş</a></li><li class="chapter-item expanded "><a href="1-basics.html"><strong aria-hidden="true">1.</strong> Merhaba Dünya</a></li><li class="chapter-item expanded "><a href="2-structs-enums-lifetimes.html" class="active"><strong aria-hidden="true">2.</strong> Yapılar, Numaralandırmalar ve Eşleştirmeler</a></li><li class="chapter-item expanded "><a href="3-filesystem.html"><strong aria-hidden="true">3.</strong> Dosya Sistemi ve Süreçler</a></li><li class="chapter-item expanded "><a href="4-modules.html"><strong aria-hidden="true">4.</strong> Modüller ve Kargo</a></li><li class="chapter-item expanded "><a href="5-stdlib-containers.html"><strong aria-hidden="true">5.</strong> Standart Kütüphane Konteynırları</a></li><li class="chapter-item expanded "><a href="6-error-handling.html"><strong aria-hidden="true">6.</strong> Hataları Yönetmek</a></li><li class="chapter-item expanded "><a href="7-shared-and-networking.html"><strong aria-hidden="true">7.</strong> Sistem Süreçleri, Ağlar ve Paylaşım</a></li><li class="chapter-item expanded "><a href="object-orientation.html"><strong aria-hidden="true">8.</strong> Nesne Yönelimli Programlama</a></li><li class="chapter-item expanded "><a href="nom-intro.html"><strong aria-hidden="true">9.</strong> Yazıları Nom ile Ayrıştırmak</a></li><li class="chapter-item expanded "><a href="pain-points.html"><strong aria-hidden="true">10.</strong> Rust ve Çektirdiği Çile</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust&#x27;a Yumuşak Bir Başlangıç</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="yapılar-numaralandırmalar-ve-eşleştirme"><a class="header" href="#yapılar-numaralandırmalar-ve-eşleştirme">Yapılar, Numaralandırmalar ve Eşleştirme</a></h1>
+<h1 id="rust-lekta-movik-movik"><a class="header" href="#rust-lekta-movik-movik">Rust Lekta Movik Movik</a></h1>
+<p>Fazla ileri gitmiyor muyuz? Mesela kaçırdığımız bazı şeyler var:</p>
+<pre><pre class="playground"><code class="language-rust">// move1.rs
+fn main() {
+    let s1 = &quot;hello dolly&quot;.to_string();
+    let s2 = s1;
+    println!(&quot;s1 {}&quot;, s1);
+}
+</code></pre></pre>
+<p>Kod çalışınca da şu hatayı alırız:</p>
+<pre><code>error[E0382]: use of moved value: `s1`
+ --&gt; move1.rs:5:22
+  |
+4 |     let s2 = s1;
+  |         -- value moved here
+5 |     println!(&quot;s1 {}&quot;, s1);
+  |                      ^^ value used here after move
+  |
+  = note: move occurs because `s1` has type `std::string::String`,
+  which does not implement the `Copy` trait
+</code></pre>
+<p>Rust diğer dillerden biraz daha farklı davranır. Bütün değişkenleri birer referans olduğu dillerde (Java ve Python gibi) <code>s2</code> <code>s1</code>'in karakter dizesi objesine bir başka referans olur. C++'da ise <code>s1</code> bir veridir ve <code>s2</code>'ye kopyalanır. Ancak Rust veriyi <em>taşır (move)</em>, karakter dizelerini ise kopyalanabilir bir tür olarak da görmez. (&quot;does not implement the Copy trait&quot; - &quot;Kopyala özelliğini barındırmıyor&quot;)</p>
+<p>Böyle bir şeyi sayılar gibi &quot;ilkel (primitive)&quot; tiplerde görmeyiz çünkü onlar sadece veridir; kopyalanabilmelerine izin vardır çünkü kopyalaması ucuzdur. Ama <code>String</code> &quot;Hello Dolly&quot; için bellekte yer tahsis eder ve kopyalama daha fazla belleğin tahsis edilmesini ve karakterlerin tek tek kopyalanmasını içerir. Rust'ın bunu sessiz sedasız yapmasını bekleyemezsiniz. </p>
+<p><code>String</code>'in bütün &quot;Moby Dick&quot;i barındırdığını düşünün. Bu karmaşık bir <em>yapı (struct)</em> olmazdı; sadece yazının bulunduğu bellek bölgesini tutan adresi, büyüklüğünü ve ne kadar bellekte alan tahsis edildiğini barındırırdı. Kopyalamak epey bir yük olurdu çünkü bellek <em>heap</em> bölgesinde tahsis edilmişti ve kopyalamanın kendisi de bellekte alan tahsis etmeyi gerektirirdi. </p>
+<pre><code>    String
+    | addr | ---------&gt; Call me Ishmael.....
+    | size |                    |
+    | cap  |                    |
+                                |
+    &amp;str                        |
+    | addr | -------------------|
+    | size |
+
+    f64
+    | 8 bytes |
+</code></pre>
+<p>İkinci veri ise karakter dizisi dilimidir (<code>&amp;str</code>) ve <code>String</code> ile aynı bellek alanına yönlendirir, büyüklüğü ile birlikte. Kopyalaması çok basit!</p>
+<p>Üçüncü verimiz ise <code>f64</code> - sadece 8 bayt tutuyor. Herhangi bir bellek alanına yönlendirilmiyor, yani kopyalaması onu taşımak kadar basit.</p>
+<p><code>Copy</code> verileri bellekteki karşılıklarıyla tanımlanır ve Rust kopyaladığı zaman bu baytları sadece başka bir yere kopyalar. Buna benzer olarak <code>Copy</code> olmayan bir veri ise <em>sadece taşınır</em>. C++'ın aksine kopyalama ve taşımada herhangi bir karmaşa yoktur.</p>
+<p>Aynı şeyi bir fonksiyon çağrısı olarak yazmak da aynı soruna sebep olur:</p>
+<pre><pre class="playground"><code class="language-rust">// move2.rs
+
+fn dump(s: String) {
+    println!(&quot;{}&quot;, s);
+}
+
+fn main() {
+    let s1 = &quot;hello dolly&quot;.to_string();
+    dump(s1);
+    println!(&quot;s1 {}&quot;, s1); // &lt;---error: 'value used here after move'
+}
+</code></pre></pre>
+<p>Şimdi bir tercih yapmanız gerekiyor. Ya <code>String</code>'i bir referans olarak kullanacaksınız ya da açık açık <code>clone</code> metotu ile onu kopyalayacaksınız. Genelde ilk olan daha iyi bir seçenektir.</p>
+<pre><pre class="playground"><code class="language-rust">fn dump(s: &amp;String) {
+    println!(&quot;{}&quot;, s);
+}
+
+fn main() {
+    let s1 = &quot;hello dolly&quot;.to_string();
+    dump(&amp;s1);
+    println!(&quot;s1 {}&quot;, s1);
+}
+</code></pre></pre>
+<p>Artık hatadan çok uzaktayız. Ancak <code>String</code> referansını çok nadir görürsünüz, çünkü bir karakter dizisi kalıbını bu şekilde kullanmak gerçekten çirkin ve bu yolla geçici bir <code>String</code> oluşturmak zorunda kalırsınız. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    dump(&amp;&quot;hello world&quot;.to_string());
+<span class="boring">}
+</span></code></pre></pre>
+<p>Onun yerine en iyi yol şudur:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn dump(s: &amp;str) {
+    println!(&quot;{}&quot;, s);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Ve böylece <code>dump(&amp;s1)</code> ve <code>dump(&quot;hello world&quot;)</code> kullanımlarının ikisi de geçerli olacaktır. (Burada Rust'ın <code>Deref</code> zorlaması işin içine girer ve <code>&amp;String</code>'i <code>&amp;str</code> yapar.)</p>
+<p>Sonuç olarak, <code>Copy</code> olmayan bir değerin değişkene atanması bir konumdan öbürüne taşınmasıdır. Eğer bu olmasaydı Rust <em>gizlice</em> kopyalamak zorunda kalırdı ve bellek tahsislerini <em>açıkça</em> yapma sözünü gerçekleştiremezdi.</p>
+<h1 id="değişkenlerin-kapsamları"><a class="header" href="#değişkenlerin-kapsamları">Değişkenlerin Kapsamları</a></h1>
+<p>Birinci kural, verileri kopyalamak yerine orijinal veriye referans göstermektir - yani &quot;ödünç almak.&quot;</p>
+<p>Ancak bir referans sahibinden daha uzun <em>asla</em> yaşayamaz!</p>
+<p>Öncelikle Rust blok kapsamlı bir dildir. Değişkenler kendi blokları kadar yaşar:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>{
+    let a = 10;
+    let b = &quot;hello&quot;;
+    {
+        let c = &quot;hello&quot;.to_string();
+        // a,b and c are visible
+    }
+    // the string c is dropped
+    // a,b are visible
+    for i in 0..a {
+        let b = &amp;b[1..];
+        // original b is no longer visible - it is shadowed.
+    }
+    // the slice b is dropped
+    // i is _not_ visible!
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>(<code>i</code> gibi) Döngü değişkenleri biraz farklıdır, onlar sadece döngülerinin blokları için geçerlidir. Aynı isimle yeni bir değişken oluşturmak (&quot;gölgelemek/<em>shadowing</em>&quot;) bir hata değildir ama kafa karıştırıcı olabilir.</p>
+<p>Bir değişken &quot;kapsam dışına çıkınca&quot; <em>düşürülür (dropped)</em>. Kullanılan her bir bellek tanesi geri dönüştürülür ve sistemden alınan kaynaklar iade edilir - örneğin, <code>File</code>'ı düşürmek onu kapatır. Bu iyi bir şey. Kullanılmayan kaynaklar ihtiyaç olmayınca hemen geri teslim edilir.</p>
+<p>(Rust'a özgü bir başka sorun da verinin taşınmış olmasına rağmen kapsam dahilinde görünmüş olmasıdır.)</p>
+<p>Bu örnekte <code>rs1</code> isminde bir referans hazırladık ve değerini sadece iç bloğun ömrü kadar uzun kalan <code>tmp</code>'ye ayarladık.</p>
+<pre><pre class="playground"><code class="language-rust">01 // ref1.rs
+02 fn main() {
+03    let s1 = &quot;hello dolly&quot;.to_string();
+04    let mut rs1 = &amp;s1;
+05    {
+06        let tmp = &quot;hello world&quot;.to_string();
+07        rs1 = &amp;tmp;
+08    }
+09    println!(&quot;ref {}&quot;, rs1);
+10 }
+</code></pre></pre>
+<p><code>s1</code>'in verisini ödünç aldık ve sonra da <code>tmp</code>'i ödünç aldık. Ancak <code>tmp</code>, bloğun dışında yok!</p>
+<pre><code>error: `tmp` does not live long enough
+  --&gt; ref1.rs:8:5
+   |
+7  |         rs1 = &amp;tmp;
+   |                --- borrow occurs here
+8  |     }
+   |     ^ `tmp` dropped here while still borrowed
+9  |     println!(&quot;ref {}&quot;, rs1);
+10 | }
+   | - borrowed value needs to live until here
+</code></pre>
+<p><code>Tmp</code> nerede? Gitti, yok, öldü o artık: <em>düşürüldü</em>. Rust sizi burada C'nin &quot;işaretçiler (dangling pointer)&quot; belasından koruyor - çoktan yitip gitmiş bir veriye işaret eden referanslardan yani.</p>
+<h1 id="demetler-tuple"><a class="header" href="#demetler-tuple">Demetler (Tuple)</a></h1>
+<p>Bir fonksiyondan çoklu veriler dönmeyi gerektiren zamanlar muhakkak gelecek. Demetler bunun için gayet uygun bir gözümdür.</p>
+<pre><pre class="playground"><code class="language-rust">// tuple1.rs
+
+fn add_mul(x: f64, y: f64) -&gt; (f64,f64) {
+    (x + y, x * y)
+}
+
+fn main() {
+    let t = add_mul(2.0,10.0);
+
+    // can debug print
+    println!(&quot;t {:?}&quot;, t);
+
+    // can 'index' the values
+    println!(&quot;add {} mul {}&quot;, t.0,t.1);
+
+    // can _extract_ values
+    let (add,mul) = t;
+    println!(&quot;add {} mul {}&quot;, add,mul);
+}
+// t (12, 20)
+// add 12 mul 20
+// add 12 mul 20
+</code></pre></pre>
+<p>Demetlerin dizilerden temel farkları, demetlerin <em>farklı</em> tipler barındırabilmesidir.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let tuple = (&quot;hello&quot;, 5, 'c');
+
+assert_eq!(tuple.0, &quot;hello&quot;);
+assert_eq!(tuple.1, 5);
+assert_eq!(tuple.2, 'c');
+<span class="boring">}
+</span></code></pre></pre>
+<p>Bazen <code>Iterator</code> metotlarından karşınıza fırlarlar. <code>enumerate</code> tıpkı Python'daki aynı isimli oluşturucu gibi çalışır:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    for t in [&quot;zero&quot;,&quot;one&quot;,&quot;two&quot;].iter().enumerate() {
+        print!(&quot; {} {};&quot;,t.0,t.1);
+    }
+    //  0 zero; 1 one; 2 two;
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>zip</code> ise iki döngüleyiciyi birbiriyle eşleştirir ve bir demet içerisinde veri dönen tek bir döngüleyici olarak birleştirir.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let names = [&quot;ten&quot;,&quot;hundred&quot;,&quot;thousand&quot;];
+    let nums = [10,100,1000];
+    for p in names.iter().zip(nums.iter()) {
+        print!(&quot; {} {};&quot;, p.0,p.1);
+    }
+    //  ten 10; hundred 100; thousand 1000;
+<span class="boring">}
+</span></code></pre></pre>
+<h1 id="yapılar-struct"><a class="header" href="#yapılar-struct">Yapılar (Struct)</a></h1>
+<p>Demetler fena şeyler değiller ancak <code>t.1</code> gibi bir anlam içermeyen parçalarını incelerken biraz kafa karıştırıcı olabilir.</p>
+<p>Rust <em>yapıları</em> ise isimli <em>alanlar (field)</em> barındırır:</p>
+<pre><pre class="playground"><code class="language-rust">// struct1.rs
+
+struct Person {
+    first_name: String,
+    last_name: String
+}
+
+fn main() {
+    let p = Person {
+        first_name: &quot;John&quot;.to_string(),
+        last_name: &quot;Smith&quot;.to_string()
+    };
+    println!(&quot;person {} {}&quot;, p.first_name,p.last_name);
+}
+</code></pre></pre>
+<p>Sizin bunu fark etmemenize rağmen yapıların verileri bellekte yanyana dururlar çünkü derleyici belleği verimliliğe göre düzenler, büyüklüğüne göre değil ve arada bazı boşluklar olabilir.</p>
+<p>Bu yapıyı ilklemek (initalize) biraz garip görünebilir, bundan dolayı <code>Person</code> yapısını oluşturmayı bir fonksiyon içerisine taşıyorum. Bu fonksiyon bir <code>impl</code> bloğunun içerisine taşınarak <code>Person</code>'a ait bir <em>ilişkili fonksiyona (associated function)</em> dönüştürülebilir.</p>
+<pre><pre class="playground"><code class="language-rust">// struct2.rs
+
+struct Person {
+    first_name: String,
+    last_name: String
+}
+
+impl Person {
+
+    fn new(first: &amp;str, name: &amp;str) -&gt; Person {
+        Person {
+            first_name: first.to_string(),
+            last_name: name.to_string()
+        }
+    }
+
+}
+
+fn main() {
+    let p = Person::new(&quot;John&quot;,&quot;Smith&quot;);
+    println!(&quot;person {} {}&quot;, p.first_name,p.last_name);
+}
+</code></pre></pre>
+<p><code>new</code> ile ilişkili özel bir şey yok. C++ tarzı <code>::</code> notasyonu ile bu fonksiyona ulaşabiliyoruz.</p>
+<p>Bir de argüman olarak <em>kendisini referans alan (reference self)</em> <code>Person</code> metotunu hazırlayalım.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Person {
+    ...
+
+    fn full_name(&amp;self) -&gt; String {
+        format!(&quot;{} {}&quot;, self.first_name, self.last_name)
+    }
+
+}
+...
+    println!(&quot;fullname {}&quot;, p.full_name());
+// fullname John Smith
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>self</code>, bir referans olarak açıkça belirtildi. (<code>&amp;self</code>'i <code>self: &amp;Person</code>'un kısaltması olarak düşünebilirsiniz.)</p>
+<p><code>Self</code> kelimesi <code>struct</code> tipine atıfta bulunur -  <code>Person</code> yerine <code>Self</code> yazdığınızı düşünebilirsiniz:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    fn copy(&amp;self) -&gt; Self {
+        Self::new(&amp;self.first_name,&amp;self.last_name)
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>Metotlar veri düzenlemek için kendilerini <em><code>mutable self</code></em> olarak argüman alırlar.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    fn set_first_name(&amp;mut self, name: &amp;str) {
+        self.first_name = name.to_string();
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>Ve sadece <code>self</code> kullanıldığında veri <em>taşınacaktır</em>:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    fn to_tuple(self) -&gt; (String,String) {
+        (self.first_name, self.last_name)
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>(Bunu bir de <code>&amp;self</code> ile deneyin ve yapıların (struct) kendi verileri konusunda ne kadar inatçı olduğunu bir de siz görün!)</p>
+<p><code>v.to_tuple()</code> çağrıldığı zaman <code>v</code>'nin taşındığını ve kullanılamaz hâle geldiğini göreceksiniz.</p>
+<p>Özetlersek:</p>
+<ul>
+<li><code>self</code> kullanılmazsa: fonksiyonları bu şekilde bağlayabilirsiniz, <code>new</code> &quot;oluşturucusu&quot; gibi .</li>
+<li><code>&amp;self</code> ile: Yapının verilerini kullanabilir ancak değiştiremezsiniz.</li>
+<li><code>&amp;mut self</code> ile: Yapının verilerini düzenleyebilirsiniz.</li>
+<li><code>self</code> ile: Yapıyı yok edersiniz, yani içindeki verileri taşırsınız.</li>
+</ul>
+<p>Eğer <code>Person</code>'u veri ayıklama şeklinde ekrana yazdırırsanız, bilgilendirici bir hata alırsınız:</p>
+<pre><code>error[E0277]: the trait bound `Person: std::fmt::Debug` is not satisfied
+  --&gt; struct2.rs:23:21
+   |
+23 |     println!(&quot;{:?}&quot;, p);
+   |                     ^ the trait `std::fmt::Debug` is not implemented for `Person`
+   |
+   = note: `Person` cannot be formatted using `:?`; if it is defined in your crate,
+    add `#[derive(Debug)]` or manually implement it
+   = note: required by `std::fmt::Debug::fmt`
+</code></pre>
+<p>Derleyici bazı tavsiyesine uyuyoruz ve <code>Person</code>'un tanımı üstüne  <code>#[derive(Debug)]</code> ekliyoruz, böylece işe yarar bir çıktımız oluyor:</p>
+<pre><code>Person { first_name: &quot;John&quot;, last_name: &quot;Smith&quot; }
+</code></pre>
+<p>Bu direktif, derleyicinin faydalı bir özellik olan <code>Debug</code>'u eklemesine yarıyor ki bu da sizin kendi yapılarınızla (struct) ekrana yazdırarak pratik yapmanıza yardımcı olur. (Ya da <code>format!</code> ile yazdırabilirsiniz). (Bunu <em>varsayılan</em> olarak gerçekleştirmek Rust'ın tarzı değil doğrusu.)</p>
+<p>İşte minik programımızın son hâli:</p>
+<pre><pre class="playground"><code class="language-rust">// struct4.rs
+use std::fmt;
+
+#[derive(Debug)]
+struct Person {
+    first_name: String,
+    last_name: String
+}
+
+impl Person {
+
+    fn new(first: &amp;str, name: &amp;str) -&gt; Person {
+        Person {
+            first_name: first.to_string(),
+            last_name: name.to_string()
+        }
+    }
+
+    fn full_name(&amp;self) -&gt; String {
+        format!(&quot;{} {}&quot;,self.first_name, self.last_name)
+    }
+
+    fn set_first_name(&amp;mut self, name: &amp;str) {
+        self.first_name = name.to_string();
+    }
+
+    fn to_tuple(self) -&gt; (String,String) {
+        (self.first_name, self.last_name)
+    }
+}
+
+fn main() {
+    let mut p = Person::new(&quot;John&quot;,&quot;Smith&quot;);
+
+    println!(&quot;{:?}&quot;, p);
+
+    p.set_first_name(&quot;Jane&quot;);
+
+    println!(&quot;{:?}&quot;, p);
+
+    println!(&quot;{:?}&quot;, p.to_tuple());
+    // p has now moved.
+
+}
+// Person { first_name: &quot;John&quot;, last_name: &quot;Smith&quot; }
+// Person { first_name: &quot;Jane&quot;, last_name: &quot;Smith&quot; }
+// (&quot;Jane&quot;, &quot;Smith&quot;)
+</code></pre></pre>
+<h1 id="yaşam-sürelerinin-yüreğimizi-dağlamaya-başladığı-o-an"><a class="header" href="#yaşam-sürelerinin-yüreğimizi-dağlamaya-başladığı-o-an">Yaşam Sürelerinin Yüreğimizi Dağlamaya Başladığı O An</a></h1>
+<p>Yapıların çoğu zaman veri taşır ancak bazen referans taşıması da gerekebilir. Mesela düşünelim ki yapımıza karakter dizisi değeri yerine bir karakter dizisi dilimi ekleyeceğiz.</p>
+<pre><pre class="playground"><code class="language-rust">// life1.rs
+
+#[derive(Debug)]
+struct A {
+    s: &amp;str
+}
+
+fn main() {
+    let a = A { s: &quot;hello dammit&quot; };
+
+    println!(&quot;{:?}&quot;, a);
+}
+</code></pre></pre>
+<pre><code>error[E0106]: missing lifetime specifier
+ --&gt; life1.rs:5:8
+  |
+5 |     s: &amp;str
+  |        ^ expected lifetime parameter
+</code></pre>
+<p>Buradaki sorunu anlayabilmek için problemi bir de Rust'ın gözünden görmeniz gerekmekte. Rust, bir referansın ömrünün ne kadar uzun süreceğini hesaplamadan o referansa izin vermeyecektir. Bütün referanslar bir veriyi önüç alır ve her verinin bir yaşam süresi vardır. Referansların yaşam süreleri o verinin yaşam süresinden uzun olamaz. Rust, referansın geçersiz olduğu bir koşulun oluşma ihtimaline izin vermeyecektir. </p>
+<p>Şimdi, karakter dizisi diliminin referansı bir <code>String</code> değerini ya da &quot;merhaba&quot; gibi bir <em>karakter dizisi kalıbını</em> ödünç alır. Karakter dizesi kalıpları programın yaşamı boyunca yaşar ki buna &quot;statik (static)&quot; yaşam süresi deriz.</p>
+<p>İşte şimdi tıkır tıkır çalışıyor - Rust'ın bir karakter dizisi kalıbının sürekli olarak var olacağını garanti etmiş olduk. </p>
+<pre><pre class="playground"><code class="language-rust">// life2.rs
+
+#[derive(Debug)]
+struct A {
+    s: &amp;'static str
+}
+
+fn main() {
+    let a = A { s: &quot;hello dammit&quot; };
+
+    println!(&quot;{:?}&quot;, a);
+}
+// A { s: &quot;hello dammit&quot; }
+</code></pre></pre>
+<p>Tabii bu hâli de çok şık görünmüyor ama net olmak için bazı bedeller ödemek gerekir.</p>
+<p>Bunu bir fonksiyondan karakter dizisi dilimi döndürmek için de kullanabiliriz.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn how(i: u32) -&gt; &amp;'static str {
+    match i {
+    0 =&gt; &quot;none&quot;,
+    1 =&gt; &quot;one&quot;,
+    _ =&gt; &quot;many&quot;
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Kısıtlayıcı olmasına karşın statik karakter dizilerinin bu tarz durumları için işe yarar.</p>
+<p>Buna karşın, biz bir referansın yaşam ömrünü <em>en az yapının ömrü kadar uzun</em> olarak da belirtebiliriz. </p>
+<pre><pre class="playground"><code class="language-rust">// life3.rs
+
+#[derive(Debug)]
+struct A&lt;'a&gt; {
+    s: &amp;'a str
+}
+
+fn main() {
+    let s = &quot;I'm a little string&quot;.to_string();
+    let a = A { s: &amp;s };
+
+    println!(&quot;{:?}&quot;, a);
+}
+</code></pre></pre>
+<p>Yaşam ömürleri geleneksel olarak &quot;a&quot;, &quot;b&quot; gibi harflerle belirtilir ancak siz dilerseniz &quot;patlıcan&quot; gibi kelimelerle de ifade edebilirsiniz.</p>
+<p>Bu ekleme ile beraber, bizim <code>A</code> yapısı ile <code>s</code> karakter dizisi birbirine sıkı sıkıya bağlanmıştır: <code>a</code>, <code>s</code>ten ödünç alır ve o olmadan yaşayamaz.</p>
+<p>Bu tanımla birlikte şu şekilde <code>A</code> dönen bir fonksiyon yazabiliriz.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn makes_a() -&gt; A {
+    let string = &quot;I'm a little string&quot;.to_string();
+    A { s: &amp;string }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Ancak bu sefer de <code>A</code>'nın açıkça yaşam süresinin belirtilmesine ihtiyaç vardır - &quot;expected lifetime parameter&quot; (beklenilen yaşam süresi parametresi)</p>
+<pre><code>  = help: this function's return type contains a borrowed value,
+   but there is no value for it to be borrowed from
+  = help: consider giving it a 'static lifetime
+</code></pre>
+<p><code>rustc</code>'nin verdiği tavsiyeye uyalım:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn makes_a() -&gt; A&lt;'static&gt; {
+    let string = &quot;I'm a little string&quot;.to_string();
+    A { s: &amp;string }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Ve hatamız:</p>
+<pre><code>8 |      A { s: &amp;string }
+  |              ^^^^^^ does not live long enough
+9 | }
+  | - borrowed value only lives until here
+</code></pre>
+<p>Bunu güvenli bir şekilde yapmanın bir yolu yok, çünkü fonksiyon sona verdiği zaman <code>string</code> düşecek ve <code>string</code>e yapılan referanslar kendinden daha uzun süre yaşayamaz.</p>
+<p>Bazen, bir yapının değer ve o değeri içeren bir referans taşıması iyi bir fikirmiş gibi görünebilir. Ama bu çok basit bir şekilde imkansızdır çünkü yapılar <em>taşınabilir</em> olmalıdır, ve her türlü taşınma referansı geçersiz kılacaktır. Üstelik bunu yapmanın bir gereği de yok - mesela yapınızın karakter dizisi alanı varsa ve bunun dilimlerini sunmaya ihtiyacınız varsa, indeks numaralarını tutabilir ve bir metot içerisinde gerçek dilimleri dönebilirsiniz.</p>
+<h1 id="Özellikler-trait"><a class="header" href="#Özellikler-trait">Özellikler (Trait)</a></h1>
+<p>Rust'ta <code>struct</code>'ın <em>sınıf (class)</em> olmadığına dikkat edin. <code>class</code> kelimesinin anlamı diğer dillerde içi öylesine doldurulmuştur ki size nasıl düşüneceğinizi dikte eder hâle gelmiştir.</p>
+<p>Şimdi şunlara dikkat edin: Rust'ta yapılar birbirini <em>miras (inherit)</em> alamaz; hepsi özgün tiplerdir. <em>Alt-tip</em> diye bir şey yok, o tarz şeyler sadece bir saçmalıktan ibaret.</p>
+<p>Peki ya tipler arasındaki ilişkiler nasıl kurulur?</p>
+<p><code>rustc</code> bazen &quot;implementing X trait (X özelliğini uygulamak)&quot; diye gevezelik eder ve şimdi özellikler (tipler) hakkında konuşmanın tam zamanı.</p>
+<p>Aşağıdaki bir özellik tanımlamanın ve belirli tiplere nasıl <em>uygulandığının</em> örneğini görüyorsunuz.</p>
+<pre><pre class="playground"><code class="language-rust">// trait1.rs
+
+trait Show {
+    fn show(&amp;self) -&gt; String;
+}
+
+impl Show for i32 {
+    fn show(&amp;self) -&gt; String {
+        format!(&quot;four-byte signed {}&quot;, self)
+    }
+}
+
+impl Show for f64 {
+    fn show(&amp;self) -&gt; String {
+        format!(&quot;eight-byte float {}&quot;, self)
+    }
+}
+
+fn main() {
+    let answer = 42;
+    let maybe_pi = 3.14;
+    let s1 = answer.show();
+    let s2 = maybe_pi.show();
+    println!(&quot;show {}&quot;, s1);
+    println!(&quot;show {}&quot;, s2);
+}
+// show four-byte signed 42
+// show eight-byte float 3.14
+</code></pre></pre>
+<p>Şahane; <code>i32</code> ve <code>f64</code> içerisine <em>yeni bir metot</em> ekledik.</p>
+<p>Rust ile haşır neşir oldum diyebilmek için standart kütüphanedeki basit özellikleri de bilmeniz gerekir. (Ki genelde bir arada bulunurlar.)</p>
+<p><code>Debug</code> epey yaygındır. <code>Person</code> üzerinde <code>#[derive(Debug)]</code> ile uyguladık, ancak isteseydik tam ismi görüntüleyecek şekilde de uygulayabilirdik.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::fmt;
+
+impl fmt::Debug for Person {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
+        write!(f, &quot;{}&quot;, self.full_name())
+    }
+}
+...
+    println!(&quot;{:?}&quot;, p);
+    // John Smith
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>write!</code> da epey kullanışlı bir makrodur - burada <code>f</code> <code>Write</code> özelliğini barındıran her şeyi temsil ediyor. (Mesela bu bir <code>File</code> olabilir - ya da sadece bir <code>String</code>)</p>
+<p><code>Display</code> ise &quot;{}&quot; ile yazdırılabilen verileri kontrol ve tıpkı <code>Debug</code> gibi uygulanır. Ve faydalı bir yan etki olarak, <code>ToString</code> <code>Display</code>'e sahip olan her türlü tipe uygulanır. Mesela <code>Display</code>'ı <code>Person</code> için uygularsak <code>p.to_string()</code> de çalışır hâle gelir.</p>
+<p><code>Clone</code> ise <code>clone</code> metotunu tanımlar ve sadece <code>#[derive(Clone)]</code> ile tanımlanabilir - eğer bütün alanların (fields) tipleri <code>Clone</code>'a sahipse. (Ç.N: Clone - İngilizce Klonlamak)</p>
+<h1 id="Örnek-noktalı-sayı-aralıklarının-döngüleyicisi"><a class="header" href="#Örnek-noktalı-sayı-aralıklarının-döngüleyicisi">Örnek: Noktalı sayı aralıklarının döngüleyicisi</a></h1>
+<p>Daha önce aralıklarla (range, <code>0..n</code>) karşılaştık ancak noktalı sayı kabul etmiyorlar. (<em>Şansınızı zorlayabilirsiniz</em> ancak pek de numarası olmayan 1.0'da takılıp kalırsınız.) </p>
+<p>Bir döngüleyici (iterator) için yaptığımız gayriresmi tanımı hatırlayın; <code>Some</code> veya <code>None</code> dönebilen bir <code>next</code> metotuna sahip yapı. Bu süreçte, döngüleyicinin kendisi düzenlenir ve döngülemenin durumu hakkında bilgi tutar. (Sonraki indeks gibi) Döngülenen verinin içeriği genellikle değişmez. (Ancak <code>Vec::drain</code> gibi kendi verisini düzenleyen enteresan bir döngüleyiciyi de inceleyeceğiz.)</p>
+<p>Ve şimdi de resmi tanımı görelim: <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html">&quot;Iterator&quot; özelliği</a></p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Iterator {
+    type Item;
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;;
+    ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>Iterator</code> için <a href="https://doc.rust-lang.org/stable/book/associated-types.html">ilişkili tipi (associated type)</a> de tanımış olduk. Bu özelliğin (trait) çalışması için bir tipe ihtiyaç vardır ve dönüş tipini de belirtmeniz gerekmektedir. <code>next</code> metotu belirli bir tip belirtilmeden çalışabilir, sadece <code>Self</code> üzerinden <code>Item</code>'e atışta bulunulması yeterlidir.</p>
+<p><code>f64</code> tipi için uygulanmış bir <code>Iterator</code>, <code>Iterator&lt;Item=f64&gt;</code> ile belirtilir ki bunu &quot;f64 tipi ile ilişkilendirilmiş bir döngüleyici&quot; olarak okuyabilirsiniz. </p>
+<p><code>...</code> ile gösterilen kısım <code>Iterator</code>ün tedarik ettiği metotlardır. Sadece <code>Item</code> ve <code>next</code>'i belirttikten sonra pek çok metot da sizin için sunulacaktır.</p>
+<pre><pre class="playground"><code class="language-rust">// trait3.rs
+
+struct FRange {
+    val: f64,
+    end: f64,
+    incr: f64
+}
+
+fn range(x1: f64, x2: f64, skip: f64) -&gt; FRange {
+    FRange {val: x1, end: x2, incr: skip}
+}
+
+impl Iterator for FRange {
+    type Item = f64;
+
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {
+        let res = self.val;
+        if res &gt;= self.end {
+            None
+        } else {
+            self.val += self.incr;
+            Some(res)
+        }
+    }
+}
+
+
+fn main() {
+    for x in range(0.0, 1.0, 0.1) {
+        println!(&quot;{} &quot;, x);
+    }
+}
+</code></pre></pre>
+<p>Ve şöyle biçimsiz bir görüntüyü elde etmiş oluyoruz:</p>
+<pre><code>0
+0.1
+0.2
+0.30000000000000004
+0.4
+0.5
+0.6
+0.7
+0.7999999999999999
+0.8999999999999999
+0.9999999999999999
+</code></pre>
+<p><code>0.1</code> tam olarak noktalı sayı olarak gösterilemediğinden böyle tuhaf şeyler yaşıyoruz, minik bir formatlama yardımı ile bundan kurtulabiliriz. <code>println!</code> kısımını şöyle düzeltelim:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>println!(&quot;{:.1} &quot;, x);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Ve daha temiz bir çıktımız olmuş oluyor. (Bu <a href="https://doc.rust-lang.org/std/fmt/index.html">formatlama</a> &quot;noktadan sonra bir rakam&quot; anlamına geliyor.)</p>
+<p>Şimdi bütün döngüleyici metotlarını kullanabiliriz, hadi bütün verileri bir vektörde toplayalım, daha da coşmak için bunu <code>map</code> ile yapalım:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let v: Vec&lt;f64&gt; = range(0.0, 1.0, 0.1).map(|x| x.sin()).collect();
+<span class="boring">}
+</span></code></pre></pre>
+<h1 id="genellenen-fonksiyonlar"><a class="header" href="#genellenen-fonksiyonlar">Genellenen Fonksiyonlar</a></h1>
+<p>Diyelim ki <code>Debug</code> özelliiğine sahip herhangi bir tipi argüman olarak alan bir fonksiyon yazacağız. Burada jenerik fonksiyon kullanmamızın bir örneğini görüyorsunuz, herhangi bir verinin referansını argüman olarak alabilir. <code>T</code>, tip parametresi oluyor ki fonksiyon ismi yazıldıktan hemen sonra tanımlandı:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn dump&lt;T&gt; (value: &amp;T) {
+    println!(&quot;value is {:?}&quot;,value);
+}
+
+let n = 42;
+dump(&amp;n);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Ancak, Rust kelimenin tam anlamıyla <code>T</code> tipi hakkında hiçbir şey bilmiyor.</p>
+<pre><code>error[E0277]: the trait bound `T: std::fmt::Debug` is not satisfied
+...
+   = help: the trait `std::fmt::Debug` is not implemented for `T`
+   = help: consider adding a `where T: std::fmt::Debug` bound
+</code></pre>
+<p>Bunun çalışması için, <code>T</code>'nin <code>Debug</code> içermesi gerektiğinden bahsetmeliyiz:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn dump&lt;T&gt; (value: &amp;T)
+where T: std::fmt::Debug {
+    println!(&quot;value is {:?}&quot;,value);
+}
+
+let n = 42;
+dump(&amp;n);
+// value is 42
+<span class="boring">}
+</span></code></pre></pre>
+<p>Rust'ın genellenen fonksiyonlarının tipe <em>özellikleri sağlaması (trait bounds)</em> gerekir - burada &quot;T is any type that implements Debug&quot; kısmını anlatıyoruz. (T, Debug'ı içeren herhangi bir tiptir) <code>rustc</code> epey yardımcı oluyor ve hangi tipin tam olarak belirtilmesi gerektiğini bize bildiriyor.</p>
+<p>Şimdi Rust, <code>T</code> için tip bağlarını biliyor, artık derleyiciden mantıklı mesajlar alabiliriz.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct Foo {
+    name: String
+}
+
+let foo = Foo{name: &quot;hello&quot;.to_string()};
+
+dump(&amp;foo)
+<span class="boring">}
+</span></code></pre></pre>
+<p>Buradaki hata ise  &quot;the trait <code>std::fmt::Debug</code> is not implemented for <code>Foo</code> (<code>std::fmt::Debug</code> özelliği <code>Foo</code> için uygulanmadı)&quot;</p>
+<p>Fonksiyonlar dinamik dillerde aslında genellenir çünkü değerler beraberinde türlerini taşırlar ve tür denetimi çalışma zamanı denetlenir - ya da başarısız olur. Karmaşık programlarda daha derleme zamanında tiplerin kontrol edilmesini ciddi anlamda isteriz! Bu dillerdeki bir programcı, derleme hatalarını sakince incelemek yerine programın çalışma anındadaki sürprizleri incelemek zorundadır. Murphy kanununa göre sorunlar en uygunsuz, ters zamanda ortaya çıkmaya meyillidir.</p>
+<p>Bir sayının karesini almak jeneriktir; tam sayılar, noktalı sayılar ve çarpım operatörünü içeren her türlü şeyin karesini <code>x*x</code> ile alabilirsiniz. Peki ya tip bağları?</p>
+<pre><pre class="playground"><code class="language-rust">// gen1.rs
+
+fn sqr&lt;T&gt; (x: T) -&gt; T {
+    x * x
+}
+
+fn main() {
+    let res = sqr(10.0);
+    println!(&quot;res {}&quot;,res);
+}
+</code></pre></pre>
+<p>Sorun, Rust'ın <code>T</code>'nin çarpılabilir olduğunu bilmemesidir.</p>
+<pre><code>error[E0369]: binary operation `*` cannot be applied to type `T`
+ --&gt; gen1.rs:4:5
+  |
+4 |     x * x
+  |     ^
+  |
+note: an implementation of `std::ops::Mul` might be missing for `T`
+ --&gt; gen1.rs:4:5
+  |
+4 |     x * x
+  |     ^
+</code></pre>
+<p>Derleyicinin tavsiyesine uyarak bu tipi <code>*</code> çarpım operatörünü barındıran <a href="https://doc.rust-lang.org/std/ops/trait.Mul.html">ilgili özelliğe</a> zorlamayı deneyelim.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn sqr&lt;T&gt; (x: T) -&gt; T
+where T: std::ops::Mul {
+    x * x
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Yine de hâlen daha çalışmıyor:</p>
+<pre><code>error[E0308]: mismatched types
+ --&gt; gen2.rs:6:5
+  |
+6 |     x * x
+  |     ^^^ expected type parameter, found associated type
+  |
+  = note: expected type `T`
+  = note:    found type `&lt;T as std::ops::Mul&gt;::Output`
+</code></pre>
+<p>Bu tipi daha da kısıtlamayı deneyelim:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn sqr&lt;T&gt; (x: T) -&gt; T::Output
+where T: std::ops::Mul + Copy {
+    x * x
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>(Ancak) şimdi oldu! Derleyiciyi sakince dinlemek sizi esas noktaya yaklaştırır, ta ki temizce program derlenene dek.</p>
+<p>Tabii <em>bunu</em> <code>C++</code>'da yapmak daha kolay.</p>
+<pre><code class="language-cpp">template &lt;typename T&gt;
+T sqr(x: T) {
+    return x * x;
+}
+</code></pre>
+<p>Ama (dürüst olmak gerekirse), C++ laz müteahhit mantığını benimsiyor. C++'ın şablon (template) hataları berbattır çünkü derleyicinin tek bildiği şey bazı metotların ya da operatörlerin tanımlanıp tanımlanmadığıdır. C++ komitesi bu sorunu biliyor ve <a href="https://en.wikipedia.org/wiki/Concepts_(C%2B%2B)">konseptler</a> üzerinde çalışıyorlar ki bunlar daha çok özelliklerle kısıtlanmış tip parametrelerine çok benziyorlar. </p>
+<p>Genellenmiş fonksiyonlar başta biraz zorlayıcı gelebilir ancak net olmak, ne tür değerleri güvenle kullanabileceğinizi sadece tanıma bakarak kullanabileceğiniz anlamına geliyor.</p>
+<p>Bu fonksiyonlar <em>çok biçimli</em>nin tersi olarak <em>tek biçimli</em> olarak bilinir. (ÇN: Tek biçimli - monomorfik, çok biçimli - polimorfik) Fonksiyonun gövdesi her bir tip için ayrı ayrı derleme yapar. Çok biçimli fonksiyonlarda ise makine eşlesen her tip için aynı kodu kullanır, dinamik olarak doğru metota <em>yönlendirir (dispatch)</em>.</p>
+<p>Tek biçimlilik hızlı kod üretir, tipler için özelleştirilmiştir ve <em>satır içi</em> çalışabilirler. <code>sqr(x)</code> görüldüğü anda hemen <code>x*x</code> ile değiştirirlir. Ancak bunun dezavantajı, büyük genellenmiş fonksiyonların her için çok fazla kod üretmesidir ki buna <em>kod şişmesi (code bloat)</em> denir. Her zaman bir takas vardır ve deneyimli bir kişi hangi iş için doğru aracı seçeceğini bilmelidir.</p>
+<h1 id="basit-numaralandırmalar"><a class="header" href="#basit-numaralandırmalar">Basit Numaralandırmalar</a></h1>
+<p>Numaralandırmalar (Enums) birkaç verisi bulunan tiplerdir. Örneğin, bir yön dört farklı şekil alabilir:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>enum Direction {
+    Up,
+    Down,
+    Left,
+    Right
+}
+...
+    // `start` is type `Direction`
+    let start = Direction::Left;
+<span class="boring">}
+</span></code></pre></pre>
+<p>Çeşitli metotlar alabilirler, tıpkı yapılar gibi. <code>Match</code> ifadesi <code>enum</code> tiplerini kontrol etmenin en basit yoludur.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Direction {
+    fn as_str(&amp;self) -&gt; &amp;'static str {
+        match *self { // *self has type Direction
+            Direction::Up =&gt; &quot;Up&quot;,
+            Direction::Down =&gt; &quot;Down&quot;,
+            Direction::Left =&gt; &quot;Left&quot;,
+            Direction::Right =&gt; &quot;Right&quot;
+        }
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Noktalama da önemlidir. <code>self</code>'ten önce <code>*</code> operatörünü kullandığımıza dikkat edin. Unutması kolaydır çünkü çoğu zaman Rust böyle düşünür. (<code>self.first_name</code> deriz, <code>(*self).first_name</code> değil.) Fakat eşleştirmenin biraz daha net olması gerekir. Olduğu gibi bırakmak buna kadar varan bir sürü çıktıya sebep olur:</p>
+<pre><code>   = note: expected type `&amp;Direction`
+   = note:    found type `Direction`
+</code></pre>
+<p>Çünkü <code>self</code> <code>&amp;Direction</code> tipidir, bundan dolayı <code>*</code> ile deferans ederiz. </p>
+<p>Yapılar gibi numaralandırmalar da özellikleri içerebilir, <code>#[derive(Debug)]</code> arkadaş da <code>Direction</code>'a eklenebilir.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>        println!(&quot;start {:?}&quot;,start);
+        // start Left
+<span class="boring">}
+</span></code></pre></pre>
+<p>Yani <code>as_str</code> metotu aslında o kadar da gerekli değil, <code>Debug</code> ile isimleri her zaman alabiliriz. (Ancak <code>as_str</code> alan tahsis etmez, ki bu önemli olabilir.)</p>
+<p>Ancak burada net bir sıralama aramamalısınız - numaralandırmalar tam sayı değeri barındırmaz. </p>
+<p>(Ç.N: Numaralandırma olarak çevrilen <code>enum</code> sözcüğü gerçekten de C ve C++'da sayılandırma işlemi için kullanılır ancak Rust'ta böyle bir özellik yoktur. C++'daki karşılığı <code>enum</code> değil, <code>enum class</code>'tır.)</p>
+<p>Şimdi her <code>Direction</code> değerinin ardılını gösteren bir metot yazdık. <code>use</code> içinde <em>yıldız jokerini</em> kullanmak metotun içeriğine bütün numaralandırma değerlerini sıraladığı için epey kullanışlıdır.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    fn next(&amp;self) -&gt; Direction {
+        use Direction::*;
+        match *self {
+            Up =&gt; Right,
+            Right =&gt; Down,
+            Down =&gt; Left,
+            Left =&gt; Up
+        }
+    }
+    ...
+
+    let mut d = start;
+    for _ in 0..8 {
+        println!(&quot;d {:?}&quot;, d);
+        d = d.next();
+    }
+    // d Left
+    // d Up
+    // d Right
+    // d Down
+    // d Left
+    // d Up
+    // d Right
+    // d Down
+<span class="boring">}
+</span></code></pre></pre>
+<p>Bu şekilde istenen ve belirlenmiş düzende bütün yönleri sonsuza dek sıralamaya izin verir. Aslında bu oldukça basit bir <em>durum makinesidir</em>.</p>
+<p>Numaralandırma verileri kıyaslanamaz:</p>
+<pre><code>assert_eq!(start, Direction::Left);
+
+error[E0369]: binary operation `==` cannot be applied to type `Direction`
+  --&gt; enum1.rs:42:5
+   |
+42 |     assert_eq!(start, Direction::Left);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: an implementation of `std::cmp::PartialEq` might be missing for `Direction`
+  --&gt; enum1.rs:42:5
+</code></pre>
+<p>Çözüm, <code>enum Direction</code> tanınımının üstüne <code>#[derive(Debug,PartialEq)]</code> eklemektir.</p>
+<p>Önemli bir nokta, Rust'ın kullanıcı tiplerinin bir eklenti ile birlikte gelmemesidir. Genel özellikleri (trait) ekleyerek onlara olağan davranışları verirsiniz. Bu yapılar için de geçerlidir - eğer bir yapıya <code>PartialEq</code> verirseniz akla yatkın bir şey belirlenecek, tüm alanların <code>PartialEq</code>'e sahip olduğunu düşünerek bir kıyas yapacaktır. Eğer alanlar buna sahip değilse, eşitliği tanımlananız gerekmektedir ki bunu açıkça tanımlamanıza izin vardır.</p>
+<p>Rust'ta &quot;C tarzı numaralandırmalar&quot; da kullanılabilir.</p>
+<pre><pre class="playground"><code class="language-rust">// enum2.rs
+
+enum Speed {
+    Slow = 10,
+    Medium = 20,
+    Fast = 50
+}
+
+fn main() {
+    let s = Speed::Slow;
+    let speed = s as u32;
+    println!(&quot;speed {}&quot;, speed);
+}
+</code></pre></pre>
+<p>İlklendiği zaman tam sayı değeri alırlar ve tip dönüşümleriyle tam sayıya dönüşebilirler.</p>
+<p>Bunun için sadece ilk isme değer vermeniz yeterlidir, diğerleri de bir arttırarak onu takip edecektir:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>enum Difficulty {
+    Easy = 1,
+    Medium,  // is 2
+    Hard   // is 3
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Tabii isim diyince anlamı tam oturmadı, tıpkı her şeye &quot;şey&quot; demek gibi. Esas kullanılması gereken terim <em>varyanttır</em> - <code>Speed</code>in varyantları <code>Slow</code>, <code>Medium</code> ve <code>Fast</code>tır.</p>
+<p>Numaralandırmalar doğal bir sıralama da alabilir, ancak bunu kibarca istemelisiniz. <code>enum Speed</code>'in başına <code>#[derive(PartialEq,PartialOrd)]</code> ekledikten sonra <code>Speed::Fast &gt; Speed::Slow</code> ve <code>Speed::Medium != Speed::Slow</code> gibi ifadeler kullanılabilir olur.</p>
+<h1 id="numaralandırmalar-tam-teçhizatlıyken"><a class="header" href="#numaralandırmalar-tam-teçhizatlıyken">Numaralandırmalar Tam Teçhizatlıyken</a></h1>
+<p>Rust'ın numaralandırmaları tam anlamıyla kullanıldığı zaman C'deki birliklerin (union) steroidli hâline benzer, tıpkı Ferrari ile Fiat Uno gibi. Çeşitli tiplerden verileri bir araya güvenlice toplamanın zorluğunu düşünün.</p>
+<pre><pre class="playground"><code class="language-rust">// enum3.rs
+
+#[derive(Debug)]
+enum Value {
+    Number(f64),
+    Str(String),
+    Bool(bool)
+}
+
+fn main() {
+    use Value::*;
+    let n = Number(2.3);
+    let s = Str(&quot;hello&quot;.to_string());
+    let b = Bool(true);
+
+    println!(&quot;n {:?} s {:?} b {:?}&quot;, n,s,b);
+}
+// n Number(2.3) s Str(&quot;hello&quot;) b Bool(true)
+</code></pre></pre>
+<p>Numaralandırma bu verilerden sadece birisini taşıyabilir, büyüklüğü bir varyantın en büyük değeri kadardır.</p>
+<p>Şimdiye kadar bir süper araba etmese de numaralandırmaların kendilerini yazdırabilmeleri de güzel şey. Bunun yanında verilerinin ne tarz veriler olduğunu da biliyorlar ki bu <code>match</code>'ın süpergücüdür. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn eat_and_dump(v: Value) {
+    use Value::*;
+    match v {
+        Number(n) =&gt; println!(&quot;number is {}&quot;, n),
+        Str(s) =&gt; println!(&quot;string is '{}'&quot;, s),
+        Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
+    }
+}
+....
+eat_and_dump(n);
+eat_and_dump(s);
+eat_and_dump(b);
+//number is 2.3
+//string is 'hello'
+//boolean is true
+<span class="boring">}
+</span></code></pre></pre>
+<p>(<code>Result</code> ve <code>Option</code> kardeşleri hatırladınız mı? Onlar da bir numaralandırma.)</p>
+<p><code>eat_and_dump</code> fonksiyonu hiç fena değil ancak veriyi bir referans olarak iletsek iyi olur çünkü şu an verinin yerini taşıyor ve onu &quot;yiyor&quot;:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn dump(v: &amp;Value) {
+    use Value::*;
+    match *v {  // type of *v is Value
+        Number(n) =&gt; println!(&quot;number is {}&quot;, n),
+        Str(s) =&gt; println!(&quot;string is '{}'&quot;, s),
+        Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
+    }
+}
+
+error[E0507]: cannot move out of borrowed content
+  --&gt; enum3.rs:12:11
+   |
+12 |     match *v {
+   |           ^^ cannot move out of borrowed content
+13 |     Number(n) =&gt; println!(&quot;number is {}&quot;,n),
+14 |     Str(s) =&gt; println!(&quot;string is '{}'&quot;,s),
+   |         - hint: to prevent move, use `ref s` or `ref mut s`
+<span class="boring">}
+</span></code></pre></pre>
+<p>Ödünç alınmış referanslarla yapamayacağınız bazı şeyler var. Rust, orijinal değerin içerisindeki karakter dizisini <em>dışarı çıkartmanıza</em> izin vermeyecektir. <code>Number</code> üzerinde sorun yok çünkü <code>f64</code>'ün kopyalanmasında bir sakınca yok ama <code>String</code> <code>Copy</code>'i içermez.</p>
+<p><code>match</code>'ın kesin tipler hakkında seçici olduğunu söyledim, ipucunu takip edelim ve sıkıntı çıkartmayacaktır, şimdi içerideki karakter dizisine bir referans ödünç alıyoruz.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn dump(v: &amp;Value) {
+    use Value::*;
+    match *v {
+        Number(n) =&gt; println!(&quot;number is {}&quot;, n),
+        Str(ref s) =&gt; println!(&quot;string is '{}'&quot;, s),
+        Bool(b) =&gt; println!(&quot;boolean is {}&quot;, b)
+    }
+}
+    ....
+
+    dump(&amp;s);
+    // string is 'hello'
+<span class="boring">}
+</span></code></pre></pre>
+<p>Devam etmeden önce, başarılı bir Rust derlemesinin mutluluğu ile dolup taşmışken, bir saniye bekleyelim. <code>Rustc</code> o kadar iyi ki sorunu tam olarak <em>anlamadan</em> onu çözmemizi sağlıyor. </p>
+<p>Sorun, eşleştirmenin kesinliğinden ve ödünç kontrolünün kuralların çiğnenmemesinden kaynaklanıyor. Bu kurallardan birisi, sahipliği olan bir tipe dahil olan veriyi zart diye çekemiyor olmamızdan geliyor. Biraz C++ bilmek burada kafa karıştırabilir çünkü akla yatkın olsa bile C++ problemin yolunu kopyalayacaktır. Bir vektörden karakter dizesi alırken de aynı hatayı alabilirsiniz, mesela <code>*v.get(0).unwrap</code> ile deneyin. (<code>*</code> kullanmanızın sebebi indekslemenin referans dönmesi) Buna yapmanıza izin vermecektir. (Bu tarz durumlarda <code>Clone</code> çok da kötü bir tercih olmayabilir.)</p>
+<p>(Bu arada, <code>v[0]</code> karakter dizeleri gibi kopyalanamaz verilerde tam olarak bundan dolayı çalışmayacaktır. <code>&amp;v[0]</code> ile ödünç almanız ya da <code>v[0].clone()</code> kullanmanız gerekmektedir.)</p>
+<p><code>match</code> kullanırken <code>Str(s: String) =&gt;</code> yerine <code>Str(s)</code> yazıldığını görebilirsiniz. Yeni bir yerel değişken yaratılır. (bazen <em>bağlama (binding)</em> olarak anılır) Çoğu zaman tatmin edilen tip uyar, mesela veriyi alıp onun içinden çıkartırken. Ancak burada <code>s: &amp;String</code> yazmaya ihtiyacımız oldu ve <code>ref</code> ile sadece <code>String</code>'i ödünç almak istediğimizi bildirmiş olduk.</p>
+<p>Burada da bir karakter dizisini dışarı çıkartıyoruz ve değerin daha sonra ne olacağını umursamıyoruz. <code>_</code> geri kalan her şeyle eşleşecektir.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Value {
+    fn to_str(self) -&gt; Option&lt;String&gt; {
+        match self {
+        Value::Str(s) =&gt; Some(s),
+        _ =&gt; None
+        }
+    }
+}
+    ...
+    println!(&quot;s? {:?}&quot;, s.to_str());
+    // s? Some(&quot;hello&quot;)
+    // println!(&quot;{:?}&quot;, s) // error! s has moved...
+<span class="boring">}
+</span></code></pre></pre>
+<p>İsimlendirme önemlidir -, <code>as_str</code> olarak değil de <code>to_str</code> olarak tanımlamamıza dikkat edin. (Ç.N: To Str - Str'ye çevir, As Str - Str olarak) Bir karakter dizisini <code>Option&lt;&amp;String&gt;</code> olarak dönen  bir metot yazabilirsiniz. (Referansın da numaralandırma değeri ile aynı yaşam süresinde olmasına gerek vardır) Ancak onu <code>to_str</code> olarak isimlendirmemelisiniz. </p>
+<p><code>to_str</code> örneğimizi şöyle yazabilirsiniz - tamamen aynı işi yapar:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    fn to_str(self) -&gt; Option&lt;String&gt; {
+        if let Value::Str(s) = self {
+            Some(s)
+        } else {
+            None
+        }
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<h1 id="eşleştirme-hakkında-daha-fazlası"><a class="header" href="#eşleştirme-hakkında-daha-fazlası">Eşleştirme Hakkında Daha Fazlası</a></h1>
+<p>&quot;()&quot; kullanarak bir demeti dışarı çıkartabileceğinizi hatırladınız mı?</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let t = (10,&quot;hello&quot;.to_string());
+    ...
+    let (n,s) = t;
+    // t has been moved. It is No More
+    // n is i32, s is String
+<span class="boring">}
+</span></code></pre></pre>
+<p>Bu <em>parçalama</em> işleminin özel bir durumudur; elimizdeki bazı veriler var ve (buradaki gibi) parçalara ayırmayı ya da verilerini ödünç almayı düşünebiliriz. Her iki durum da da bir bütünün parçalarına ulaşmaya çalışıyoruz.</p>
+<p>Sözdizimi <code>match</code>'taki gibi kullanılabilir. Burada açıkça ödünç alınmış verileri ödünç alıyoruz.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let (ref n,ref s) = t;
+    // n and s are borrowed from t. It still lives!
+    // n is &amp;i32, s is &amp;String
+<span class="boring">}
+</span></code></pre></pre>
+<p>Yapıları parçalamak da pekâlâ mümkün:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    struct Point {
+        x: f32,
+        y: f32
+    }
+
+    let p = Point{x:1.0,y:2.0};
+    ...
+    let Point{x,y} = p;
+    // p still lives, since x and y can and will be copied
+    // both x and y are f32
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>match</code>'ı yeni örüntülerle tekrar inceleyelim. İlk iki örüntü <code>let</code> parçalaması gibi çalışır - ilki ilk elemanı sıfır olan, ikinci indeksi karakter dizesi olan her türlü demetle eşleşir, ikincisi ise sadece <code>(1, &quot;hello&quot;)</code> ile eşleşir. Son koşulda ise olarak, bir değişken <em>herhangi bir şeyle</em> eşleşir. Eğer <code>match</code> bir ifadeyi eşleştiriyorsa ancak bunu değişkene bağlamak istemiyorsanız bu epey kullanışlıdır. <code>_</code> da bir değişken gibi çalışır ancak görmezden gelinir, bir <code>match</code>'ı bitirmenin yaygın bir yoludur.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn match_tuple(t: (i32,String)) {
+    let text = match t {
+        (0, s) =&gt; format!(&quot;zero {}&quot;, s),
+        (1, ref s) if s == &quot;hello&quot; =&gt; format!(&quot;hello one!&quot;),
+        tt =&gt; format!(&quot;no match {:?}&quot;, tt),
+        // or say _ =&gt; format!(&quot;no match&quot;) if you're not interested in the value
+     };
+    println!(&quot;{}&quot;, text);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Peki neden sadece <code>(1, &quot;hello&quot;)</code> kullanmıyoruz? Eşleştirme kesin olarak çalışır ve derleyici de bundan bahsedecektir:</p>
+<pre><code>  = note: expected type `std::string::String`
+  = note:    found type `&amp;'static str`
+</code></pre>
+<p>Neden <code>ref s</code>'e ihtiyacımız var? Bu biraz belirsiz bir durum (E00008 numaralı hataya bakın.) ve eğer bir koşula bağlayacaksanız bunu ödünç almanız gerekir, koşula bağlamanız farklı bir bağlamda gerçekleştiğinden bellekteki alanın taşınması gerekebilir. Bu, işin en civcivli olduğu yerlerden birisi.</p>
+<p>Eğer tipimiz <code>&amp;str</code> olsaydı bunu doğrudan eşleştirebilirdik:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    match (42,&quot;answer&quot;) {
+        (42,&quot;answer&quot;) =&gt; println!(&quot;yes&quot;),
+        _ =&gt; println!(&quot;no&quot;)
+    };
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>match</code> için geçerli olan <code>if let</code> için de geçerlidir. Bu mesela güzel bir örnek, bir <code>Some</code> verimiz olduğu için içindeki veriyi çekebiliriz ve içinden sadece bir karakter dizisini çıkartabiliriz. İç içe geçmiş <code>if let</code> ifadelerine ihtiyacımız da yok üstelik. Burada <code>_</code> kullanıyoruz çünkü demetin ilk parçası ilgimizi çekmiyor. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let ot = Some((2,&quot;hello&quot;.to_string());
+
+    if let Some((_,ref s)) = ot {
+        assert_eq!(s, &quot;hello&quot;);
+    }
+    // we just borrowed the string, no 'destructive destructuring'
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>parse</code> ile ilgili bir enteresan bir sorunumuz da var. (Ya da dönüş tipini bilmesi gereken fonksiyonlar için de bunu düşünebiliriz)</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    if let Ok(n) = &quot;42&quot;.parse() {
+        ...
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>n</code>'in tipi nedir? Bir ipucu vermeniz gerekir, ne tür bir tam sayılı değer bu? Hatta bu tam sayı mıdır?</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    if let Ok(n) = &quot;42&quot;.parse::&lt;i32&gt;() {
+        ...
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>Bu rezil söz diziminin adı &quot;<a href="https://turbo.fish/">turbofish operatörüdür</a>&quot;. </p>
+<p>Eğer <code>Result</code> dönen bir fonksiyonun içerisindeyseniz, soru işareti ile çok daha şık bir çözüm kullanabilirsiniz:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let n: i32 = &quot;42&quot;.parse()?;
+<span class="boring">}
+</span></code></pre></pre>
+<p>Her neyse, herhangi bir <code>parse</code> hatası <code>Result</code>'ın hata tipine dönüştürülebilir bir tipe ihtiyaç duyar ki bunu sonra <a href="#bu_yay%C4%B1nlan%C4%B1nca_d%C3%BCzenlenecek">hata kontrolü</a> kısmında ele alacağız.</p>
+<h1 id="kapamalar-closure"><a class="header" href="#kapamalar-closure">Kapamalar (Closure)</a></h1>
+<p>Rust'ın gücünün büyük bir kısmı bu kapamalardan gelir. En basit hâliyle bir fonksiyonun kısa yoluna benzerler:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let f = |x| x * x;
+
+    let res = f(10);
+
+    println!(&quot;res {}&quot;, res);
+    // res 100
+<span class="boring">}
+</span></code></pre></pre>
+<p>Burada açıkça belirtilmiş bir tip yoktur - bir &quot;10&quot; tam sayı kalıbının kullanılmasına kadar her şey tahmin edilmiştir. </p>
+<p>Ancak <code>f</code>'i farklı farklı tipler için kullanırsak hata alırız - Rust <code>f</code>'in tam sayılarla çalışması gerektiğine karar vermişti.</p>
+<pre><code>    let res = f(10);
+
+    let resf = f(1.2);
+  |
+8 |     let resf = f(1.2);
+  |                  ^^^ expected integral variable, found floating-point variable
+  |
+  = note: expected type `{integer}`
+  = note:    found type `{float}`
+</code></pre>
+<p>İlk kullanım <code>x</code> için argümanı belirlemişti. Aslında yaptığımız şey şudur:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    fn f (x: i32) -&gt; i32 {
+        x * x
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>Ancak açıkça tiplerin yazılmaması dışında fonksiyonlar ve kapamaların bir farkı daha vardır. Doğru fonksiyonunu inceleyelim:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let m = 2.0;
+    let c = 1.0;
+
+    let lin = |x| m*x + c;
+
+    println!(&quot;res {} {}&quot;, lin(1.0), lin(2.0));
+    // res 3 5
+<span class="boring">}
+</span></code></pre></pre>
+<p>Bunu <code>fn</code> ile böyle yapamayız, kapsamının dışında kalan hiçbir şeyle <code>fn</code> ilgilenmez. Buradaki kapama, <code>m</code> ve <code>c</code>'yi kendi kapsamı içerisine ödünç aldı.</p>
+<p>Peki ya <code>lin</code>'in tipi nedir? Ancak <code>rustc</code> bilebilir. Aslında görünenin altında kapama, çağrılabilir bir (çağırma operatörünü içeren bir) <em>yapıdır (struct).</em> Şu şekilde yazılmış gibi davranır:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct MyAnonymousClosure1&lt;'a&gt; {
+    m: &amp;'a f64,
+    c: &amp;'a f64
+}
+
+impl &lt;'a&gt;MyAnonymousClosure1&lt;'a&gt; {
+    fn call(&amp;self, x: f64) -&gt; f64 {
+        self.m * x  + self.c
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Derleyici bu konuda epey yardımcı oluyor ve basit bir kapamayı buna dönüştürüyor! Tek bilmeniz gereken kapama bir <em>yapıdır</em> ve verileri içinde bulunduğu çevreden <em>ödünç alır.</em> Bu referansların da bir <em>yaşam ömrü</em> vardır. </p>
+<p>Bütün kapamaların benzersiz tipleri vardır ancak benzer özellikleri (trait) içerirler. Türü tam bilmesek de en azından jeneriklerde nasıl ifade edeceğimi biliyoruz:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn apply&lt;F&gt;(x: f64, f: F) -&gt; f64
+where F: Fn(f64)-&gt;f64  {
+    f(x)
+}
+...
+    let res1 = apply(3.0,lin);
+    let res2 = apply(3.14, |x| x.sin());
+<span class="boring">}
+</span></code></pre></pre>
+<p>El-meal: <code>apply</code> <code>Fn(f64)-&gt;f64</code>'e sahip herhangi bir T tipi ile çalışabilir - yani <code>f64</code> alıp <code>f64</code> dönen bir fonksiyon olabilir bu.</p>
+<p><code>apply(3.0, lin)</code> şeklinde çağırdıktan sonra <code>lin</code>'e erişmek şu tuhaf hatayı ortaya çıkartıyor:</p>
+<pre><code>    let l = lin;
+error[E0382]: use of moved value: `lin`
+  --&gt; closure2.rs:22:9
+   |
+16 |     let res = apply(3.0,lin);
+   |                         --- value moved here
+...
+22 |     let l = lin;
+   |         ^ value used here after move
+   |
+   = note: move occurs because `lin` has type
+    `[closure@closure2.rs:12:15: 12:26 m:&amp;f64, c:&amp;f64]`,
+     which does not implement the `Copy` trait
+</code></pre>
+<p>Ve bu kadar, <code>apply</code> bizim kapamamızı yedi. Ve ayrıca, <code>rustc</code>'nin kullanmaya çalıştığı yapının (struct) gerçek tipi. Kapamaları bir yapı olarak düşünmek işi epey kolaylaştırıyor.</p>
+<p>Bir kapama çağırmak aslında <em>metot çağrısıdır</em>: Üç tip fonksiyon özelliği (trait) üç tip metoda sahiptir:</p>
+<ul>
+<li><code>Fn</code>, <code>&amp;self</code> olarak geçer.</li>
+<li><code>FnMut</code>, <code>&amp;mut self</code> olarak geçer.</li>
+<li><code>FnOnce</code> ise sadece <code>self</code> olarak geçer.</li>
+</ul>
+<p>Bir kapama içerisinde <em>yakalanmış referansları</em> düzenlemek de mümkündür.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>   fn mutate&lt;F&gt;(mut f: F)
+   where F: FnMut() {
+       f()
+   }
+   let mut s = &quot;world&quot;;
+   mutate(|| s = &quot;hello&quot;);
+   assert_eq!(s, &quot;hello&quot;);
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>mut</code>'a dikkat edin - <code>f</code>'in değişebilir olması gerekiyor.</p>
+<p>Yine de, ödünç alma ile ilgili kurallardan kaçınamazsınız. Şuna bakın:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let mut s = &quot;world&quot;;
+
+// closure does a mutable borrow of s
+let mut changer = || s = &quot;world&quot;;
+
+changer();
+// does an immutable borrow of s
+assert_eq!(s, &quot;world&quot;);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Çalışamaz! Çünkü <code>s</code>'i <code>assert</code> deyiminde ödünç alamıyoruz, çünkü daha önce <code>changer</code> kapamasında değişken olarak ödünç almıştır. Kapama düşürülmediği sürece <code>s</code>'e hiç kimse erişemez, bundan dolayı iç bir kapsam alanı içerisinde kullanarak yaşam süresini kontrol etmek en iyi çözümdür.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let mut s = &quot;world&quot;;
+{
+    let mut changer = || s = &quot;world&quot;;
+    changer();
+}
+assert_eq!(s, &quot;world&quot;);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Eğer Lua ve JavaScript gibi dillere aşinaysanız, bu dillerde basit olmasına karşın Rust'ta kapamaların bu denli karmaşık olduğunu merak ediyor olabilirsiniz. Bu, Rust'ın gizlice bellek tahsis etmemesi için gerekli bir bedeldir. JavaScript'te, <code>mutate(function() {s = &quot;hello&quot;;})</code> gibi bir ifadenin karşılığı her zaman dinamik bellek tahsis edilmiş kapamadır. </p>
+<p>Bazen kapamaların verileri ödünç almasını değil direkt taşımasını isteyebilirsiniz.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let name = &quot;dolly&quot;.to_string();
+    let age = 42;
+
+    let c = move || {
+        println!(&quot;name {} age {}&quot;, name,age);
+    };
+
+    c();
+
+    println!(&quot;name {}&quot;,name);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Burada alacağımız hata son <code>println</code>'dadır: &quot;taşınmış verinin kullanımı: <code>name</code> (use of moved value: <code>name</code>)&quot;. Burada tek bir çözüm var, kapamanın içine veriyi taşımak: </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let cname = name.to_string();
+    let c = move || {
+        println!(&quot;name {} age {}&quot;,cname,age);
+    };
+<span class="boring">}
+</span></code></pre></pre>
+<p>Neden taşıyan kapamalara ihtiyacımız var? Çünkü orijinal verinin erişilemeyeceği bir durumda onları çağırmamız gerekebilir. En basit örneği <em>iş parçacıklarıdır.</em> Taşıyan kapamalar ödünç almaz, bundan dolayı yaşam süresi açısından hiçbir sorunları olmaz.</p>
+<p>Kapamaların esas kullanımı döngüleyici metotlarıdır. Noktalı sayılar için hazırladığımız <code>range</code> döngüleyicisini hatırlayın. Kapama kullanarak bu döngüleyici (veya başka döngüleyiciler) üzerinde işlem yapmak gayet kolay:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let sine: Vec&lt;f64&gt; = range(0.0,1.0,0.1).map(|x| x.sin()).collect();
+<span class="boring">}
+</span></code></pre></pre>
+<p><code>map</code> vektörler üzerinde tanımlanmadı (Bunu kullanan bir özellik (trait) yaratmak oldukça kolay olmasına rağmen) çünkü <code>map</code>'ın yeni bir vektör yaratması gerekirdi. Bu şekilde elimizde seçeneklerimiz oluyor. Üstelik, geçici hiçbir öğe yaratılmış olmuyor:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span> let sum: f64 = range(0.0,1.0,0.1).map(|x| x.sin()).sum();
+<span class="boring">}
+</span></code></pre></pre>
+<p>Tıpkı bir döngü yazmak kadar kadar hızlı. Eğer Rust kapamaları JavaScript kapamaları kadar &quot;acısız&quot; olsaydı bu performansı garanti edemezdik.</p>
+<p><code>filter</code> da ayrıca bir iterator metotudur - geriye sadece koşullara uyanlar kalır:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let tuples = [(10,&quot;ten&quot;),(20,&quot;twenty&quot;),(30,&quot;thirty&quot;),(40,&quot;forty&quot;)];
+    let iter = tuples.iter().filter(|t| t.0 &gt; 20).map(|t| t.1);
+
+    for name in iter {
+        println!(&quot;{} &quot;, name);
+    }
+    // thirty
+    // forty
+<span class="boring">}
+</span></code></pre></pre>
+<h1 id="Üç-tarz-ı-döngüleyici"><a class="header" href="#Üç-tarz-ı-döngüleyici">Üç Tarz-ı Döngüleyici</a></h1>
+<p>Üç farklı çeşit (yine) üç basit argüman tipine denk düşüyor. Bir <code>String</code> vektörümüz olduğunu düşünelim. Bunlar bizim döngüleyici tiplerimiz, ilk üçü aleni bir şekilde sonraki üçü de gizil bir şekilde belirtilmiştir. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>for s in vec.iter() {...} // &amp;String
+for s in vec.iter_mut() {...} // &amp;mut String
+for s in vec.into_iter() {...} // String
+
+// implicit!
+for s in &amp;vec {...} // &amp;String
+for s in &amp;mut vec {...} // &amp;mut String
+for s in vec {...} // String
+<span class="boring">}
+</span></code></pre></pre>
+<p>Şahsen ben aleni bir şekilde ifade etmeyi tercih ediyorum, ancak iki formu da anlamak ve nasıl kullanıldığını bilmek önemlidir. </p>
+<p><code>into_iter</code> vektörü tüketir ve içeriğindeki karakter dizilerini çıkartır, ve ardından artık vektör kullanılamaz - artık taşınmış olur. Pythonistalar alışkanlıktan <code>for s in vec</code> dediği zaman başlarına bu gelir.</p>
+<p><code>for s in &amp;vec</code> şeklindeki gizil form muhtemelen kullanmak isteyeceğiniz şekildir, tıpkı fonksiyon argümanlarında <code>&amp;T</code> kullanmak gibi.</p>
+<p>Üç çeşidi de anlamak önemlidir çünkü Rust tip tahminlerini epeyce kullanır - kapama argümanlarında tip bildirimlerini pek görmezsiniz. Bu iyi bir şey çünkü bu tiplerin hepsi yazılsaydı kafa şişirici olurdu. Ancak, bu ufak kodun bedeli gizil tiplerin ne olduğunu net olarak bilmenizin gerekmesidir!</p>
+<p><code>map</code> döngüleyicinin değerini ne olursa olsun alır ve onu başka bir şeye dönüştürür, ancak <code>filter</code> veriye bir <em>referans</em> alır. Aşağıda, <code>iter</code> kullanıyoruz ve bundan dolayı döngüleyici tipi <code>&amp;String</code>tir. <code>filter</code>'ın her veriyi referansını aldığını gözden kaçırmayın:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>for n in vec.iter().map(|x: &amp;String| x.len()) {...} // n is usize
+....
+}
+
+for s in vec.iter().filter(|x: &amp;&amp;String| x.len() &gt; 2) { // s is &amp;String
+...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Metotları çağırdığınız zaman Rust kendiliğinden dereferans eder, ondan dolayı sorunu pek anlamazsınız. Ancak <code>|x: &amp;&amp;String| x == &quot;one&quot;</code> çalışmayacaktır çünkü operatörler tip eşleştirmesinden daha katıdır. <code>rustc</code>, <code>&amp;str</code> ve <code>&amp;&amp;String</code>'i kıyaslayacak bir operatör olmadığını bildirecektir. Bundan dolayı eşleşme yapabilmek için <code>&amp;&amp;String</code>'i <code>&amp;String</code>e çevirmek için dereferans etmeniz gerekecektir.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>for s in vec.iter().filter(|x: &amp;&amp;String| *x == &quot;one&quot;) {...}
+// same as implicit form:
+for s in vec.iter().filter(|x| *x == &quot;one&quot;) {...}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Eğer tipleri bildirmeyi bırakırsanız, argümanı şu şekilde düzeltebilirsiniz ki bu sefer s'in tipi <code>&amp;String</code> olur.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>for s in vec.iter().filter(|&amp;x| x == &quot;one&quot;)
+<span class="boring">}
+</span></code></pre></pre>
+<p>Ve çoğu zaman bu şekilde yazıldığını görürsünüz.</p>
+<h1 id="dinamik-verili-yapılar"><a class="header" href="#dinamik-verili-yapılar">Dinamik Verili Yapılar</a></h1>
+<p><em>Kendisine refereans barındıran yapı</em> tekniği çok güçlü bir tekniktir.</p>
+<p>Aşağıda C ile yazılmış bir <em>ikili ağacın</em> temel tuğlasını görüyorsunuz. (C... Âdeta Beyoğlu'nun arka sokakları gibi... &quot;Acaba başıma ne gelecek?&quot; demeden dolaştığınız tarihî sokaklarda nefes kesici bir gezi...)</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    struct Node {
+        const char *payload;
+        struct Node *left;
+        struct Node *right;
+    };
+<span class="boring">}
+</span></code></pre></pre>
+<p>Bunu doğrudan <code>Node</code> alanlarını içererek yapamazsınız çünkü <code>Node</code>'un büyüklüğü yine <code>Node</code>'a dayanır. Ki bu hesaplanamaz. Bundan dolayı <code>Node</code> yapılarının göstericilerini (pointer) kullanıyoruz, ki göstericinin boyutu her zaman kestirilebilir.</p>
+<p>Eğer <code>left</code>, <code>NULL</code> değilse <code>Node</code>'un <code>left</code> tarafı bir başka <code>Node</code> gösteriyordur ve bu böyle sonsuza kadar gidebilir.</p>
+<p>Rust'ta <code>NULL</code> yoktur (en azından bu güvensiz hâliyle yok), bu <code>Option</code>'un işidir. Ancak <code>Node</code>'u doğrudan <code>Option</code> içerisine ekleyemezsiniz çünkü <code>Node</code>'un boyutunu bilemezsiniz. (gibi gibi) Bu da <code>Box</code>'un işidir, kendisinin sabit bir boyutu vardır ancak bellekte alanı tahsis edilmiş veriyi işaret eder. </p>
+<p>İşte Rust'taki karşılığına bakalım, <code>type</code> ile tipimize bir takma ad verdik:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>type NodeBox = Option&lt;Box&lt;Node&gt;&gt;;
+
+#[derive(Debug)]
+struct Node {
+    payload: String,
+    left: NodeBox,
+    right: NodeBox
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>(Rust işte böyle kalender meşreptir, ileriye dönük bildirimlere ihtiyacınız yoktur.)</p>
+<p>Şimdi bunu test edelim:</p>
+<pre><pre class="playground"><code class="language-rust">impl Node {
+    fn new(s: &amp;str) -&gt; Node {
+        Node{payload: s.to_string(), left: None, right: None}
+    }
+
+    fn boxer(node: Node) -&gt; NodeBox {
+        Some(Box::new(node))
+    }
+
+    fn set_left(&amp;mut self, node: Node) {
+        self.left = Self::boxer(node);
+    }
+
+    fn set_right(&amp;mut self, node: Node) {
+        self.right = Self::boxer(node);
+    }
+
+}
+
+
+fn main() {
+    let mut root = Node::new(&quot;root&quot;);
+    root.set_left(Node::new(&quot;left&quot;));
+    root.set_right(Node::new(&quot;right&quot;));
+
+    println!(&quot;arr {:#?}&quot;, root);
+}
+</code></pre></pre>
+<p>Çıktı beklediğimizden çok daha iyi, &quot;{:#?}&quot; sağolsun. (&quot;#&quot; genişletilmiş demektir.)</p>
+<pre><code>root Node {
+    payload: &quot;root&quot;,
+    left: Some(
+        Node {
+            payload: &quot;left&quot;,
+            left: None,
+            right: None
+        }
+    ),
+    right: Some(
+        Node {
+            payload: &quot;right&quot;,
+            left: None,
+            right: None
+        }
+    )
+}
+</code></pre>
+<p>Peki ya <code>root</code> düşerse? Bütün alanlar da düşer, ağacın <code>dalları</code> düşerse kendi alanlarını da kaybolur ve böyle devam eder. <code>Box::new</code>, C++'daki <code>new</code> anahtar kelimesine en çok ulaşacağınız alandır ancak <code>delete</code> veyahut <code>free</code> gibi bir kelimeye ihtiyacınız yoktur.</p>
+<p>Bu ağacı kullanmak için bir yol bulmalıyız. Karakter dizilerinin sıralanabildiğine dikkat edin: &quot;hede&quot; &lt; &quot;hödö&quot;, &quot;ayı&quot; &gt; &quot;abi&quot;; sözde alfabetik sıralama olarak anılır. (Aslını söylemek gerekirse, insan dillerinin çeşitliliğinden ve tuhaf kurallarına istinaden buna sözlüksel sıralama denir.)</p>
+<p>Aşağıda <code>Node</code>ları sözlüksel sıralamaya göre yerleştiren bir metot görüyorsunuz. Veriyi mevcut <code>Node</code> ile kıyaslıyoruz - eğer küçükse soluna yerleştiriyoruz, değilse de sağına yerleştirmeye çalışıyoruz. Solda bir <code>Node</code> olmayabilir, bundan dolayı <code>set_left</code> kullanıyoruz.</p>
+<pre><pre class="playground"><code class="language-rust">    fn insert(&amp;mut self, data: &amp;str) {
+        if data &lt; &amp;self.payload {
+            match self.left {
+                Some(ref mut n) =&gt; n.insert(data),
+                None =&gt; self.set_left(Self::new(data)),
+            }
+        } else {
+            match self.right {
+                Some(ref mut n) =&gt; n.insert(data),
+                None =&gt; self.set_right(Self::new(data)),
+            }
+        }
+    }
+
+    ...
+    fn main() {
+        let mut root = Node::new(&quot;root&quot;);
+        root.insert(&quot;one&quot;);
+        root.insert(&quot;two&quot;);
+        root.insert(&quot;four&quot;);
+
+        println!(&quot;root {:#?}&quot;, root);
+    }
+</code></pre></pre>
+<p><code>match</code>'a dikkat edin - <code>Box</code> içerisinden değişken bir referans çıkartıyoruz, eğer <code>Option</code>'un içeriği <code>Some</code> ise <code>insert</code> kullanıyoruz. Değilse, sol tarafa yeni bir <code>Node</code> ekliyoruz ve böyle devam ediyoruz. <code>Box</code>, akıllı bir göstericidir; <code>Node</code> metotlarını çağırmak için &quot;kutudan çıkarmamıza&quot; gerek yok!</p>
+<p>İşte ağacımızın görüntüsü:</p>
+<pre><code>root Node {
+    payload: &quot;root&quot;,
+    left: Some(
+        Node {
+            payload: &quot;one&quot;,
+            left: Some(
+                Node {
+                    payload: &quot;four&quot;,
+                    left: None,
+                    right: None
+                }
+            ),
+            right: None
+        }
+    ),
+    right: Some(
+        Node {
+            payload: &quot;two&quot;,
+            left: None,
+            right: None
+        }
+    )
+}
+</code></pre>
+<p>Diğerlerinden daha &quot;küçük&quot; olan karakter dizileri sol eklenir, aksi durumda ise sağa eklenirler.</p>
+<p>Şimdi gezinti zamanı. Bu <em>iç-sıralı gezinmedir. (inorder traversal)</em> - önce solu ziyaret ediyoruz, bir şeyler yapıyoruz ve sonra da sağa geçiyoruz.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    fn visit(&amp;self) {
+        if let Some(ref left) = self.left {
+            left.visit();
+        }
+        println!(&quot;'{}'&quot;, self.payload);
+        if let Some(ref right) = self.right {
+            right.visit();
+        }
+    }
+    ...
+    ...
+    root.visit();
+    // 'four'
+    // 'one'
+    // 'root'
+    // 'two'
+<span class="boring">}
+</span></code></pre></pre>
+<p>Karakter dizilerini bir sıralamaya göre geziyoruz! <code>ref</code>'in <code>if let</code> için kullanıldığına dikkat edin, <code>match</code> ile aynı kurallara sahiptir.</p>
+<h1 id="genellenen-yapılar"><a class="header" href="#genellenen-yapılar">Genellenen Yapılar</a></h1>
+<p>Önceki örneğimizde kullandığımız ikili ağaç yapısını düşünün. Bütün <code>payload</code> tipleri için yeniden yazmak epey <em>çıldırtıcı</em> olurdu doğrusu. <code>T</code> tip parametresiyle <code>Node</code>'u yeniden jenerik şekilde yazıyoruz.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>type NodeBox&lt;T&gt; = Option&lt;Box&lt;Node&lt;T&gt;&gt;&gt;;
+
+#[derive(Debug)]
+struct Node&lt;T&gt; {
+    payload: T,
+    left: NodeBox&lt;T&gt;,
+    right: NodeBox&lt;T&gt;
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Bu kullanım diller arasındaki farkları da belli ediyor. <code>Payload</code> üzerindeki temel işlem karşılaştırmadır, bundan dolayı T ile <code>&lt;</code> kullanılabilmelidir ki <code>PartialOrd</code> bunu sağlar. Tip parametresi <code>impl</code> bloğu içerisinde özellik kısıtlamasıyla birlikte yazılmalıdır.</p>
+<pre><pre class="playground"><code class="language-rust">impl &lt;T: PartialOrd&gt; Node&lt;T&gt; {
+    fn new(s: T) -&gt; Node&lt;T&gt; {
+        Node{payload: s, left: None, right: None}
+    }
+
+    fn boxer(node: Node&lt;T&gt;) -&gt; NodeBox&lt;T&gt; {
+        Some(Box::new(node))
+    }
+
+    fn set_left(&amp;mut self, node: Node&lt;T&gt;) {
+        self.left = Self::boxer(node);
+    }
+
+    fn set_right(&amp;mut self, node: Node&lt;T&gt;) {
+        self.right = Self::boxer(node);
+    }
+
+    fn insert(&amp;mut self, data: T) {
+        if data &lt; self.payload {
+            match self.left {
+                Some(ref mut n) =&gt; n.insert(data),
+                None =&gt; self.set_left(Self::new(data)),
+            }
+        } else {
+            match self.right {
+                Some(ref mut n) =&gt; n.insert(data),
+                None =&gt; self.set_right(Self::new(data)),
+            }
+        }
+    }
+}
+
+
+fn main() {
+    let mut root = Node::new(&quot;root&quot;.to_string());
+    root.insert(&quot;one&quot;.to_string());
+    root.insert(&quot;two&quot;.to_string());
+    root.insert(&quot;four&quot;.to_string());
+
+    println!(&quot;root {:#?}&quot;, root);
+}
+</code></pre></pre>
+<p>Tıpkı C++ gibi genellenen yapımız tip parametrelerinin köşeli ayraçlarla gösterilmesine ihtiyaç duyar. Rust genellikle bu tür tip parametresini bağlamdan tahmin edebilecek kadar zekidir - Bunun <code>Node&lt;T&gt;</code> olduğunu biliyor ve <code>T</code> üzerinde <code>insert</code> kullanıyor. İlk <code>insert</code> tasarısı sadece <code>String</code> ile takılıp kalmıştı. Ancak yeni kullanım uymuyorsa muhtemelen bir şekilde bunu bildirecektir.</p>
+<p>Ancak, tipi uygun biçimde kısıtlamanız gerektiğine dikkat edin.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="1-basics.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="3-filesystem.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="1-basics.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="3-filesystem.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>
